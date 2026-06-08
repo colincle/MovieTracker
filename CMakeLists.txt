@@ -8,7 +8,7 @@ set(CMAKE_AUTOUIC ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Concurrent)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Concurrent Svg)
 
 include_directories(
 	include
@@ -38,4 +38,5 @@ target_link_libraries(MovieTracker
 	Qt6::Widgets
 	Qt6::Network
 	Qt6::Concurrent
+	Qt6::Svg
 )

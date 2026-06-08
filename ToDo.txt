@@ -1,0 +1,2 @@
+- command Q quit
+- command w quit
