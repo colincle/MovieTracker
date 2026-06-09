@@ -33,9 +33,9 @@ TopBar::TopBar(QWidget *parent)
     layout->addStretch();
 
     // RIGHT GROUP (direct, no QWidget wrapper)
-    sortButton = new IconButton(SORT_ICON, buttonsHeight, this);
-    rankButton = new IconButton(RANK_ICON, buttonsHeight, this);
-    addButton  = new IconButton(ADD_ICON, buttonsHeight, this);
+    sortButton = new IconButton(SORT_ICON, buttonsHeight, COLOR_ACCENT, COLOR_SURFACE, this);
+    rankButton = new IconButton(RANK_ICON, buttonsHeight, COLOR_ACCENT, COLOR_SURFACE, this);
+    addButton  = new IconButton(ADD_ICON, buttonsHeight, COLOR_ACCENT, COLOR_SURFACE, this);
 
     layout->addWidget(sortButton);
     layout->addWidget(rankButton);

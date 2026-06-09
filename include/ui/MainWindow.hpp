@@ -2,7 +2,8 @@
 
 #include "TopBar.hpp"
 #include "AddBar.hpp"
-#include "AppUtils.hpp"
+#include "AppStorage.hpp"
+#include "SearchResults.hpp"
 
 #include <QMainWindow>
 
@@ -12,9 +13,10 @@ public:
     MainWindow(QWidget *parent = nullptr);
 
 private:
-    AppUtils appUtils;
+    AppStorage appStorage;
     TopBar *topBar;
     AddBar *addBar;
+    SearchResults *searchResults;
 
     void setupMenuBar();
     void connectMainWindow();

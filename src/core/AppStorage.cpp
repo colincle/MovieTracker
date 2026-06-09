@@ -1,4 +1,4 @@
-#include "AppUtils.hpp"
+#include "AppStorage.hpp"
 
 #include <QDir>
 #include <QFile>
@@ -9,7 +9,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-AppUtils::AppUtils()
+AppStorage::AppStorage()
 {
     QString dirPath = QDir::homePath() + "/.local/share/movieTracker";
     QString filePath = dirPath + "/movieTracker.json";
@@ -33,7 +33,7 @@ AppUtils::AppUtils()
     load();
 }
 
-void AppUtils::load()
+void AppStorage::load()
 {
     QFile file(appFilePath);
 
@@ -78,7 +78,7 @@ void AppUtils::load()
     }
 }
 
-void AppUtils::setOmdbApiKey(QString key)
+void AppStorage::setOmdbApiKey(QString key)
 {
     omdbApiKey = key;
 

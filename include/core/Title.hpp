@@ -25,7 +25,6 @@ struct Title
     // Series-specific (empty for movies)
     QString totalSeasons;
 
-    // Utility helpers
     bool isMovie;
     bool isSeries;
 };

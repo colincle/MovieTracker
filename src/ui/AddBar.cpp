@@ -44,7 +44,7 @@ AddBar::AddBar(QWidget *parent)
         "    selection-color: white;"
         "}"
     );
-    returnButton = new IconButton(CROSS_ICON, buttonsHeight, this);
+    returnButton = new IconButton(CROSS_ICON, buttonsHeight, COLOR_ACCENT, COLOR_SURFACE, this);
 
     layout->addWidget(searchBar, 1);
     layout->addWidget(returnButton);

@@ -5,10 +5,10 @@
 #include <vector>
 #include <QString>
 
-class AppUtils
+class AppStorage
 {
 public:
-    AppUtils();
+    AppStorage();
     void setOmdbApiKey(QString key);
 
     QString getKey() {return omdbApiKey;}
