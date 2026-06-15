@@ -1,7 +1,0 @@
-- Create main library view and connect it to the titles updated signal
-- Backup feature
-- upload poster for those not found
-- check for new seasons
-- add title page
-- nitifications
-- show names on title card if no poster was found
