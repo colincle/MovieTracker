@@ -2,6 +2,7 @@
 
 #include "AppStorage.hpp"
 #include "AddBar.hpp"
+#include "AppMenuBar.hpp"
 #include "LibraryView.hpp"
 #include "SearchResults.hpp"
 #include "TopBar.hpp"
@@ -19,6 +20,7 @@ public:
 
 private:
 	AppStorage appStorage;
+	AppMenuBar *appMenuBar;
 	ErrorCard *errorCard;
 	TopBar *topBar;
 	AddBar *addBar;
@@ -28,14 +30,11 @@ private:
 	QWidget *makeSeasonOverlay();
 	void setupLayout();
 	void setupErrorCard();
-	void setupShortcuts();
 	void setupMenuBar();
+	void setupShortcuts();
 	void connectSignals();
 	void runSeasonUpdate();
 
 	void enterAddMode();
 	void enterNormalMode();
-
-private slots:
-	void onSetApiKeyTriggered();
 };

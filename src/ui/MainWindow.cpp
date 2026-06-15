@@ -1,4 +1,5 @@
 #include "MainWindow.hpp"
+#include "AppMenuBar.hpp"
 #include "TopBar.hpp"
 #include "SeasonUpdate.hpp"
 #include "Spinner.hpp"
@@ -9,9 +10,7 @@
 #include <QElapsedTimer>
 #include <QEventLoop>
 #include <QFutureWatcher>
-#include <QInputDialog>
 #include <QLabel>
-#include <QMenuBar>
 #include <QShortcut>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -62,7 +61,7 @@ void MainWindow::setupLayout()
 
 void MainWindow::setupErrorCard()
 {
-	errorCard = new ErrorCard(this, "API key error — go to Omdb API key menu to set your key.");
+	errorCard = new ErrorCard(this, "API key error — go to \"Library\" -> \"Set API Key\" to set your key.");
 
 	const int x = topBar->width() / ERROR_CARD_X_RATIO;
 	const int y = (topBar->height() - errorCard->height()) / 2;
@@ -154,32 +153,8 @@ void MainWindow::setupShortcuts()
 
 void MainWindow::setupMenuBar()
 {
-	auto *menuBar = new QMenuBar(this);
-	auto *fileMenu = menuBar->addMenu("Omdb API key");
-	auto *setKey = new QAction("Set API Key", this);
-
-	fileMenu->addAction(setKey);
-	setMenuBar(menuBar);
-
-	connect(setKey, &QAction::triggered, this, &MainWindow::onSetApiKeyTriggered);
-}
-
-void MainWindow::onSetApiKeyTriggered()
-{
-	bool ok = false;
-	QString key = QInputDialog::getText(
-	                  this,
-	                  "OMDb API Key",
-	                  "Enter your API key:",
-	                  QLineEdit::Normal,
-	                  "",
-	                  &ok
-	              );
-
-	if(ok && !key.isEmpty())
-	{
-		appStorage.setOmdbApiKey(key);
-	}
+	appMenuBar = new AppMenuBar(appStorage, this);
+	setMenuBar(appMenuBar);
 }
 
 void MainWindow::enterAddMode()

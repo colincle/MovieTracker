@@ -18,6 +18,8 @@ public:
 	void addTitle(const Title &title, const QPixmap &posterImage);
 	void deleteTitle(const QString &imdbId);
 	void toggleViewed(const QString &imdbId);
+	bool importFrom(const QString &zipPath);
+	bool exportTo(const QString &zipPath);
 
 	bool contains(const QString &imdbId) const;
 

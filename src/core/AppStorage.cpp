@@ -8,6 +8,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QProcess>
 
 static QString appDirPath()
 {
@@ -201,6 +202,30 @@ void AppStorage::save()
 	root["titles"] = arr;
 
 	writeJsonFile(appFilePath, root);
+}
+
+bool AppStorage::exportTo(const QString &zipPath)
+{
+	QProcess process;
+	process.setWorkingDirectory(QDir::homePath() + "/.local/share");
+	process.start("zip", { "-r", zipPath, "movieTracker" });
+	return process.waitForFinished(10000) && process.exitCode() == 0;
+}
+
+bool AppStorage::importFrom(const QString &zipPath)
+{
+	QProcess process;
+	process.setWorkingDirectory(QDir::homePath() + "/.local/share");
+	process.start("unzip", { "-o", zipPath, "-d", "." });
+
+	if(!process.waitForFinished(10000) || process.exitCode() != 0)
+	{
+		return false;
+	}
+
+	load();
+	emit titlesUpdated();
+	return true;
 }
 
 void AppStorage::setOmdbApiKey(QString key)
