@@ -2,7 +2,7 @@
 
 A desktop app to track your movies and TV shows. Built with C++ and Qt6.
 
-![Screenshot](screenshots/MovieTrackerLibrary.png)
+![screenshot](screenshots/MovieTrackerLibrary.png)
 
 ---
 
