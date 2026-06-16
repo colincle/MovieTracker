@@ -39,4 +39,5 @@ private:
 
 signals:
 	void titlesUpdated();
+	void saveFailed();
 };

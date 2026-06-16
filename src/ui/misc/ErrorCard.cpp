@@ -26,7 +26,7 @@ ErrorCard::ErrorCard(QWidget *parent, const QString &message)
 	layout->setContentsMargins(CARD_PADDING_LEFT, 0, CARD_PADDING_RIGHT, 0);
 	layout->setSpacing(CARD_SPACING);
 
-	auto *label = new QLabel(message, this);
+	label = new QLabel(message, this);
 	label->setStyleSheet("color: white; border: none; background: transparent; font-size: 13px;");
 	label->setWordWrap(true);
 
@@ -45,4 +45,9 @@ void ErrorCard::show()
 {
 	QWidget::show();
 	raise();
+}
+
+void ErrorCard::setMessage(const QString &message)
+{
+	label->setText(message);
 }

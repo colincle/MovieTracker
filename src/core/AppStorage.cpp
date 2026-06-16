@@ -202,7 +202,10 @@ void AppStorage::save()
 	root["omdbApiKey"] = omdbApiKey;
 	root["titles"] = arr;
 
-	writeJsonFile(appFilePath, root);
+	if(!writeJsonFile(appFilePath, root))
+	{
+		emit saveFailed();
+	}
 }
 
 bool AppStorage::exportTo(const QString &zipPath)

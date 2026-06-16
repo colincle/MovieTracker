@@ -66,6 +66,12 @@ void MainWindow::setupErrorCard()
 	const int x = topBar->width() / ERROR_CARD_X_RATIO;
 	const int y = (topBar->height() - errorCard->height()) / 2;
 	errorCard->move(x, y);
+
+	connect(&appStorage, &AppStorage::saveFailed, this, [this]()
+	{
+		errorCard->setMessage("Failed to save your library — check disk space and permissions.");
+		errorCard->show();
+	});
 }
 
 void MainWindow::runSeasonUpdate()
