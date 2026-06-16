@@ -18,15 +18,16 @@
 // -----------------------------------------------------------------------------
 
 // Icons
-#define ADD_ICON         ASSETS_ROOT "/icons/add.svg"
-#define ADDED_ICON       ASSETS_ROOT "/icons/added.svg"
-#define SEARCH_ICON      ASSETS_ROOT "/icons/search.svg"
-#define RANK_ICON        ASSETS_ROOT "/icons/rank.svg"
-#define SORT_ICON        ASSETS_ROOT "/icons/sort.svg"
-#define CROSS_ICON       ASSETS_ROOT "/icons/cross.svg"
-#define DELETE_ICON      ASSETS_ROOT "/icons/delete.svg"
-#define VIEWED_ICON      ASSETS_ROOT "/icons/viewed.svg"
-#define NOT_VIEWED_ICON  ASSETS_ROOT "/icons/notViewed.svg"
+#define ADD_ICON            ASSETS_ROOT "/icons/add.svg"
+#define ADDED_ICON          ASSETS_ROOT "/icons/added.svg"
+#define SEARCH_ICON         ASSETS_ROOT "/icons/search.svg"
+#define RANK_ICON           ASSETS_ROOT "/icons/rank.svg"
+#define SORT_ICON           ASSETS_ROOT "/icons/sort.svg"
+#define CROSS_ICON          ASSETS_ROOT "/icons/cross.svg"
+#define DELETE_ICON         ASSETS_ROOT "/icons/delete.svg"
+#define VIEWED_ICON         ASSETS_ROOT "/icons/viewed.svg"
+#define NOT_VIEWED_ICON     ASSETS_ROOT "/icons/notViewed.svg"
+#define IMAGE_UPLOAD_ICON   ASSETS_ROOT "/icons/imageUpload.svg"
 
 // Images
 #define POSTER_PLACEHOLDER  ASSETS_ROOT "/images/placeholderPoster.png"

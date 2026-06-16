@@ -3,6 +3,7 @@
 #include "TopBar.hpp"
 #include "Spinner.hpp"
 #include "ErrorCard.hpp"
+#include "ErrorMessages.hpp"
 #include "ColorPalette.hpp"
 
 #include <QApplication>
@@ -56,7 +57,7 @@ void MainWindow::setupLayout()
 
 void MainWindow::setupErrorCard()
 {
-	errorCard = new ErrorCard(this, "API key error — go to \"Library\" -> \"Set API Key\" to set your key.");
+	errorCard = new ErrorCard(this, API_KEY_ERROR_MESSAGE);
 
 	errorCard->move(ERROR_CARD_MARGIN, topBar->height() + ERROR_CARD_MARGIN);
 
@@ -84,7 +85,7 @@ void MainWindow::setupSeasonUpdateController()
 		seasonOverlay = nullptr;
 	});
 
-	connect(seasonUpdateController, &SeasonUpdateController::updateFailed, this, [this](const QString &message)
+	connect(seasonUpdateController, &SeasonUpdateController::updateFailed, this, [this](const QString & message)
 	{
 		errorCard->setMessage(message);
 		errorCard->show();
@@ -153,7 +154,7 @@ void MainWindow::connectSignals()
 	connect(topBar, &TopBar::requestTab, libraryView, &LibraryView::applyTab);
 	connect(addBar, &AddBar::searchRequested, searchResults, &SearchResults::search);
 
-	connect(searchResults, &SearchResults::searchError, this, [this](const QString &message)
+	connect(searchResults, &SearchResults::searchError, this, [this](const QString & message)
 	{
 		errorCard->setMessage(message);
 		errorCard->show();

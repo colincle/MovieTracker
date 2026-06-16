@@ -121,7 +121,8 @@ void LibraryView::populate()
 	const int cols = computeColumns();
 	const int spacing = computeSpacing();
 
-	cardsLayout->setSpacing(spacing);
+	cardsLayout->setHorizontalSpacing(spacing);
+	cardsLayout->setVerticalSpacing(CARD_SPACING);
 	cardsLayout->setContentsMargins(spacing, 0, spacing, 0);
 
 	int col = 0;

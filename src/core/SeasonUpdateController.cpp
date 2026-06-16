@@ -1,4 +1,5 @@
 #include "SeasonUpdateController.hpp"
+#include "ErrorMessages.hpp"
 #include "SeasonUpdate.hpp"
 
 #include <QElapsedTimer>
@@ -10,8 +11,6 @@
 static constexpr int SEASON_RETRY_INTERVAL_MS = 5000;
 static constexpr int MIN_DISPLAY_MS = 1000;
 
-static const QString API_KEY_ERROR_MESSAGE =
-    "Invalid or missing API key — go to \"Library\" -> \"Set API Key\" to set your key.";
 static const QString NETWORK_ERROR_MESSAGE =
     "Couldn't check for new seasons — check your internet connection.";
 

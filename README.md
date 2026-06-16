@@ -9,7 +9,8 @@ A desktop app to track your movies and TV shows. Built with C++ and Qt6.
 ## Features
 
 - **Library** — Browse your movies and TV shows in a poster grid, sortable by title, release date, last viewed, or rank.
-- **Search & add** — Search the OMDb database by title and add results to your library in one click.
+- **Search & add** — Search the OMDb database by title and add results to your library in one click. Results are limited to movies and TV shows (other OMDb entry types, like video games, are filtered out).
+- **Missing poster recovery** — If OMDb has no poster for a title, the library card shows an upload button so you can pick a local image to use instead.
 - **Watched tracking** — Mark titles as watched or unwatched. Filter the library to show only titles left to watch.
 - **Season updates** — On launch, the app checks OMDb for new seasons on your tracked TV shows (every 14 days). Shows with a new season are automatically reset to unwatched.
 - **Export / Import** — Back up your full library (titles, posters, API key) as a zip file and restore it on any machine.
@@ -61,13 +62,13 @@ On first launch, go to **Omdb API key → Set API Key** in the menu bar and ente
 The app stores your library at:
 
 ```
-~/.local/share/movieTracker/movieTracker.json
+~/Library/Application Support/MovieTracker/movieTracker.json
 ```
 
 Poster images are saved alongside it in:
 
 ```
-~/.local/share/movieTracker/Posters/
+~/Library/Application Support/MovieTracker/Posters/
 ```
 
 ---

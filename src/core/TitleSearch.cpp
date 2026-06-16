@@ -54,10 +54,11 @@ std::vector<Title> scoreAndRankTitles(const std::vector<Title> &titles, const QS
 		{
 			scored.emplace_back(score, t);
 		}
-		else if(titleLevenshteinMatches(t, query))
-		{
-			scored.emplace_back(1, t);
-		}
+		else
+			if(titleLevenshteinMatches(t, query))
+			{
+				scored.emplace_back(1, t);
+			}
 	}
 
 	std::sort(scored.begin(), scored.end(), [](const auto & a, const auto & b)

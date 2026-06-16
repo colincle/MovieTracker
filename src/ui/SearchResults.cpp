@@ -1,6 +1,7 @@
 #include "SearchResults.hpp"
 #include "AssetsPaths.hpp"
 #include "ColorPalette.hpp"
+#include "ErrorMessages.hpp"
 #include "IconButton.hpp"
 #include "OmdbSearch.hpp"
 #include "Spinner.hpp"
@@ -80,7 +81,7 @@ void SearchResults::onSearchFinished(OmdbSearch *omdbSearch)
 		clearExtraLayoutWidgets();
 
 		emit searchError(r.errorType == SearchErrorType::AuthInvalid
-		                 ? "Invalid or missing API key — go to \"Library\" -> \"Set API Key\" to set your key."
+		                 ? API_KEY_ERROR_MESSAGE
 		                 : "Couldn't reach OMDb — check your internet connection.");
 
 		omdbSearch->deleteLater();
@@ -181,7 +182,7 @@ IconButton *SearchResults::makeAddButton(const resultTitle &title, QWidget *row)
 }
 
 void SearchResults::restoreRowButton(QWidget *row, Spinner *rowSpinner, IconButton *oldAddButton,
-                                      IconButton *replacement)
+                                     IconButton *replacement)
 {
 	qobject_cast<QHBoxLayout *>(row->layout())->replaceWidget(rowSpinner, replacement);
 	rowSpinner->deleteLater();
@@ -213,7 +214,7 @@ void SearchResults::onAddClicked(const resultTitle &title, IconButton *addButton
 		fetch->deleteLater();
 	});
 
-	fetch->fetchById(title.imdbId, title.posterImage);
+	fetch->fetchById(title.imdbId, title.posterImage, title.posterNotFound);
 }
 
 void SearchResults::setFullPageState(const QString &imagePath)

@@ -19,6 +19,7 @@ struct resultTitle
 	QString type;
 	QString poster;
 	QPixmap posterImage;
+	bool posterNotFound = false;
 };
 
 enum class SearchErrorType
@@ -45,7 +46,7 @@ public:
 	OmdbSearch(AppStorage &appStorage, QString apiKey, QObject *parent = nullptr);
 
 	void search();
-	void fetchById(const QString &imdbId, const QPixmap &posterImage);
+	void fetchById(const QString &imdbId, const QPixmap &posterImage, bool posterNotFound);
 	const results &getResults() const;
 
 	static QUrl makeUrl(const QString &apiKey, const QString &param, const QString &value);
@@ -71,9 +72,9 @@ private:
 
 	int pendingPosters = 0;
 
-	Title titleFromOmdbJson(const QJsonObject &root, const QPixmap &posterImage);
+	Title titleFromOmdbJson(const QJsonObject &root, const QPixmap &posterImage, bool posterNotFound);
 	void loadPosterForTitle(int i, const QString &posterUrl);
-	void onFetchByIdFinished(QNetworkReply *reply, const QPixmap &posterImage);
+	void onFetchByIdFinished(QNetworkReply *reply, const QPixmap &posterImage, bool posterNotFound);
 	void onPosterFinished(QNetworkReply *reply, int i);
 	void checkSearchComplete();
 };

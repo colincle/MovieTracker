@@ -17,4 +17,6 @@ public:
 
 private:
 	QLabel *label;
+
+	void updateHeight();
 };

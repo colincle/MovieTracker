@@ -10,6 +10,7 @@
 #include <QPixmap>
 #include <QUrl>
 #include <QUrlQuery>
+#include <utility>
 
 QUrl OmdbSearch::makeUrl(const QString &apiKey, const QString &param, const QString &value)
 {
@@ -54,17 +55,17 @@ void OmdbSearch::search()
 	connect(reply, &QNetworkReply::finished, this, &OmdbSearch::onReplyFinished);
 }
 
-void OmdbSearch::fetchById(const QString &imdbId, const QPixmap &posterImage)
+void OmdbSearch::fetchById(const QString &imdbId, const QPixmap &posterImage, bool posterNotFound)
 {
 	QNetworkReply *reply = networkManager.get(QNetworkRequest(makeUrl(apiKey, "i", imdbId)));
 
-	connect(reply, &QNetworkReply::finished, this, [this, reply, posterImage]()
+	connect(reply, &QNetworkReply::finished, this, [this, reply, posterImage, posterNotFound]()
 	{
-		onFetchByIdFinished(reply, posterImage);
+		onFetchByIdFinished(reply, posterImage, posterNotFound);
 	});
 }
 
-void OmdbSearch::onFetchByIdFinished(QNetworkReply *reply, const QPixmap &posterImage)
+void OmdbSearch::onFetchByIdFinished(QNetworkReply *reply, const QPixmap &posterImage, bool posterNotFound)
 {
 	if(reply->error() != QNetworkReply::NoError)
 	{
@@ -82,11 +83,11 @@ void OmdbSearch::onFetchByIdFinished(QNetworkReply *reply, const QPixmap &poster
 		return;
 	}
 
-	appStorage.addTitle(titleFromOmdbJson(root, posterImage), posterImage);
+	appStorage.addTitle(titleFromOmdbJson(root, posterImage, posterNotFound), posterImage);
 	emit titleFetched();
 }
 
-Title OmdbSearch::titleFromOmdbJson(const QJsonObject &root, const QPixmap &posterImage)
+Title OmdbSearch::titleFromOmdbJson(const QJsonObject &root, const QPixmap &posterImage, bool posterNotFound)
 {
 	Title t;
 
@@ -100,6 +101,7 @@ Title OmdbSearch::titleFromOmdbJson(const QJsonObject &root, const QPixmap &post
 	t.actors = root["Actors"].toString();
 	t.totalSeasons = root["totalSeasons"].toString();
 	t.posterImage = posterImage;
+	t.posterNotFound = posterNotFound;
 	t.isMovie = t.type == "movie";
 	t.isSeries = t.type == "series";
 
@@ -111,6 +113,7 @@ void OmdbSearch::loadPosterForTitle(int i, const QString &posterUrl)
 	if(posterUrl == "N/A")
 	{
 		searchResults.titles[i].posterImage.load(POSTER_PLACEHOLDER);
+		searchResults.titles[i].posterNotFound = true;
 		checkSearchComplete();
 		return;
 	}
@@ -130,6 +133,7 @@ void OmdbSearch::onPosterFinished(QNetworkReply *reply, int i)
 	if(reply->error() != QNetworkReply::NoError || !image.loadFromData(reply->readAll()))
 	{
 		image.load(POSTER_PLACEHOLDER);
+		searchResults.titles[i].posterNotFound = true;
 	}
 
 	reply->deleteLater();
@@ -160,8 +164,8 @@ static void classifyReplyError(QNetworkReply *reply, results &out)
 	const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 	out.error = reply->errorString();
 	out.errorType = (status == 401 || OmdbSearch::isAuthError(out.error))
-	                 ? SearchErrorType::AuthInvalid
-	                 : SearchErrorType::Network;
+	                ? SearchErrorType::AuthInvalid
+	                : SearchErrorType::Network;
 }
 
 static void classifyResponseError(const QJsonObject &root, results &out)
@@ -206,7 +210,12 @@ void OmdbSearch::onReplyFinished()
 
 	for(const QJsonValue &value : root["Search"].toArray())
 	{
-		searchResults.titles.push_back(resultTitleFromJson(value.toObject()));
+		resultTitle t = resultTitleFromJson(value.toObject());
+
+		if(t.type == "movie" || t.type == "series")
+		{
+			searchResults.titles.push_back(std::move(t));
+		}
 	}
 
 	pendingPosters = static_cast<int>(searchResults.titles.size());

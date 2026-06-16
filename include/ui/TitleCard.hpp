@@ -27,9 +27,11 @@ private:
 	AppStorage &appStorage;
 
 	QLabel *posterLabel;
+	QLabel *titleLabel;
 	IconButton *notViewedButton;
 	IconButton *viewedButton;
 	IconButton *deleteButton;
+	IconButton *uploadPosterButton;
 
 	void setupUi();
 	void connectButtons();
@@ -39,4 +41,5 @@ private:
 	void onViewedClicked();
 	void onNotViewedClicked();
 	void onDeleteClicked();
+	void onUploadPosterClicked();
 };

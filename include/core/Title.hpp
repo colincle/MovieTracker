@@ -20,6 +20,7 @@ struct Title
 	QString totalSeasons;
 
 	QPixmap posterImage;
+	bool posterNotFound = false;
 
 	bool isMovie = false;
 	bool isSeries = false;

@@ -2,14 +2,50 @@
 #include "AssetsPaths.hpp"
 #include "ColorPalette.hpp"
 
+#include <QDir>
+#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QMouseEvent>
 #include <QVBoxLayout>
 
 static constexpr int CARD_WIDTH = 160;
-static constexpr int CARD_HEIGHT = 240;
+static constexpr int POSTER_HEIGHT = 240;
+static constexpr int TITLE_LABEL_HEIGHT = 34;
+static constexpr int CARD_HEIGHT = POSTER_HEIGHT + TITLE_LABEL_HEIGHT;
 static constexpr int BTN_SIZE = 36;
 static constexpr int BTN_MARGIN = 8;
+
+static QString elideToTwoLines(const QString &text, const QFontMetrics &fm, int width)
+{
+	const QStringList words = text.split(' ', Qt::SkipEmptyParts);
+	QString lines[2];
+	int lineIndex = 0;
+
+	for(int i = 0; i < words.size(); ++i)
+	{
+		const QString candidate = lines[lineIndex].isEmpty()
+		                          ? words[i]
+		                          : lines[lineIndex] + " " + words[i];
+
+		if(lines[lineIndex].isEmpty() || fm.horizontalAdvance(candidate) <= width)
+		{
+			lines[lineIndex] = candidate;
+			continue;
+		}
+
+		if(lineIndex == 1)
+		{
+			QString remaining = lines[1] + " " + QStringList(words.mid(i)).join(' ');
+			lines[1] = fm.elidedText(remaining, Qt::ElideRight, width);
+			break;
+		}
+
+		++lineIndex;
+		lines[lineIndex] = words[i];
+	}
+
+	return lines[1].isEmpty() ? lines[0] : lines[0] + "\n" + lines[1];
+}
 
 TitleCard::TitleCard(const Title &title, AppStorage &appStorage, QWidget *parent)
 	: QWidget(parent)
@@ -32,23 +68,37 @@ void TitleCard::setupUi()
 	);
 
 	posterLabel = new QLabel(this);
-	posterLabel->setGeometry(0, 0, CARD_WIDTH, CARD_HEIGHT);
+	posterLabel->setGeometry(0, 0, CARD_WIDTH, POSTER_HEIGHT);
 	posterLabel->setStyleSheet("border: none; background: transparent;");
 	posterLabel->setAlignment(Qt::AlignCenter);
 	posterLabel->setPixmap(
 	    title.posterImage.scaled(
-	        QSize(CARD_WIDTH, CARD_HEIGHT),
+	        QSize(CARD_WIDTH, POSTER_HEIGHT),
 	        Qt::KeepAspectRatioByExpanding,
 	        Qt::SmoothTransformation)
 	);
 
+	titleLabel = new QLabel(this);
+	titleLabel->setGeometry(0, POSTER_HEIGHT, CARD_WIDTH, TITLE_LABEL_HEIGHT);
+	titleLabel->setStyleSheet(
+	    "border: none; background: transparent;"
+	    "color: " COLOR_TEXT_PRIMARY "; font-size: 12px;"
+	);
+	titleLabel->setAlignment(Qt::AlignCenter);
+	titleLabel->setWordWrap(true);
+	titleLabel->setText(elideToTwoLines(title.title, titleLabel->fontMetrics(), CARD_WIDTH - 8));
+
 	viewedButton = new IconButton(VIEWED_ICON, BTN_SIZE, COLOR_SUCCESS, COLOR_SURFACE, this);
 	notViewedButton = new IconButton(NOT_VIEWED_ICON, BTN_SIZE, COLOR_ERROR, COLOR_SURFACE, this);
 	deleteButton = new IconButton(DELETE_ICON, BTN_SIZE, COLOR_ERROR, COLOR_SURFACE, this);
+	uploadPosterButton = new IconButton(IMAGE_UPLOAD_ICON, BTN_SIZE, COLOR_ACCENT, COLOR_SURFACE, this);
 
-	viewedButton->move(BTN_MARGIN, CARD_HEIGHT - BTN_SIZE - BTN_MARGIN);
-	notViewedButton->move(BTN_MARGIN, CARD_HEIGHT - BTN_SIZE - BTN_MARGIN);
-	deleteButton->move(CARD_WIDTH - BTN_SIZE - BTN_MARGIN, CARD_HEIGHT - BTN_SIZE - BTN_MARGIN);
+	viewedButton->move(BTN_MARGIN, POSTER_HEIGHT - BTN_SIZE - BTN_MARGIN);
+	notViewedButton->move(BTN_MARGIN, POSTER_HEIGHT - BTN_SIZE - BTN_MARGIN);
+	deleteButton->move(CARD_WIDTH - BTN_SIZE - BTN_MARGIN, POSTER_HEIGHT - BTN_SIZE - BTN_MARGIN);
+	uploadPosterButton->move(CARD_WIDTH - BTN_SIZE - BTN_MARGIN, BTN_MARGIN);
+
+	uploadPosterButton->setVisible(title.posterNotFound);
 
 	hideButtons();
 	connectButtons();
@@ -59,6 +109,7 @@ void TitleCard::connectButtons()
 	connect(viewedButton, &QPushButton::clicked, this, &TitleCard::onViewedClicked);
 	connect(notViewedButton, &QPushButton::clicked, this, &TitleCard::onNotViewedClicked);
 	connect(deleteButton, &QPushButton::clicked, this, &TitleCard::onDeleteClicked);
+	connect(uploadPosterButton, &QPushButton::clicked, this, &TitleCard::onUploadPosterClicked);
 }
 
 void TitleCard::onViewedClicked()
@@ -82,6 +133,42 @@ void TitleCard::onNotViewedClicked()
 void TitleCard::onDeleteClicked()
 {
 	appStorage.deleteTitle(title.imdbId);
+}
+
+void TitleCard::onUploadPosterClicked()
+{
+	const QString path = QFileDialog::getOpenFileName(
+	                         this,
+	                         "Choose Poster Image",
+	                         QDir::homePath(),
+	                         "Images (*.png *.jpg *.jpeg)"
+	                     );
+
+	if(path.isEmpty())
+	{
+		return;
+	}
+
+	QPixmap image(path);
+
+	if(image.isNull())
+	{
+		return;
+	}
+
+	appStorage.setPoster(title.imdbId, image);
+
+	title.posterImage = image;
+	title.posterNotFound = false;
+
+	posterLabel->setPixmap(
+	    image.scaled(
+	        QSize(CARD_WIDTH, POSTER_HEIGHT),
+	        Qt::KeepAspectRatioByExpanding,
+	        Qt::SmoothTransformation)
+	);
+
+	uploadPosterButton->hide();
 }
 
 void TitleCard::enterEvent(QEnterEvent *event)

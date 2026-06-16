@@ -33,11 +33,11 @@ SeasonUpdate::SeasonUpdate(AppStorage &appStorage, QObject *parent)
 bool SeasonUpdate::isEligible(const Title &t) const
 {
 	if(!t.isSeries)
-	{
-		return false;
-	}
+{
+	return false;
+}
 
-	return t.lastChecked.daysTo(QDate::currentDate()) > RECHECK_INTERVAL_DAYS;
+return t.lastChecked.daysTo(QDate::currentDate()) > RECHECK_INTERVAL_DAYS;
 }
 
 namespace

@@ -20,6 +20,7 @@ public:
 	void addTitle(const Title &title, const QPixmap &posterImage);
 	void deleteTitle(const QString &imdbId);
 	void toggleViewed(const QString &imdbId);
+	void setPoster(const QString &imdbId, const QPixmap &image);
 	bool importFrom(const QString &zipPath);
 	bool exportTo(const QString &zipPath);
 

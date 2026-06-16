@@ -99,7 +99,7 @@ bool ImportedFileValidator::entriesAreSafe(const QString &zipPath)
 	}
 
 	const QStringList entries = QString::fromUtf8(listProcess.readAllStandardOutput())
-	                             .split('\n', Qt::SkipEmptyParts);
+	                            .split('\n', Qt::SkipEmptyParts);
 
 	for(const QString &entry : entries)
 	{

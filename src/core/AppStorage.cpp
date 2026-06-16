@@ -42,6 +42,8 @@ Title AppStorage::titleFromStorageJson(const QJsonObject &obj) const
 
 	t.totalSeasons = obj["totalSeasons"].toString();
 
+	t.posterNotFound = obj["posterNotFound"].toBool(false);
+
 	t.isMovie = t.type == "movie";
 	t.isSeries = t.type == "series";
 
@@ -81,6 +83,7 @@ QJsonObject AppStorage::titleToStorageJson(const Title &t) const
 	obj["actors"] = t.actors;
 
 	obj["totalSeasons"] = t.totalSeasons;
+	obj["posterNotFound"] = t.posterNotFound;
 
 	obj["rank"] = t.rank;
 	obj["viewed"] = t.viewed;
@@ -124,6 +127,7 @@ void AppStorage::load()
 		if(!t.posterImage.load(posterPath(postersPath, t.imdbId)))
 		{
 			t.posterImage.load(POSTER_PLACEHOLDER);
+			t.posterNotFound = true;
 		}
 
 		titles.push_back(std::move(t));
@@ -248,6 +252,26 @@ void AppStorage::toggleViewed(const QString &imdbId)
 	{
 		it->lastViewed = QDate::currentDate();
 	}
+
+	save();
+	emit titlesUpdated();
+}
+
+void AppStorage::setPoster(const QString &imdbId, const QPixmap &image)
+{
+	QMutexLocker locker(&mutex);
+
+	auto it = findByImdbId(titles, imdbId);
+
+	if(it == titles.end())
+	{
+		return;
+	}
+
+	image.save(posterPath(postersPath, imdbId), "PNG");
+
+	it->posterImage = image;
+	it->posterNotFound = false;
 
 	save();
 	emit titlesUpdated();

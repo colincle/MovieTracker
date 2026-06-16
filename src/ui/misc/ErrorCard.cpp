@@ -4,11 +4,12 @@
 
 #include <QHBoxLayout>
 
-static constexpr int CARD_HEIGHT = 48;
-static constexpr int CARD_WIDTH = 320;
+static constexpr int CARD_MIN_HEIGHT = 48;
+static constexpr int CARD_WIDTH = 360;
 static constexpr int CARD_RADIUS = 10;
 static constexpr int CARD_PADDING_LEFT = 12;
 static constexpr int CARD_PADDING_RIGHT = 8;
+static constexpr int CARD_PADDING_VERTICAL = 10;
 static constexpr int CARD_ICON_SIZE = 24;
 static constexpr int CARD_SPACING = 8;
 
@@ -16,28 +17,33 @@ ErrorCard::ErrorCard(QWidget *parent, const QString &message)
 	: QWidget(parent)
 {
 	setAttribute(Qt::WA_StyledBackground, true);
-	setFixedSize(CARD_WIDTH, CARD_HEIGHT);
+	setFixedWidth(CARD_WIDTH);
 	setStyleSheet(
 	    "background-color: " COLOR_ERROR ";"
 	    "border-radius: " + QString::number(CARD_RADIUS) + "px;"
 	);
 
 	auto *layout = new QHBoxLayout(this);
-	layout->setContentsMargins(CARD_PADDING_LEFT, 0, CARD_PADDING_RIGHT, 0);
+	layout->setContentsMargins(CARD_PADDING_LEFT, CARD_PADDING_VERTICAL, CARD_PADDING_RIGHT, CARD_PADDING_VERTICAL);
 	layout->setSpacing(CARD_SPACING);
 
-	label = new QLabel(message, this);
+	label = new QLabel(this);
+	label->setFixedWidth(CARD_WIDTH - CARD_PADDING_LEFT - CARD_PADDING_RIGHT - CARD_SPACING - CARD_ICON_SIZE);
 	label->setStyleSheet("color: white; border: none; background: transparent; font-size: 13px;");
 	label->setWordWrap(true);
+	label->setTextFormat(Qt::RichText);
+	label->setOpenExternalLinks(true);
+	label->setText(message);
 
 	auto *closeButton = new IconButton(CROSS_ICON, CARD_ICON_SIZE, "white", COLOR_ERROR, this);
 
 	layout->addWidget(label);
 	layout->addStretch();
-	layout->addWidget(closeButton);
+	layout->addWidget(closeButton, 0, Qt::AlignTop);
 
 	connect(closeButton, &QPushButton::clicked, this, &QWidget::hide);
 
+	updateHeight();
 	hide();
 }
 
@@ -50,4 +56,11 @@ void ErrorCard::show()
 void ErrorCard::setMessage(const QString &message)
 {
 	label->setText(message);
+	updateHeight();
+}
+
+void ErrorCard::updateHeight()
+{
+	const int textHeight = label->heightForWidth(label->width());
+	setFixedHeight(qMax(CARD_MIN_HEIGHT, textHeight + 2 * CARD_PADDING_VERTICAL));
 }
