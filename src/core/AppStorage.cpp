@@ -119,6 +119,7 @@ void AppStorage::load()
 
 	omdbApiKey = root["omdbApiKey"].toString();
 	titles.clear();
+	notifications.clear();
 
 	for(const QJsonValue &val : root["titles"].toArray())
 	{
@@ -131,6 +132,11 @@ void AppStorage::load()
 		}
 
 		titles.push_back(std::move(t));
+	}
+
+	for(const QJsonValue &val : root["notifications"].toArray())
+	{
+		notifications.push_back(val.toString());
 	}
 }
 
@@ -145,9 +151,17 @@ void AppStorage::save()
 		arr.append(titleToStorageJson(t));
 	}
 
+	QJsonArray notificationsArr;
+
+	for(const QString &n : notifications)
+	{
+		notificationsArr.append(n);
+	}
+
 	QJsonObject root;
 	root["omdbApiKey"] = omdbApiKey;
 	root["titles"] = arr;
+	root["notifications"] = notificationsArr;
 
 	if(!writeJsonFile(appFilePath, root))
 	{
@@ -276,6 +290,39 @@ void AppStorage::setPoster(const QString &imdbId, const QPixmap &image)
 
 	save();
 	emit titlesUpdated();
+}
+
+void AppStorage::addNotifications(const std::vector<QString> &values)
+{
+	QMutexLocker locker(&mutex);
+
+	bool added = false;
+
+	for(const QString &value : values)
+	{
+		if(std::find(notifications.begin(), notifications.end(), value) == notifications.end())
+		{
+			notifications.push_back(value);
+			added = true;
+		}
+	}
+
+	save();
+	emit notificationsChanged();
+
+	if(added)
+	{
+		emit notificationsAdded();
+	}
+}
+
+void AppStorage::removeNotifications()
+{
+	QMutexLocker locker(&mutex);
+
+	notifications.clear();
+	save();
+	emit notificationsChanged();
 }
 
 QString AppStorage::getKey() const

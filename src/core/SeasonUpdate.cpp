@@ -94,7 +94,7 @@ SeasonFetchResult fetchSeasonInfo(const QString &apiKey, const QString &imdbId)
 	return result;
 }
 
-void applySeasonUpdate(Title &t, const QJsonObject &root)
+void applySeasonUpdate(Title &t, const QJsonObject &root, std::vector<QString> &notifications)
 {
 	t.lastChecked = QDate::currentDate();
 
@@ -105,6 +105,7 @@ void applySeasonUpdate(Title &t, const QJsonObject &root)
 	{
 		t.totalSeasons = QString::number(newSeasons);
 		t.viewed = false;
+		notifications.push_back(t.imdbId);
 	}
 }
 
@@ -113,6 +114,8 @@ void applySeasonUpdate(Title &t, const QJsonObject &root)
 void SeasonUpdate::updateSeries()
 {
 	QMutexLocker locker(&appStorage.getMutex());
+
+	std::vector<QString> notifications;
 
 	for(Title *t : titles)
 	{
@@ -135,9 +138,10 @@ void SeasonUpdate::updateSeries()
 			continue;
 		}
 
-		applySeasonUpdate(*t, result.data);
+		applySeasonUpdate(*t, result.data, notifications);
 	}
 
+	appStorage.addNotifications(notifications);
 	appStorage.save();
 	emit seriesUpdated();
 }

@@ -13,6 +13,7 @@ A desktop app to track your movies and TV shows. Built with C++ and Qt6.
 - **Missing poster recovery** — If OMDb has no poster for a title, the library card shows an upload button so you can pick a local image to use instead.
 - **Watched tracking** — Mark titles as watched or unwatched. Filter the library to show only titles left to watch.
 - **Season updates** — On launch, the app checks OMDb for new seasons on your tracked TV shows (every 14 days). Shows with a new season are automatically reset to unwatched.
+- **Notifications** — New seasons show up as a badge on the bell icon; click it for a dropdown listing each show with its poster, with a sound played when one arrives.
 - **Export / Import** — Back up your full library (titles, posters, API key) as a zip file and restore it on any machine.
 - **Tournament ranking** — *(coming soon)* Head-to-head tournament to rank every title in your library.
 
@@ -20,7 +21,7 @@ A desktop app to track your movies and TV shows. Built with C++ and Qt6.
 
 ## Requirements
 
-- Qt 6.x (Core, Gui, Widgets, Network, Concurrent, Svg)
+- Qt 6.x (Core, Gui, Widgets, Network, Concurrent, Svg, Multimedia)
 - CMake 3.16+
 - C++20 compiler (clang or gcc)
 - An [OMDb API key](https://www.omdbapi.com/apikey.aspx) (free tier available)

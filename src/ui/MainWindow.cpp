@@ -38,7 +38,7 @@ void MainWindow::setupLayout()
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->setSpacing(0);
 
-	topBar = new TopBar;
+	topBar = new TopBar(appStorage);
 	addBar = new AddBar;
 	searchResults = new SearchResults(appStorage);
 	libraryView = new LibraryView(appStorage);

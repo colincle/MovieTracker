@@ -8,6 +8,7 @@
 #include <QMenu>
 
 static constexpr int BUTTON_HEIGHT = 40;
+static constexpr int NOTIFICATION_DOT_SIZE = 10;
 
 static QString sortMenuStyleSheet()
 {
@@ -28,8 +29,8 @@ static QString sortMenuStyleSheet()
 	    "}";
 }
 
-TopBar::TopBar(QWidget *parent)
-	: QWidget(parent)
+TopBar::TopBar(AppStorage &appStorage, QWidget *parent)
+	: appStorage(appStorage), QWidget(parent)
 {
 	setStyleSheet(
 	    "background-color: " COLOR_BG_SECONDARY ";"
@@ -39,6 +40,11 @@ TopBar::TopBar(QWidget *parent)
 
 	setupLayout();
 	connectButtons();
+
+	notificationsCenter = new NotificationsCenter(appStorage, this);
+
+	connect(&appStorage, &AppStorage::notificationsChanged, this, &TopBar::updateNotificationDot);
+	updateNotificationDot();
 }
 
 void TopBar::setupLayout()
@@ -51,6 +57,18 @@ void TopBar::setupLayout()
 	tvShowsButton = new TextButton("TV shows", BUTTON_HEIGHT, this);
 	moviesButton->toggleActive();
 
+	notificationsButton = new IconButton(NOTIFICATIONS_ICON, BUTTON_HEIGHT, COLOR_ACCENT, COLOR_SURFACE, this);
+
+	notificationDot = new QWidget(notificationsButton);
+	notificationDot->setAttribute(Qt::WA_StyledBackground, true);
+	notificationDot->setFixedSize(NOTIFICATION_DOT_SIZE, NOTIFICATION_DOT_SIZE);
+	notificationDot->setStyleSheet(
+	    "background-color: " COLOR_ERROR ";"
+	    "border-radius: " + QString::number(NOTIFICATION_DOT_SIZE / 2) + "px;"
+	);
+	notificationDot->move(BUTTON_HEIGHT - NOTIFICATION_DOT_SIZE, 0);
+	notificationDot->hide();
+
 	sortButton = new IconButton(SORT_ICON, BUTTON_HEIGHT, COLOR_ACCENT, COLOR_SURFACE, this);
 	rankButton = new IconButton(RANK_ICON, BUTTON_HEIGHT, COLOR_ACCENT, COLOR_SURFACE, this);
 	addButton = new IconButton(ADD_ICON, BUTTON_HEIGHT, COLOR_ACCENT, COLOR_SURFACE, this);
@@ -58,6 +76,7 @@ void TopBar::setupLayout()
 	layout->addWidget(moviesButton);
 	layout->addWidget(tvShowsButton);
 	layout->addStretch();
+	layout->addWidget(notificationsButton);
 	layout->addWidget(sortButton);
 	layout->addWidget(rankButton);
 	layout->addWidget(addButton);
@@ -87,6 +106,21 @@ void TopBar::onTvShowsClicked()
 	emit requestTab(LibraryTab::TvShows);
 }
 
+void TopBar::updateNotificationDot()
+{
+	notificationDot->setVisible(!appStorage.getNotifications().empty());
+}
+
+void TopBar::onNotificationsClicked()
+{
+	notificationsCenter->popup(notificationsButton);
+}
+
+void TopBar::onRankClicked()
+{
+	// Implementation here...
+}
+
 void TopBar::onSortClicked()
 {
 	auto *menu = new QMenu(this);
@@ -104,6 +138,8 @@ void TopBar::connectButtons()
 {
 	connect(moviesButton, &QPushButton::clicked, this, &TopBar::onMoviesClicked);
 	connect(tvShowsButton, &QPushButton::clicked, this, &TopBar::onTvShowsClicked);
+	connect(notificationsButton, &QPushButton::clicked, this, &TopBar::onNotificationsClicked);
 	connect(sortButton, &QPushButton::clicked, this, &TopBar::onSortClicked);
+	connect(sortButton, &QPushButton::clicked, this, &TopBar::onRankClicked);
 	connect(addButton, &QPushButton::clicked, this, [this]() { emit requestAddMode(); });
 }

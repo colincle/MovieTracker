@@ -1,0 +1,180 @@
+#include "NotificationsCenter.hpp"
+#include "AssetsPaths.hpp"
+#include "ColorPalette.hpp"
+
+#include <QFrame>
+#include <QHBoxLayout>
+#include <QUrl>
+#include <QWidgetAction>
+
+static constexpr int NOTIFICATIONS_WIDTH = 280;
+static constexpr int NOTIFICATION_POSTER_WIDTH = 48;
+static constexpr int NOTIFICATION_POSTER_HEIGHT = 72;
+static constexpr int POPUP_Y_OFFSET = 4;
+
+static QString notificationsMenuStyleSheet()
+{
+	return
+	    "QMenu {"
+	    "    background-color: " COLOR_BG_SECONDARY ";"
+	    "    border: 1px solid " COLOR_BORDER ";"
+	    "    border-radius: 8px;"
+	    "    padding: 0px;"
+	    "}"
+	    "QMenu::item {"
+	    "    border: none;"
+	    "    margin: 0px;"
+	    "    padding: 0px;"
+	    "    background: transparent;"
+	    "}";
+}
+
+NotificationsCenter::NotificationsCenter(AppStorage &appStorage, QObject *parent)
+	: QObject(parent)
+	, appStorage(appStorage)
+{
+	notificationSound.setSource(QUrl::fromLocalFile(NOTIFICATION_SOUND));
+	notificationSound.setVolume(1.0);
+
+	setupMenu();
+
+	for(const QString &imdbId : appStorage.getNotifications())
+	{
+		addNotificationRow(imdbId);
+	}
+
+	connect(&appStorage, &AppStorage::notificationsAdded, this, &NotificationsCenter::onNotificationsAdded,
+	        Qt::QueuedConnection);
+}
+
+void NotificationsCenter::setupMenu()
+{
+	notificationsContainer = new QWidget;
+	notificationsContainer->setFixedWidth(NOTIFICATIONS_WIDTH);
+	notificationsContainer->setStyleSheet("background: transparent;");
+
+	notificationsLayout = new QVBoxLayout(notificationsContainer);
+	notificationsLayout->setContentsMargins(4, 4, 4, 4);
+	notificationsLayout->setSpacing(4);
+
+	noNotificationsLabel = new QLabel("No notifications", notificationsContainer);
+	noNotificationsLabel->setStyleSheet(
+	    "color: " COLOR_TEXT_SECONDARY "; font-size: 14px; border: none; background: transparent;"
+	);
+	notificationsLayout->addWidget(noNotificationsLabel);
+
+	notificationsScrollArea = new QScrollArea;
+	notificationsScrollArea->setWidget(notificationsContainer);
+	notificationsScrollArea->setWidgetResizable(true);
+	notificationsScrollArea->setFrameShape(QFrame::NoFrame);
+	notificationsScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	notificationsScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	notificationsScrollArea->setFixedWidth(NOTIFICATIONS_WIDTH);
+	notificationsScrollArea->setStyleSheet(
+	    "QScrollArea { background: transparent; border: none; }"
+	    "QScrollBar:vertical { width: 0px; }"
+	);
+	notificationsScrollArea->viewport()->setStyleSheet("background: transparent; border: none;");
+
+	notificationsMenu = new QMenu;
+	notificationsMenu->setStyleSheet(notificationsMenuStyleSheet());
+
+	auto *scrollAction = new QWidgetAction(notificationsMenu);
+	scrollAction->setDefaultWidget(notificationsScrollArea);
+	notificationsMenu->addAction(scrollAction);
+}
+
+const Title *NotificationsCenter::findTitleForNotification(const QString &imdbId) const
+{
+for(const Title &t : appStorage.getTitles())
+{
+	if(t.imdbId == imdbId)
+		{
+			return &t;
+		}
+	}
+
+	return nullptr;
+}
+
+bool NotificationsCenter::notificationRowExists(const QString &imdbId) const
+{
+for(QLabel *label : notificationsContainer->findChildren<QLabel *>())
+{
+	if(label != noNotificationsLabel && label->property("notificationImdbId").toString() == imdbId)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void NotificationsCenter::addNotificationRow(const QString &imdbId)
+{
+	const Title *match = findTitleForNotification(imdbId);
+
+	if(!match)
+	{
+		return;
+	}
+
+	const QString newSeasonString = "<span style=\"color: " COLOR_ACCENT_LIGHT ";\">New Season</span>";
+	const QString text = match->title + "<br>" + newSeasonString;
+
+	auto *row = new QWidget;
+	row->setStyleSheet("background: transparent;");
+
+	auto *rowLayout = new QHBoxLayout(row);
+	rowLayout->setContentsMargins(4, 4, 4, 4);
+	rowLayout->setSpacing(8);
+
+	auto *poster = new QLabel(row);
+	poster->setFixedSize(NOTIFICATION_POSTER_WIDTH, NOTIFICATION_POSTER_HEIGHT);
+	poster->setStyleSheet("border: none; background: transparent;");
+	poster->setPixmap(
+	    match->posterImage.scaled(
+	        poster->size(),
+	        Qt::KeepAspectRatioByExpanding,
+	        Qt::SmoothTransformation)
+	);
+
+	auto *label = new QLabel(text, row);
+	label->setProperty("notificationImdbId", imdbId);
+	label->setTextFormat(Qt::RichText);
+	label->setStyleSheet("color: " COLOR_TEXT_SECONDARY "; font-size: 14px; border: none; background: transparent;");
+	label->setWordWrap(true);
+
+	rowLayout->addWidget(poster);
+	rowLayout->addWidget(label, 1);
+
+	notificationsLayout->insertWidget(0, row);
+
+	++notificationRowCount;
+	noNotificationsLabel->setVisible(false);
+}
+
+void NotificationsCenter::onNotificationsAdded()
+{
+	for(const QString &imdbId : appStorage.getNotifications())
+	{
+		if(!notificationRowExists(imdbId))
+		{
+			addNotificationRow(imdbId);
+		}
+	}
+
+	notificationSound.play();
+}
+
+void NotificationsCenter::popup(QWidget *anchor)
+{
+	const int maxHeight = anchor->window()->height() / 2;
+	notificationsScrollArea->setMaximumHeight(maxHeight);
+
+	const int menuWidth = notificationsMenu->sizeHint().width();
+	const QPoint position(anchor->width() - menuWidth, anchor->height() + POPUP_Y_OFFSET);
+
+	notificationsMenu->popup(anchor->mapToGlobal(position));
+	appStorage.removeNotifications();
+}

@@ -1,6 +1,8 @@
 #pragma once
 
+#include "AppStorage.hpp"
 #include "IconButton.hpp"
+#include "NotificationsCenter.hpp"
 #include "SortEnums.hpp"
 #include "TextButton.hpp"
 
@@ -11,9 +13,15 @@ class TopBar : public QWidget
 	Q_OBJECT
 
 public:
-	explicit TopBar(QWidget *parent = nullptr);
+	explicit TopBar(AppStorage &appStorage, QWidget *parent = nullptr);
 
 private:
+	AppStorage &appStorage;
+
+	IconButton *notificationsButton;
+	QWidget *notificationDot;
+	NotificationsCenter *notificationsCenter;
+
 	IconButton *rankButton;
 	IconButton *sortButton;
 	IconButton *addButton;
@@ -22,10 +30,13 @@ private:
 
 	void setupLayout();
 	void connectButtons();
+	void updateNotificationDot();
 
 	void onMoviesClicked();
 	void onTvShowsClicked();
+	void onNotificationsClicked();
 	void onSortClicked();
+	void onRankClicked();
 
 signals:
 	void requestAddMode();

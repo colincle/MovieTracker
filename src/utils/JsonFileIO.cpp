@@ -26,7 +26,7 @@ void ensureStorageFileExists(const QString &filePath)
 
 	if(file.open(QIODevice::WriteOnly))
 	{
-		file.write("{\n\t\"omdbApiKey\": \"\",\n\t\"titles\": []\n}\n");
+		file.write("{\n\t\"omdbApiKey\": \"\",\n\t\"titles\": [],\n\t\"notifications\": []\n}\n");
 		file.close();
 	}
 }

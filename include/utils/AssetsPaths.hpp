@@ -28,7 +28,11 @@
 #define VIEWED_ICON         ASSETS_ROOT "/icons/viewed.svg"
 #define NOT_VIEWED_ICON     ASSETS_ROOT "/icons/notViewed.svg"
 #define IMAGE_UPLOAD_ICON   ASSETS_ROOT "/icons/imageUpload.svg"
+#define NOTIFICATIONS_ICON   ASSETS_ROOT "/icons/notifications.svg"
 
 // Images
 #define POSTER_PLACEHOLDER  ASSETS_ROOT "/images/placeholderPoster.png"
 #define NO_MOVIES_FOUND     ASSETS_ROOT "/images/noMoviesFound.png"
+
+// Sounds
+#define NOTIFICATION_SOUND  ASSETS_ROOT "/sounds/notification.wav"

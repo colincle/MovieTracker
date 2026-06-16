@@ -28,8 +28,12 @@ public:
 
 	void save();
 
+	void addNotifications(const std::vector<QString> &values);
+	void removeNotifications();
+
 	const std::vector<Title> &getTitles() const { return titles; }
 	std::vector<Title> &getTitlesMutable() { return titles; }
+	const std::vector<QString> &getNotifications() const { return notifications; }
 	QString getKey() const;
 
 	QRecursiveMutex &getMutex() { return mutex; }
@@ -39,6 +43,7 @@ private:
 	QString omdbApiKey;
 	QString postersPath;
 	std::vector<Title> titles;
+	std::vector<QString> notifications;
 	mutable QRecursiveMutex mutex;
 
 	void load();
@@ -49,4 +54,6 @@ signals:
 	void titlesUpdated();
 	void saveFailed();
 	void apiKeyChanged();
+	void notificationsChanged();
+	void notificationsAdded();
 };

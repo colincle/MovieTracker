@@ -8,7 +8,7 @@ set(CMAKE_AUTOUIC ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Concurrent Svg)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Concurrent Svg Multimedia)
 
 file(GLOB_RECURSE SOURCES
     src/*.cpp
@@ -39,4 +39,5 @@ target_link_libraries(MovieTracker
     Qt6::Network
     Qt6::Concurrent
     Qt6::Svg
+    Qt6::Multimedia
 )
