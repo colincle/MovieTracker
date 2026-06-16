@@ -1,5 +1,7 @@
 #include "ImportedFileValidator.hpp"
+#include "AppPaths.hpp"
 
+#include <QDir>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -73,8 +75,9 @@ static ValidationResult validateJson(const QByteArray &data)
 
 ValidationResult ImportedFileValidator::validate(const QString &zipPath)
 {
+	QString dirName = QDir(APP_DATA_DIR).dirName();
 	QProcess process;
-	process.start("unzip", { "-p", zipPath, "movieTracker/movieTracker.json" });
+	process.start("unzip", { "-p", zipPath, dirName + "/" APP_DATA_FILE });
 
 	if(!process.waitForFinished(5000))
 		return { false, "Failed to read zip file." };

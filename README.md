@@ -12,6 +12,7 @@ A desktop app to track your movies and TV shows. Built with C++ and Qt6.
 - **Search & add** — Search the OMDb database by title and add results to your library in one click.
 - **Watched tracking** — Mark titles as watched or unwatched. Filter the library to show only titles left to watch.
 - **Season updates** — On launch, the app checks OMDb for new seasons on your tracked TV shows (every 14 days). Shows with a new season are automatically reset to unwatched.
+- **Export / Import** — Back up your full library (titles, posters, API key) as a zip file and restore it on any machine.
 - **Tournament ranking** — *(coming soon)* Head-to-head tournament to rank every title in your library.
 
 ---
@@ -38,6 +39,8 @@ cd build && ./MovieTracker
 ### Bundle (macOS .app)
 
 To produce a standalone `.app` with Qt dependencies bundled in, use the provided script. `macdeployqt` must be in your PATH.
+
+Before running the script, switch to SHIPPED asset paths: open `include/utils/AssetsPaths.hpp`, comment out the **DEV** block and uncomment the **SHIPPED** block. Switch back after bundling for development.
 
 ```bash
 ./scripts/bundle.sh "MovieTracker"

@@ -1,5 +1,6 @@
 build/
 orig/
+icon.iconset/
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake

@@ -1,4 +1,5 @@
 #include "AppStorage.hpp"
+#include "AppPaths.hpp"
 #include "AssetsPaths.hpp"
 
 #include <QDir>
@@ -12,7 +13,7 @@
 
 static QString appDirPath()
 {
-	return QDir::homePath() + "/.local/share/movieTracker";
+	return APP_DATA_DIR;
 }
 
 static void ensureDirectoryExists(const QString &path)
@@ -153,8 +154,8 @@ static auto findByImdbId(std::vector<Title> &titles, const QString &imdbId)
 AppStorage::AppStorage()
 {
 	const QString dirPath = appDirPath();
-	postersPath = dirPath + "/Posters";
-	appFilePath = dirPath + "/movieTracker.json";
+	postersPath = dirPath + "/" APP_POSTERS_DIR;
+	appFilePath = dirPath + "/" APP_DATA_FILE;
 
 	ensureDirectoryExists(dirPath);
 	ensureDirectoryExists(postersPath);
@@ -206,16 +207,18 @@ void AppStorage::save()
 
 bool AppStorage::exportTo(const QString &zipPath)
 {
+	QDir appDir(appDirPath());
 	QProcess process;
-	process.setWorkingDirectory(QDir::homePath() + "/.local/share");
-	process.start("zip", { "-r", zipPath, "movieTracker" });
+	process.setWorkingDirectory(appDir.absolutePath() + "/..");
+	process.start("zip", { "-r", zipPath, appDir.dirName() });
 	return process.waitForFinished(10000) && process.exitCode() == 0;
 }
 
 bool AppStorage::importFrom(const QString &zipPath)
 {
+	QDir appDir(appDirPath());
 	QProcess process;
-	process.setWorkingDirectory(QDir::homePath() + "/.local/share");
+	process.setWorkingDirectory(appDir.absolutePath() + "/..");
 	process.start("unzip", { "-o", zipPath, "-d", "." });
 
 	if(!process.waitForFinished(10000) || process.exitCode() != 0)
