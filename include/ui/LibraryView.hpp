@@ -43,6 +43,7 @@ private:
 	QTimer *resizeTimer;
 
 	std::vector<Title> titles;
+	QString currentQuery;
 
 	void setupUi();
 	void connectSignals();

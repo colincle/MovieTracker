@@ -1,3 +1,7 @@
+#define FTS_FUZZY_MATCH_IMPLEMENTATION
+#include "fts_fuzzy_match.h"
+#include "Levenshtein.hpp"
+
 #include "LibraryView.hpp"
 #include "ColorPalette.hpp"
 
@@ -75,8 +79,7 @@ void LibraryView::connectSignals()
 {
 	connect(&appStorage, &AppStorage::titlesUpdated, this, [this]()
 	{
-		titles = appStorage.getTitles();
-		populate();
+		onSearchRequested(currentQuery);
 	});
 
 	connect(libraryViewTopBar, &LibraryViewTopBar::searchRequested, this, &LibraryView::onSearchRequested);
@@ -84,15 +87,74 @@ void LibraryView::connectSignals()
 	connect(resizeTimer, &QTimer::timeout, this, &LibraryView::populate);
 }
 
+static int fuzzyScore(const QString &pattern, const QString &str)
+{
+	int score = 0;
+	const QByteArray p = pattern.toLower().toUtf8();
+	const QByteArray s = str.toLower().toUtf8();
+	fts::fuzzy_match(p.constData(), s.constData(), score);
+	return score;
+}
+
+static bool titleLevenshteinMatches(const Title &t, const QString &query)
+{
+	return levenshteinMatches(query, t.title)
+	       || levenshteinMatches(query, t.actors)
+	       || levenshteinMatches(query, t.director)
+	       || levenshteinMatches(query, t.year)
+	       || levenshteinMatches(query, t.released);
+}
+
+static int titleBestScore(const Title &t, const QString &query)
+{
+	return std::max(
+	{
+		fuzzyScore(query, t.title),
+		fuzzyScore(query, t.actors),
+		fuzzyScore(query, t.director),
+		fuzzyScore(query, t.year),
+		fuzzyScore(query, t.released),
+	});
+}
+
 void LibraryView::onSearchRequested(const QString &query)
 {
+	currentQuery = query;
 	titles.clear();
 
+	if(query.isEmpty())
+	{
+		titles = appStorage.getTitles();
+		populate();
+		return;
+	}
+
+	std::vector<std::pair<int, Title>> scored;
+
 	for(const Title &t : appStorage.getTitles())
-		if(t.title.contains(query, Qt::CaseInsensitive))
+	{
+		int score = titleBestScore(t, query);
+
+		if(score > 0)
 		{
-			titles.push_back(t);
+			scored.emplace_back(score, t);
 		}
+		else
+			if(titleLevenshteinMatches(t, query))
+			{
+				scored.emplace_back(1, t);
+			}
+	}
+
+	std::sort(scored.begin(), scored.end(), [](const auto & a, const auto & b)
+	{
+		return a.first > b.first;
+	});
+
+	for(auto &[score, t] : scored)
+	{
+		titles.push_back(std::move(t));
+	}
 
 	populate();
 }

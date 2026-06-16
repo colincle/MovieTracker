@@ -2,6 +2,7 @@ build/
 orig/
 icon.iconset/
 CMakeCache.txt
+notes
 CMakeFiles/
 cmake_install.cmake
 Makefile
@@ -15,3 +16,4 @@ moc_*
 MovieTracker
 .DS_Store
 .vscode
+.claude
