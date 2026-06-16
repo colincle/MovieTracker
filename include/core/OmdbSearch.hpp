@@ -9,6 +9,7 @@
 #include <QObject>
 #include <QPixmap>
 #include <QString>
+#include <QUrl>
 
 struct resultTitle
 {
@@ -47,6 +48,9 @@ public:
 	void fetchById(const QString &imdbId, const QPixmap &posterImage);
 	const results &getResults() const;
 
+	static QUrl makeUrl(const QString &apiKey, const QString &param, const QString &value);
+	static bool isAuthError(const QString &message);
+
 signals:
 	void searchFinished();
 	void titleFetched();
@@ -67,7 +71,7 @@ private:
 
 	int pendingPosters = 0;
 
-	Title titleFromJson(const QJsonObject &root, const QPixmap &posterImage);
+	Title titleFromOmdbJson(const QJsonObject &root, const QPixmap &posterImage);
 	void loadPosterForTitle(int i, const QString &posterUrl);
 	void onFetchByIdFinished(QNetworkReply *reply, const QPixmap &posterImage);
 	void onPosterFinished(QNetworkReply *reply, int i);

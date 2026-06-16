@@ -1,80 +1,31 @@
 #include "AppStorage.hpp"
 #include "AppPaths.hpp"
 #include "AssetsPaths.hpp"
+#include "ImportedFileValidator.hpp"
+#include "JsonFileIO.hpp"
 
 #include <QDir>
 #include <QFile>
 #include <QDate>
-#include <QIODevice>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QMutexLocker>
 #include <QProcess>
 
-static QString appDirPath()
+static QString posterPath(const QString &postersPath, const QString &imdbId)
 {
-	return APP_DATA_DIR;
+	return postersPath + "/" + imdbId + ".png";
 }
 
-static void ensureDirectoryExists(const QString &path)
+static auto findByImdbId(std::vector<Title> &titles, const QString &imdbId)
 {
-	QDir dir(path);
-
-	if(!dir.exists())
-	{
-		dir.mkpath(path);
-	}
+	return std::find_if(
+	           titles.begin(),
+	           titles.end(),
+	[&](const Title & t) { return t.imdbId == imdbId; });
 }
 
-static void ensureStorageFileExists(const QString &filePath)
-{
-	QFile file(filePath);
-
-	if(file.exists())
-	{
-		return;
-	}
-
-	if(file.open(QIODevice::WriteOnly))
-	{
-		file.write("{\n\t\"omdbApiKey\": \"\",\n\t\"titles\": []\n}\n");
-		file.close();
-	}
-}
-
-static QJsonObject readJsonFile(const QString &filePath)
-{
-	QFile file(filePath);
-
-	if(!file.open(QIODevice::ReadOnly))
-	{
-		qWarning() << "Failed to open file for reading:" << filePath;
-		return {};
-	}
-
-	QByteArray data = file.readAll();
-	file.close();
-
-	return QJsonDocument::fromJson(data).object();
-}
-
-static bool writeJsonFile(const QString &filePath, const QJsonObject &root)
-{
-	QFile file(filePath);
-
-	if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
-	{
-		qWarning() << "Failed to open file for writing:" << filePath;
-		return false;
-	}
-
-	file.write(QJsonDocument(root).toJson(QJsonDocument::Indented));
-	file.close();
-	return true;
-}
-
-static Title titleFromJson(const QJsonObject &obj)
+Title AppStorage::titleFromStorageJson(const QJsonObject &obj) const
 {
 	Title t;
 
@@ -114,7 +65,7 @@ static Title titleFromJson(const QJsonObject &obj)
 	return t;
 }
 
-static QJsonObject titleToJson(const Title &t)
+QJsonObject AppStorage::titleToStorageJson(const Title &t) const
 {
 	QJsonObject obj;
 
@@ -139,22 +90,9 @@ static QJsonObject titleToJson(const Title &t)
 	return obj;
 }
 
-static QString posterPath(const QString &postersPath, const QString &imdbId)
-{
-	return postersPath + "/" + imdbId + ".png";
-}
-
-static auto findByImdbId(std::vector<Title> &titles, const QString &imdbId)
-{
-	return std::find_if(
-	           titles.begin(),
-	           titles.end(),
-	[&](const Title & t) { return t.imdbId == imdbId; });
-}
-
 AppStorage::AppStorage()
 {
-	const QString dirPath = appDirPath();
+	const QString dirPath = APP_DATA_DIR;
 	postersPath = dirPath + "/" APP_POSTERS_DIR;
 	appFilePath = dirPath + "/" APP_DATA_FILE;
 
@@ -181,7 +119,7 @@ void AppStorage::load()
 
 	for(const QJsonValue &val : root["titles"].toArray())
 	{
-		Title t = titleFromJson(val.toObject());
+		Title t = titleFromStorageJson(val.toObject());
 
 		if(!t.posterImage.load(posterPath(postersPath, t.imdbId)))
 		{
@@ -200,7 +138,7 @@ void AppStorage::save()
 
 	for(const Title &t : titles)
 	{
-		arr.append(titleToJson(t));
+		arr.append(titleToStorageJson(t));
 	}
 
 	QJsonObject root;
@@ -217,47 +155,23 @@ bool AppStorage::exportTo(const QString &zipPath)
 {
 	QMutexLocker locker(&mutex);
 
-	QDir appDir(appDirPath());
+	QDir appDir(APP_DATA_DIR);
 	QProcess process;
 	process.setWorkingDirectory(appDir.absolutePath() + "/..");
 	process.start("zip", { "-r", zipPath, appDir.dirName() });
 	return process.waitForFinished(10000) && process.exitCode() == 0;
 }
 
-static bool zipEntriesAreSafe(const QString &zipPath)
-{
-	QProcess listProcess;
-	listProcess.start("unzip", { "-Z1", zipPath });
-
-	if(!listProcess.waitForFinished(10000) || listProcess.exitCode() != 0)
-	{
-		return false;
-	}
-
-	const QStringList entries = QString::fromUtf8(listProcess.readAllStandardOutput())
-	                            .split('\n', Qt::SkipEmptyParts);
-
-	for(const QString &entry : entries)
-	{
-		if(entry.startsWith('/') || entry.split('/', Qt::SkipEmptyParts).contains(".."))
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
 bool AppStorage::importFrom(const QString &zipPath)
 {
 	QMutexLocker locker(&mutex);
 
-	if(!zipEntriesAreSafe(zipPath))
+	if(!ImportedFileValidator::entriesAreSafe(zipPath))
 	{
 		return false;
 	}
 
-	QDir appDir(appDirPath());
+	QDir appDir(APP_DATA_DIR);
 	QProcess process;
 	process.setWorkingDirectory(appDir.absolutePath() + "/..");
 	process.start("unzip", { "-o", zipPath, "-d", "." });

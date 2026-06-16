@@ -26,6 +26,7 @@ private:
 	void setupLayout();
 	void onSearchFinished(OmdbSearch *omdbSearch);
 	void onAddClicked(const resultTitle &title, IconButton *addButton, QWidget *row);
+	void restoreRowButton(QWidget *row, Spinner *rowSpinner, IconButton *oldAddButton, IconButton *replacement);
 	QWidget *makeResultRow(const resultTitle &title);
 	QLabel *makePosterLabel(const resultTitle &title);
 	QLabel *makeTitleLabel(const resultTitle &title);

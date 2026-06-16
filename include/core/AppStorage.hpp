@@ -3,6 +3,7 @@
 #include "Title.hpp"
 
 #include <vector>
+#include <QJsonObject>
 #include <QMutex>
 #include <QObject>
 #include <QPixmap>
@@ -40,6 +41,8 @@ private:
 	mutable QRecursiveMutex mutex;
 
 	void load();
+	Title titleFromStorageJson(const QJsonObject &obj) const;
+	QJsonObject titleToStorageJson(const Title &t) const;
 
 signals:
 	void titlesUpdated();

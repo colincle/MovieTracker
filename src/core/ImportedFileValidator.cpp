@@ -87,3 +87,27 @@ ValidationResult ImportedFileValidator::validate(const QString &zipPath)
 
 	return validateJson(process.readAllStandardOutput());
 }
+
+bool ImportedFileValidator::entriesAreSafe(const QString &zipPath)
+{
+	QProcess listProcess;
+	listProcess.start("unzip", { "-Z1", zipPath });
+
+	if(!listProcess.waitForFinished(10000) || listProcess.exitCode() != 0)
+	{
+		return false;
+	}
+
+	const QStringList entries = QString::fromUtf8(listProcess.readAllStandardOutput())
+	                             .split('\n', Qt::SkipEmptyParts);
+
+	for(const QString &entry : entries)
+	{
+		if(entry.startsWith('/') || entry.split('/', Qt::SkipEmptyParts).contains(".."))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}

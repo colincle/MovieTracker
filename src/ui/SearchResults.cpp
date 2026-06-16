@@ -180,6 +180,14 @@ IconButton *SearchResults::makeAddButton(const resultTitle &title, QWidget *row)
 	return addButton;
 }
 
+void SearchResults::restoreRowButton(QWidget *row, Spinner *rowSpinner, IconButton *oldAddButton,
+                                      IconButton *replacement)
+{
+	qobject_cast<QHBoxLayout *>(row->layout())->replaceWidget(rowSpinner, replacement);
+	rowSpinner->deleteLater();
+	oldAddButton->deleteLater();
+}
+
 void SearchResults::onAddClicked(const resultTitle &title, IconButton *addButton, QWidget *row)
 {
 	auto *rowSpinner = new Spinner(COLOR_ACCENT, 6, row);
@@ -194,20 +202,14 @@ void SearchResults::onAddClicked(const resultTitle &title, IconButton *addButton
 	connect(fetch, &OmdbSearch::titleFetched, this,
 	        [this, title, rowSpinner, addButton, row, fetch]()
 	{
-		auto *doneButton = makeDoneButton(title, row);
-		qobject_cast<QHBoxLayout *>(row->layout())->replaceWidget(rowSpinner, doneButton);
-		rowSpinner->deleteLater();
-		addButton->deleteLater();
+		restoreRowButton(row, rowSpinner, addButton, makeDoneButton(title, row));
 		fetch->deleteLater();
 	});
 
 	connect(fetch, &OmdbSearch::titleFetchFailed, this,
 	        [this, title, rowSpinner, addButton, row, fetch]()
 	{
-		auto *newAddButton = makeAddButton(title, row);
-		qobject_cast<QHBoxLayout *>(row->layout())->replaceWidget(rowSpinner, newAddButton);
-		rowSpinner->deleteLater();
-		addButton->deleteLater();
+		restoreRowButton(row, rowSpinner, addButton, makeAddButton(title, row));
 		fetch->deleteLater();
 	});
 

@@ -3,9 +3,9 @@
 #include "ColorPalette.hpp"
 
 #include <QHBoxLayout>
+#include <QKeyEvent>
 
 static constexpr int SEARCH_INPUT_WIDTH = 220;
-#include <QKeyEvent>
 
 LibraryViewTopBar::LibraryViewTopBar(QWidget *parent)
 	: QWidget(parent)

@@ -18,9 +18,9 @@ class LibraryView : public QWidget
 public:
 	explicit LibraryView(AppStorage &appStorage, QWidget *parent = nullptr);
 
-	void setSort(SortMode sort) { currentSort = sort; populate(); }
-	void setTab(LibraryTab tab) { currentTab = tab; populate(); }
-	void setFilter(ViewFilter filter) { currentFilter = filter; populate(); }
+	void applySort(SortMode sort) { currentSort = sort; populate(); }
+	void applyTab(LibraryTab tab) { currentTab = tab; populate(); }
+	void applyFilter(ViewFilter filter) { currentFilter = filter; populate(); }
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;

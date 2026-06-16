@@ -7,10 +7,9 @@
 #include "SearchResults.hpp"
 #include "TopBar.hpp"
 #include "ErrorCard.hpp"
-#include "SeasonUpdate.hpp"
+#include "SeasonUpdateController.hpp"
 
 #include <QMainWindow>
-#include <QTimer>
 
 class MainWindow : public QMainWindow
 {
@@ -27,7 +26,8 @@ private:
 	AddBar *addBar;
 	SearchResults *searchResults;
 	LibraryView *libraryView;
-	QTimer *seasonRetryTimer;
+	SeasonUpdateController *seasonUpdateController;
+	QWidget *seasonOverlay = nullptr;
 
 	QWidget *makeSeasonOverlay();
 	void setupLayout();
@@ -35,9 +35,7 @@ private:
 	void setupMenuBar();
 	void setupShortcuts();
 	void connectSignals();
-	void setupSeasonRetryTimer();
-	void checkConnectivityAndRetry();
-	void runSeasonUpdate();
+	void setupSeasonUpdateController();
 
 	void enterAddMode();
 	void enterNormalMode();

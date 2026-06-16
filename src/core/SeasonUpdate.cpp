@@ -1,4 +1,5 @@
 #include "SeasonUpdate.hpp"
+#include "OmdbSearch.hpp"
 
 #include <QDate>
 #include <QEventLoop>
@@ -8,8 +9,6 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QUrl>
-#include <QUrlQuery>
 
 static constexpr int RECHECK_INTERVAL_DAYS = 14;
 
@@ -34,82 +33,109 @@ SeasonUpdate::SeasonUpdate(AppStorage &appStorage, QObject *parent)
 bool SeasonUpdate::isEligible(const Title &t) const
 {
 	if(!t.isSeries)
-{
-	return false;
+	{
+		return false;
+	}
+
+	return t.lastChecked.daysTo(QDate::currentDate()) > RECHECK_INTERVAL_DAYS;
 }
 
-return t.lastChecked.daysTo(QDate::currentDate()) > RECHECK_INTERVAL_DAYS;
+namespace
+{
+
+struct SeasonFetchResult
+{
+	bool success = false;
+	bool isAuthFailure = false;
+	bool isNetworkFailure = false;
+	QJsonObject data;
+};
+
+SeasonFetchResult fetchSeasonInfo(const QString &apiKey, const QString &imdbId)
+{
+	QNetworkAccessManager manager;
+	QEventLoop loop;
+	QNetworkReply *reply = manager.get(QNetworkRequest(OmdbSearch::makeUrl(apiKey, "i", imdbId)));
+	QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+	loop.exec();
+
+	SeasonFetchResult result;
+
+	if(reply->error() != QNetworkReply::NoError)
+	{
+		const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+		const QString message = reply->errorString();
+		reply->deleteLater();
+
+		if(status == 401 || OmdbSearch::isAuthError(message))
+		{
+			result.isAuthFailure = true;
+		}
+		else
+		{
+			result.isNetworkFailure = true;
+		}
+
+		return result;
+	}
+
+	const QByteArray data = reply->readAll();
+	reply->deleteLater();
+
+	result.data = QJsonDocument::fromJson(data).object();
+
+	if(result.data["Response"].toString() == "False")
+	{
+		result.isAuthFailure = OmdbSearch::isAuthError(result.data["Error"].toString());
+		return result;
+	}
+
+	result.success = true;
+	return result;
 }
 
-static bool isAuthError(const QString &message)
+void applySeasonUpdate(Title &t, const QJsonObject &root)
 {
-	return message.contains("api key", Qt::CaseInsensitive)
-	       || message.contains("authentication", Qt::CaseInsensitive);
+	t.lastChecked = QDate::currentDate();
+
+	const int newSeasons = root["totalSeasons"].toString().toInt();
+	const int oldSeasons = t.totalSeasons.toInt();
+
+	if(newSeasons > oldSeasons)
+	{
+		t.totalSeasons = QString::number(newSeasons);
+		t.viewed = false;
+	}
+}
+
 }
 
 void SeasonUpdate::updateSeries()
 {
 	QMutexLocker locker(&appStorage.getMutex());
 
-	QNetworkAccessManager manager;
-
 	for(Title *t : titles)
 	{
-		QUrl url("https://omdbapi.com/");
-		QUrlQuery query;
-		query.addQueryItem("apikey", appStorage.getKey());
-		query.addQueryItem("i", t->imdbId);
-		url.setQuery(query);
+		const SeasonFetchResult result = fetchSeasonInfo(appStorage.getKey(), t->imdbId);
 
-		QEventLoop loop;
-		QNetworkReply *reply = manager.get(QNetworkRequest(url));
-		QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-		loop.exec();
-
-		if(reply->error() != QNetworkReply::NoError)
+		if(result.isAuthFailure)
 		{
-			const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-			const QString message = reply->errorString();
-			reply->deleteLater();
-
-			if(status == 401 || isAuthError(message))
-			{
-				emit apiKeyError();
-			}
-			else
-			{
-				emit networkError();
-			}
-
+			emit apiKeyError();
 			return;
 		}
 
-		QByteArray data = reply->readAll();
-		reply->deleteLater();
-
-		QJsonObject root = QJsonDocument::fromJson(data).object();
-
-		if(root["Response"].toString() == "False")
+		if(result.isNetworkFailure)
 		{
-			if(isAuthError(root["Error"].toString()))
-			{
-				emit apiKeyError();
-				return;
-			}
+			emit networkError();
+			return;
+		}
 
+		if(!result.success)
+		{
 			continue;
 		}
 
-		t->lastChecked = QDate::currentDate();
-
-		int newSeasons = root["totalSeasons"].toString().toInt();
-		int oldSeasons = t->totalSeasons.toInt();
-
-		if(newSeasons > oldSeasons)
-		{
-			t->totalSeasons = QString::number(newSeasons);
-			t->viewed = false;
-		}
+		applySeasonUpdate(*t, result.data);
 	}
 
 	appStorage.save();
