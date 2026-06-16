@@ -233,7 +233,7 @@ void SearchResults::clearExtraLayoutWidgets()
 		        item->widget() != scrollArea)
 		{
 			item->widget()->deleteLater();
-			layout->removeItem(item);
+			delete layout->takeAt(i);
 		}
 	}
 }
