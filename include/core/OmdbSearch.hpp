@@ -20,8 +20,17 @@ struct resultTitle
 	QPixmap posterImage;
 };
 
+enum class SearchErrorType
+{
+	None,
+	Network,
+	AuthInvalid,
+	NotFound
+};
+
 struct results
 {
+	SearchErrorType errorType = SearchErrorType::None;
 	QString error;
 	std::vector<resultTitle> titles;
 };

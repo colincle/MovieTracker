@@ -10,6 +10,7 @@
 #include "SeasonUpdate.hpp"
 
 #include <QMainWindow>
+#include <QTimer>
 
 class MainWindow : public QMainWindow
 {
@@ -26,6 +27,7 @@ private:
 	AddBar *addBar;
 	SearchResults *searchResults;
 	LibraryView *libraryView;
+	QTimer *seasonRetryTimer;
 
 	QWidget *makeSeasonOverlay();
 	void setupLayout();
@@ -33,6 +35,8 @@ private:
 	void setupMenuBar();
 	void setupShortcuts();
 	void connectSignals();
+	void setupSeasonRetryTimer();
+	void checkConnectivityAndRetry();
 	void runSeasonUpdate();
 
 	void enterAddMode();

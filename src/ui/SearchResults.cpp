@@ -73,12 +73,23 @@ void SearchResults::onSearchFinished(OmdbSearch *omdbSearch)
 {
 	const results &r = omdbSearch->getResults();
 
-	if(!r.error.isEmpty())
+	if(r.errorType == SearchErrorType::AuthInvalid || r.errorType == SearchErrorType::Network)
 	{
-		setFullPageState(r.error == "Host requires authentication"
-		                 ? API_KEY_ERROR
-		                 : NO_MOVIES_FOUND);
+		clearResultsLayout();
+		scrollArea->hide();
+		clearExtraLayoutWidgets();
 
+		emit searchError(r.errorType == SearchErrorType::AuthInvalid
+		                 ? "Invalid or missing API key — go to \"Library\" -> \"Set API Key\" to set your key."
+		                 : "Couldn't reach OMDb — check your internet connection.");
+
+		omdbSearch->deleteLater();
+		return;
+	}
+
+	if(r.errorType == SearchErrorType::NotFound)
+	{
+		setFullPageState(NO_MOVIES_FOUND);
 		omdbSearch->deleteLater();
 		return;
 	}

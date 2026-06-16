@@ -4,10 +4,12 @@
 #include <QEventLoop>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMutexLocker>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QUrl>
+#include <QUrlQuery>
 
 static constexpr int RECHECK_INTERVAL_DAYS = 14;
 
@@ -15,6 +17,8 @@ SeasonUpdate::SeasonUpdate(AppStorage &appStorage, QObject *parent)
 	: QObject(parent)
 	, appStorage(appStorage)
 {
+	QMutexLocker locker(&appStorage.getMutex());
+
 	for(Title &t : appStorage.getTitlesMutable())
 		if(isEligible(t))
 		{
@@ -37,23 +41,46 @@ bool SeasonUpdate::isEligible(const Title &t) const
 return t.lastChecked.daysTo(QDate::currentDate()) > RECHECK_INTERVAL_DAYS;
 }
 
+static bool isAuthError(const QString &message)
+{
+	return message.contains("api key", Qt::CaseInsensitive)
+	       || message.contains("authentication", Qt::CaseInsensitive);
+}
+
 void SeasonUpdate::updateSeries()
 {
+	QMutexLocker locker(&appStorage.getMutex());
+
 	QNetworkAccessManager manager;
 
 	for(Title *t : titles)
 	{
-		QString url = "https://omdbapi.com/?apikey=" + appStorage.getKey() + "&i=" + t->imdbId;
+		QUrl url("https://omdbapi.com/");
+		QUrlQuery query;
+		query.addQueryItem("apikey", appStorage.getKey());
+		query.addQueryItem("i", t->imdbId);
+		url.setQuery(query);
 
 		QEventLoop loop;
-		QNetworkReply *reply = manager.get(QNetworkRequest(QUrl(url)));
+		QNetworkReply *reply = manager.get(QNetworkRequest(url));
 		QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
 		loop.exec();
 
 		if(reply->error() != QNetworkReply::NoError)
 		{
+			const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+			const QString message = reply->errorString();
 			reply->deleteLater();
-			emit apiKeyError();
+
+			if(status == 401 || isAuthError(message))
+			{
+				emit apiKeyError();
+			}
+			else
+			{
+				emit networkError();
+			}
+
 			return;
 		}
 
@@ -64,6 +91,12 @@ void SeasonUpdate::updateSeries()
 
 		if(root["Response"].toString() == "False")
 		{
+			if(isAuthError(root["Error"].toString()))
+			{
+				emit apiKeyError();
+				return;
+			}
+
 			continue;
 		}
 

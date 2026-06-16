@@ -31,4 +31,3 @@
 // Images
 #define POSTER_PLACEHOLDER  ASSETS_ROOT "/images/placeholderPoster.png"
 #define NO_MOVIES_FOUND     ASSETS_ROOT "/images/noMoviesFound.png"
-#define API_KEY_ERROR       ASSETS_ROOT "/images/ApiKeyError.png"

@@ -60,6 +60,12 @@ void OmdbSearch::fetchById(const QString &imdbId, const QPixmap &posterImage)
 	});
 }
 
+static bool isAuthError(const QString &message)
+{
+	return message.contains("api key", Qt::CaseInsensitive)
+	       || message.contains("authentication", Qt::CaseInsensitive);
+}
+
 void OmdbSearch::onFetchByIdFinished(QNetworkReply *reply, const QPixmap &posterImage)
 {
 	if(reply->error() != QNetworkReply::NoError)
@@ -156,18 +162,24 @@ void OmdbSearch::onReplyFinished()
 	QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
 	searchResults.error.clear();
+	searchResults.errorType = SearchErrorType::None;
 	searchResults.titles.clear();
 
 	if(!reply)
 	{
 		searchResults.error = "Internal error";
+		searchResults.errorType = SearchErrorType::Network;
 		emit searchFinished();
 		return;
 	}
 
 	if(reply->error() != QNetworkReply::NoError)
 	{
+		const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 		searchResults.error = reply->errorString();
+		searchResults.errorType = (status == 401 || isAuthError(searchResults.error))
+		                          ? SearchErrorType::AuthInvalid
+		                          : SearchErrorType::Network;
 		reply->deleteLater();
 		emit searchFinished();
 		return;
@@ -179,6 +191,9 @@ void OmdbSearch::onReplyFinished()
 	if(root["Response"].toString() == "False")
 	{
 		searchResults.error = root["Error"].toString();
+		searchResults.errorType = isAuthError(searchResults.error)
+		                          ? SearchErrorType::AuthInvalid
+		                          : SearchErrorType::NotFound;
 		emit searchFinished();
 		return;
 	}

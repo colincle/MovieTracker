@@ -19,6 +19,9 @@ public:
 	explicit SearchResults(AppStorage &storage, QWidget *parent = nullptr);
 	void search(QString query);
 
+signals:
+	void searchError(const QString &message);
+
 private:
 	void setupLayout();
 	void onSearchFinished(OmdbSearch *omdbSearch);

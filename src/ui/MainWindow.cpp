@@ -11,13 +11,15 @@
 #include <QEventLoop>
 #include <QFutureWatcher>
 #include <QLabel>
+#include <QNetworkInformation>
 #include <QShortcut>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QtConcurrent>
 
 static constexpr int TOPBAR_HEIGHT = 70;
-static constexpr int ERROR_CARD_X_RATIO = 3;
+static constexpr int ERROR_CARD_MARGIN = 5;
+static constexpr int SEASON_RETRY_INTERVAL_MS = 5000;
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -30,6 +32,28 @@ MainWindow::MainWindow(QWidget *parent)
 	setupShortcuts();
 	connectSignals();
 	setupErrorCard();
+	setupSeasonRetryTimer();
+	runSeasonUpdate();
+}
+
+void MainWindow::setupSeasonRetryTimer()
+{
+	QNetworkInformation::loadDefaultBackend();
+
+	seasonRetryTimer = new QTimer(this);
+	seasonRetryTimer->setInterval(SEASON_RETRY_INTERVAL_MS);
+	connect(seasonRetryTimer, &QTimer::timeout, this, &MainWindow::checkConnectivityAndRetry);
+}
+
+void MainWindow::checkConnectivityAndRetry()
+{
+	auto *networkInfo = QNetworkInformation::instance();
+
+	if(networkInfo && networkInfo->reachability() != QNetworkInformation::Reachability::Online)
+	{
+		return;
+	}
+
 	runSeasonUpdate();
 }
 
@@ -63,9 +87,7 @@ void MainWindow::setupErrorCard()
 {
 	errorCard = new ErrorCard(this, "API key error — go to \"Library\" -> \"Set API Key\" to set your key.");
 
-	const int x = topBar->width() / ERROR_CARD_X_RATIO;
-	const int y = (topBar->height() - errorCard->height()) / 2;
-	errorCard->move(x, y);
+	errorCard->move(ERROR_CARD_MARGIN, topBar->height() + ERROR_CARD_MARGIN);
 
 	connect(&appStorage, &AppStorage::saveFailed, this, [this]()
 	{
@@ -80,6 +102,7 @@ void MainWindow::runSeasonUpdate()
 
 	if(queue->isEmpty())
 	{
+		seasonRetryTimer->stop();
 		return;
 	}
 
@@ -91,10 +114,19 @@ void MainWindow::runSeasonUpdate()
 		QElapsedTimer elapsed;
 		elapsed.start();
 
-		bool hadError = false;
-		connect(queue, &SeasonUpdate::apiKeyError, this, [&hadError]()
+		QString errorMessage;
+		bool isNetworkError = false;
+
+		connect(queue, &SeasonUpdate::apiKeyError, this, [&errorMessage, &isNetworkError]()
 		{
-			hadError = true;
+			errorMessage = "Invalid or missing API key — go to \"Library\" -> \"Set API Key\" to set your key.";
+			isNetworkError = false;
+		}, Qt::QueuedConnection);
+
+		connect(queue, &SeasonUpdate::networkError, this, [&errorMessage, &isNetworkError]()
+		{
+			errorMessage = "Couldn't check for new seasons — check your internet connection.";
+			isNetworkError = true;
 		}, Qt::QueuedConnection);
 
 		QEventLoop loop;
@@ -120,10 +152,27 @@ void MainWindow::runSeasonUpdate()
 		appMenuBar->setEnabled(true);
 		overlay->deleteLater();
 
-		if(hadError)
+		if(errorMessage.isEmpty())
 		{
+			seasonRetryTimer->stop();
+			return;
+		}
+
+		if(!isNetworkError)
+		{
+			seasonRetryTimer->stop();
+			errorCard->setMessage(errorMessage);
+			errorCard->show();
+			return;
+		}
+
+		if(!seasonRetryTimer->isActive())
+		{
+			errorCard->setMessage(errorMessage);
 			errorCard->show();
 		}
+
+		seasonRetryTimer->start();
 	});
 }
 
@@ -188,4 +237,10 @@ void MainWindow::connectSignals()
 	connect(topBar, &TopBar::requestSort, libraryView, &LibraryView::setSort);
 	connect(topBar, &TopBar::requestTab, libraryView, &LibraryView::setTab);
 	connect(addBar, &AddBar::searchRequested, searchResults, &SearchResults::search);
+
+	connect(searchResults, &SearchResults::searchError, this, [this](const QString & message)
+	{
+		errorCard->setMessage(message);
+		errorCard->show();
+	});
 }

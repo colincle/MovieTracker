@@ -9,6 +9,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QMutexLocker>
 #include <QProcess>
 
 static QString appDirPath()
@@ -166,6 +167,8 @@ AppStorage::AppStorage()
 
 void AppStorage::load()
 {
+	QMutexLocker locker(&mutex);
+
 	QJsonObject root = readJsonFile(appFilePath);
 
 	if(root.isEmpty())
@@ -191,6 +194,8 @@ void AppStorage::load()
 
 void AppStorage::save()
 {
+	QMutexLocker locker(&mutex);
+
 	QJsonArray arr;
 
 	for(const Title &t : titles)
@@ -210,6 +215,8 @@ void AppStorage::save()
 
 bool AppStorage::exportTo(const QString &zipPath)
 {
+	QMutexLocker locker(&mutex);
+
 	QDir appDir(appDirPath());
 	QProcess process;
 	process.setWorkingDirectory(appDir.absolutePath() + "/..");
@@ -228,7 +235,7 @@ static bool zipEntriesAreSafe(const QString &zipPath)
 	}
 
 	const QStringList entries = QString::fromUtf8(listProcess.readAllStandardOutput())
-	                             .split('\n', Qt::SkipEmptyParts);
+	                            .split('\n', Qt::SkipEmptyParts);
 
 	for(const QString &entry : entries)
 	{
@@ -243,6 +250,8 @@ static bool zipEntriesAreSafe(const QString &zipPath)
 
 bool AppStorage::importFrom(const QString &zipPath)
 {
+	QMutexLocker locker(&mutex);
+
 	if(!zipEntriesAreSafe(zipPath))
 	{
 		return false;
@@ -265,12 +274,16 @@ bool AppStorage::importFrom(const QString &zipPath)
 
 void AppStorage::setOmdbApiKey(QString key)
 {
+	QMutexLocker locker(&mutex);
+
 	omdbApiKey = key;
 	save();
 }
 
 void AppStorage::addTitle(const Title &title, const QPixmap &posterImage)
 {
+	QMutexLocker locker(&mutex);
+
 	if(contains(title.imdbId))
 	{
 		return;
@@ -288,6 +301,8 @@ void AppStorage::addTitle(const Title &title, const QPixmap &posterImage)
 
 void AppStorage::deleteTitle(const QString &imdbId)
 {
+	QMutexLocker locker(&mutex);
+
 	auto it = findByImdbId(titles, imdbId);
 
 	if(it == titles.end())
@@ -304,6 +319,8 @@ void AppStorage::deleteTitle(const QString &imdbId)
 
 void AppStorage::toggleViewed(const QString &imdbId)
 {
+	QMutexLocker locker(&mutex);
+
 	auto it = findByImdbId(titles, imdbId);
 
 	if(it == titles.end())
@@ -322,8 +339,16 @@ void AppStorage::toggleViewed(const QString &imdbId)
 	emit titlesUpdated();
 }
 
+QString AppStorage::getKey() const
+{
+	QMutexLocker locker(&mutex);
+	return omdbApiKey;
+}
+
 bool AppStorage::contains(const QString &imdbId) const
 {
+	QMutexLocker locker(&mutex);
+
 	return std::any_of(
 	       titles.begin(),
 	titles.end(),

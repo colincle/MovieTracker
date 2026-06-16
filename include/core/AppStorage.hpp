@@ -3,6 +3,7 @@
 #include "Title.hpp"
 
 #include <vector>
+#include <QMutex>
 #include <QObject>
 #include <QPixmap>
 #include <QString>
@@ -27,13 +28,16 @@ public:
 
 	const std::vector<Title> &getTitles() const { return titles; }
 	std::vector<Title> &getTitlesMutable() { return titles; }
-	QString getKey() const { return omdbApiKey; }
+	QString getKey() const;
+
+	QRecursiveMutex &getMutex() { return mutex; }
 
 private:
 	QString appFilePath;
 	QString omdbApiKey;
 	QString postersPath;
 	std::vector<Title> titles;
+	mutable QRecursiveMutex mutex;
 
 	void load();
 
