@@ -1,6 +1,6 @@
 #include "ErrorCard.hpp"
 #include "AssetsPaths.hpp"
-#include "ColorPalette.hpp"
+#include "Palette.hpp"
 
 #include <QHBoxLayout>
 
@@ -19,8 +19,9 @@ ErrorCard::ErrorCard(QWidget *parent, const QString &message)
 	setAttribute(Qt::WA_StyledBackground, true);
 	setFixedWidth(CARD_WIDTH);
 	setStyleSheet(
-	    "background-color: " COLOR_ERROR ";"
-	    "border-radius: " + QString::number(CARD_RADIUS) + "px;"
+	    QStringLiteral("background-color: %1; border-radius: %2px;")
+	    .arg(Palette::error)
+	    .arg(CARD_RADIUS)
 	);
 
 	auto *layout = new QHBoxLayout(this);
@@ -35,7 +36,7 @@ ErrorCard::ErrorCard(QWidget *parent, const QString &message)
 	label->setOpenExternalLinks(true);
 	label->setText(message);
 
-	auto *closeButton = new IconButton(CROSS_ICON, CARD_ICON_SIZE, "white", COLOR_ERROR, this);
+	auto *closeButton = new IconButton(CROSS_ICON, CARD_ICON_SIZE, "white", Palette::error, this);
 
 	layout->addWidget(label);
 	layout->addStretch();

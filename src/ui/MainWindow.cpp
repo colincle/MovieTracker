@@ -4,7 +4,7 @@
 #include "Spinner.hpp"
 #include "ErrorCard.hpp"
 #include "ErrorMessages.hpp"
-#include "ColorPalette.hpp"
+#include "Palette.hpp"
 
 #include <QApplication>
 #include <QLabel>
@@ -19,10 +19,18 @@ MainWindow::MainWindow(QWidget *parent)
 {
 	setMinimumSize(800, 600);
 	resize(appStorage.getWindowSize().width, appStorage.getWindowSize().height);
+	setupShortcuts();
+	setupMenuBar();
+	buildUi();
+}
+
+void MainWindow::buildUi()
+{
+	Palette::setTheme(appStorage.getTheme());
+
+	delete centralWidget();
 
 	setupLayout();
-	setupMenuBar();
-	setupShortcuts();
 	connectSignals();
 	setupErrorCard();
 	setupSeasonUpdateController();
@@ -98,15 +106,15 @@ QWidget *MainWindow::makeSeasonOverlay()
 {
 	auto *overlay = new QWidget(this);
 	overlay->setGeometry(rect());
-	overlay->setStyleSheet("background-color: " COLOR_BG_PRIMARY ";");
+	overlay->setStyleSheet(QStringLiteral("background-color: %1;").arg(Palette::bgPrimary));
 
 	auto *layout = new QVBoxLayout(overlay);
 
-	auto *spinner = new Spinner(COLOR_ACCENT, 8, overlay);
+	auto *spinner = new Spinner(Palette::accent, 8, overlay);
 	spinner->setFixedSize(48, 48);
 
 	auto *label = new QLabel("Looking for new TV show seasons...", overlay);
-	label->setStyleSheet("color: " COLOR_TEXT_SECONDARY "; font-size: 16px;");
+	label->setStyleSheet(QStringLiteral("color: %1; font-size: 16px;").arg(Palette::textSecondary));
 	label->setAlignment(Qt::AlignCenter);
 
 	layout->addStretch();
@@ -130,6 +138,7 @@ void MainWindow::setupMenuBar()
 {
 	appMenuBar = new AppMenuBar(appStorage, this);
 	setMenuBar(appMenuBar);
+	connect(appMenuBar, &AppMenuBar::themeChanged, this, &MainWindow::buildUi);
 }
 
 void MainWindow::enterAddMode()

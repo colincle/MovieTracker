@@ -120,6 +120,7 @@ void AppStorage::load()
 	windowSize.width = root["windowWidth"].toInt(1200);
 	windowSize.height = root["windowHeight"].toInt(800);
 	omdbApiKey = root["omdbApiKey"].toString();
+	theme = root["theme"].toString("dark");
 	libraryCardWidth = root["libraryCardWidth"].toInt(160);
 	titles.clear();
 	notifications.clear();
@@ -165,6 +166,7 @@ void AppStorage::save()
 	root["windowWidth"] = windowSize.width;
 	root["windowHeight"] = windowSize.height;
 	root["libraryCardWidth"] = libraryCardWidth;
+	root["theme"] = theme;
 	root["omdbApiKey"] = omdbApiKey;
 	root["titles"] = arr;
 	root["notifications"] = notificationsArr;
@@ -221,6 +223,8 @@ void AppStorage::setOmdbApiKey(QString key)
 
 void AppStorage::setWindowSize(int width, int height)
 {
+	QMutexLocker locker(&mutex);
+
 	windowSize.width = width;
 	windowSize.height = height;
 	save();
@@ -231,6 +235,14 @@ void AppStorage::setLibraryCardWidth(int width)
 	QMutexLocker locker(&mutex);
 
 	libraryCardWidth = width;
+	save();
+}
+
+void AppStorage::setTheme(QString newTheme)
+{
+	QMutexLocker locker(&mutex);
+
+	theme = newTheme;
 	save();
 }
 

@@ -1,5 +1,5 @@
 #include "LibraryView.hpp"
-#include "ColorPalette.hpp"
+#include "Palette.hpp"
 #include "TitleSearch.hpp"
 
 #include <QFrame>
@@ -15,12 +15,12 @@ LibraryView::LibraryView(AppStorage &appStorage, QWidget *parent)
 	connectSignals();
 
 	titles = appStorage.getTitles();
-	populate();
+	QTimer::singleShot(0, this, &LibraryView::populate);
 }
 
 void LibraryView::setupUi()
 {
-	setStyleSheet("background-color: " COLOR_BG_PRIMARY ";");
+	setStyleSheet(QStringLiteral("background-color: %1;").arg(Palette::bgPrimary));
 	setAttribute(Qt::WA_StyledBackground, true);
 
 	auto *layout = new QVBoxLayout(this);

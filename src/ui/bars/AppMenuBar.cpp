@@ -1,57 +1,35 @@
 #include "AppMenuBar.hpp"
 #include "ImportedFileValidator.hpp"
+#include "SettingsWindow.hpp"
 
 #include <QDir>
 #include <QFileDialog>
-#include <QInputDialog>
 #include <QMessageBox>
-#include <QPushButton>
 
 AppMenuBar::AppMenuBar(AppStorage &appStorage, QWidget *parent)
 	: QMenuBar(parent)
 	, appStorage(appStorage)
 {
 	auto *libraryMenu = addMenu("Library");
-	auto *setKey = new QAction("Set API Key", this);
+
 	auto *importAction = new QAction("Import library", this);
 	auto *exportAction = new QAction("Export library", this);
 
-	libraryMenu->addAction(setKey);
+	auto *settings = new QAction("Settings", this);
+	settings->setMenuRole(QAction::ApplicationSpecificRole);
+	libraryMenu->addAction(settings);
+
 	libraryMenu->addAction(importAction);
 	libraryMenu->addAction(exportAction);
 
-	connect(setKey, &QAction::triggered, this, &AppMenuBar::onSetApiKeyTriggered);
 	connect(importAction, &QAction::triggered, this, &AppMenuBar::onImportLibraryTriggered);
 	connect(exportAction, &QAction::triggered, this, &AppMenuBar::onExportLibraryTriggered);
-}
-
-void AppMenuBar::onSetApiKeyTriggered()
-{
-	QInputDialog dialog(parentWidget());
-	dialog.setWindowTitle("OMDb API Key");
-	dialog.setLabelText("Enter your API key:");
-	dialog.setInputMode(QInputDialog::TextInput);
-	dialog.setTextValue(appStorage.getKey());
-
-	dialog.show(); // forces internal widget creation
-
-	auto *buttonBox = dialog.findChild<QDialogButtonBox*>();
-	auto *okBtn = buttonBox ? buttonBox->button(QDialogButtonBox::Ok) : nullptr;
-
-	if(okBtn)
+	connect(settings, &QAction::triggered, this, [this, &appStorage]()
 	{
-		auto updateOk = [&]()
-		{
-			okBtn->setEnabled(!dialog.textValue().simplified().isEmpty());
-		};
-		updateOk();
-		connect(&dialog, &QInputDialog::textValueChanged, this, [&](const QString &) { updateOk(); });
-	}
-
-	if(dialog.exec() == QDialog::Accepted)
-	{
-		appStorage.setOmdbApiKey(dialog.textValue().simplified());
-	}
+		SettingsWindow window(appStorage, parentWidget());
+		connect(&window, &SettingsWindow::themeChanged, this, &AppMenuBar::themeChanged);
+		window.exec();
+	});
 }
 
 void AppMenuBar::onImportLibraryTriggered()

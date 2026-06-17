@@ -14,7 +14,9 @@ public:
 private:
 	AppStorage &appStorage;
 
-	void onSetApiKeyTriggered();
 	void onImportLibraryTriggered();
 	void onExportLibraryTriggered();
+
+signals:
+	void themeChanged(const QString &theme);
 };

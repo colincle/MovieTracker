@@ -29,6 +29,7 @@ private:
 	SeasonUpdateController *seasonUpdateController;
 	QWidget *seasonOverlay = nullptr;
 
+	void buildUi();
 	QWidget *makeSeasonOverlay();
 	void setupLayout();
 	void setupErrorCard();

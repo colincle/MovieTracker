@@ -1,6 +1,6 @@
 #include "SearchResults.hpp"
 #include "AssetsPaths.hpp"
-#include "ColorPalette.hpp"
+#include "Palette.hpp"
 #include "ElidedLabel.hpp"
 #include "ErrorMessages.hpp"
 #include "IconButton.hpp"
@@ -23,7 +23,7 @@ SearchResults::SearchResults(AppStorage &storage, QWidget *parent)
 	: QWidget(parent)
 	, appStorage(storage)
 {
-	setStyleSheet("background-color: " COLOR_BG_PRIMARY ";");
+	setStyleSheet(QStringLiteral("background-color: %1;").arg(Palette::bgPrimary));
 	setAttribute(Qt::WA_StyledBackground, true);
 
 	setupLayout();
@@ -34,7 +34,7 @@ void SearchResults::setupLayout()
 	layout = new QVBoxLayout(this);
 	layout->setContentsMargins(20, 20, 20, 20);
 
-	spinner = new Spinner(COLOR_ACCENT, 8, this);
+	spinner = new Spinner(Palette::accent, 8, this);
 	spinner->setFixedSize(48, 48);
 	spinner->hide();
 
@@ -157,11 +157,11 @@ void SearchResults::onSearchFinished(OmdbSearch *omdbSearch)
 QWidget *SearchResults::makeResultRow(const resultTitle &title)
 {
 	auto *row = new QWidget;
-	row->setStyleSheet(
-	    "background-color: " COLOR_BG_SECONDARY ";"
-	    "border: 1px solid " COLOR_BORDER ";"
-	    "border-radius: 10px;"
-	);
+	row->setStyleSheet(QStringLiteral(
+	                       "background-color: %1;"
+	                       "border: 1px solid %2;"
+	                       "border-radius: 10px;")
+	                   .arg(Palette::bgSecondary, Palette::border));
 
 	row->setFixedHeight(174);
 
@@ -217,11 +217,9 @@ QLabel *SearchResults::makeTitleLabel(const resultTitle &title)
 
 	auto *label = new ElidedLabel(title.title);
 	label->setFont(font);
-	label->setStyleSheet(
-	    "color: " COLOR_TEXT_PRIMARY ";"
-	    "border: none;"
-	    "background: transparent;"
-	);
+	label->setStyleSheet(QStringLiteral(
+	                         "color: %1; border: none; background: transparent;")
+	                     .arg(Palette::textPrimary));
 	label->setFixedHeight(QFontMetrics(font).height());
 	return label;
 }
@@ -234,11 +232,9 @@ QLabel *SearchResults::makeYearLabel(const resultTitle &title)
 
 	auto *label = new QLabel(title.year);
 	label->setFont(font);
-	label->setStyleSheet(
-	    "color: " COLOR_TEXT_SECONDARY ";"
-	    "border: none;"
-	    "background: transparent;"
-	);
+	label->setStyleSheet(QStringLiteral(
+	                         "color: %1; border: none; background: transparent;")
+	                     .arg(Palette::textSecondary));
 	label->setFixedHeight(QFontMetrics(font).height());
 	return label;
 }
@@ -248,12 +244,9 @@ QLabel *SearchResults::makePlotLabel(const resultTitle &title)
 	const bool hasPlot = !title.plot.isEmpty() && title.plot != "N/A";
 
 	auto *label = new ElidedLabel(hasPlot ? title.plot : QString(), 0);
-	label->setStyleSheet(
-	    "color: " COLOR_TEXT_SECONDARY ";"
-	    "font-size: 12px;"
-	    "border: none;"
-	    "background: transparent;"
-	);
+	label->setStyleSheet(QStringLiteral(
+	                         "color: %1; font-size: 12px; border: none; background: transparent;")
+	                     .arg(Palette::textSecondary));
 	label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 	label->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 	return label;
@@ -261,7 +254,7 @@ QLabel *SearchResults::makePlotLabel(const resultTitle &title)
 
 IconButton *SearchResults::makeDoneButton(const resultTitle &title, QWidget *row)
 {
-	auto *doneButton = new IconButton(ADDED_ICON, 40, COLOR_SUCCESS, COLOR_SURFACE, row);
+	auto *doneButton = new IconButton(ADDED_ICON, 40, Palette::success, Palette::surface, row);
 
 	connect(doneButton, &QPushButton::clicked, this, [this, title, doneButton, row]()
 	{
@@ -276,7 +269,7 @@ IconButton *SearchResults::makeDoneButton(const resultTitle &title, QWidget *row
 
 IconButton *SearchResults::makeAddButton(const resultTitle &title, QWidget *row)
 {
-	auto *addButton = new IconButton(ADD_ICON, 40, COLOR_ACCENT, COLOR_SURFACE, row);
+	auto *addButton = new IconButton(ADD_ICON, 40, Palette::accent, Palette::surface, row);
 
 	connect(addButton, &QPushButton::clicked, this, [this, title, addButton, row]()
 	{
@@ -296,7 +289,7 @@ void SearchResults::restoreRowButton(QWidget *row, Spinner *rowSpinner, IconButt
 
 void SearchResults::onAddClicked(const resultTitle &title, IconButton *addButton, QWidget *row)
 {
-	auto *rowSpinner = new Spinner(COLOR_ACCENT, 6, row);
+	auto *rowSpinner = new Spinner(Palette::accent, 6, row);
 	rowSpinner->setFixedSize(40, 40);
 
 	auto *rowLayout = qobject_cast<QHBoxLayout *>(row->layout());

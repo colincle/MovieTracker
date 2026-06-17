@@ -1,6 +1,6 @@
 #include "NotificationsCenter.hpp"
 #include "AssetsPaths.hpp"
-#include "ColorPalette.hpp"
+#include "Palette.hpp"
 
 #include <QFrame>
 #include <QHBoxLayout>
@@ -14,19 +14,20 @@ static constexpr int POPUP_Y_OFFSET = 4;
 
 static QString notificationsMenuStyleSheet()
 {
-	return
-	    "QMenu {"
-	    "    background-color: " COLOR_BG_SECONDARY ";"
-	    "    border: 1px solid " COLOR_BORDER ";"
-	    "    border-radius: 8px;"
-	    "    padding: 0px;"
-	    "}"
-	    "QMenu::item {"
-	    "    border: none;"
-	    "    margin: 0px;"
-	    "    padding: 0px;"
-	    "    background: transparent;"
-	    "}";
+	return QStringLiteral(
+	           "QMenu {"
+	           "    background-color: %1;"
+	           "    border: 1px solid %2;"
+	           "    border-radius: 8px;"
+	           "    padding: 0px;"
+	           "}"
+	           "QMenu::item {"
+	           "    border: none;"
+	           "    margin: 0px;"
+	           "    padding: 0px;"
+	           "    background: transparent;"
+	           "}")
+	       .arg(Palette::bgSecondary, Palette::border);
 }
 
 NotificationsCenter::NotificationsCenter(AppStorage &appStorage, QObject *parent)
@@ -58,9 +59,9 @@ void NotificationsCenter::setupMenu()
 	notificationsLayout->setSpacing(4);
 
 	noNotificationsLabel = new QLabel("No notifications", notificationsContainer);
-	noNotificationsLabel->setStyleSheet(
-	    "color: " COLOR_TEXT_SECONDARY "; font-size: 14px; border: none; background: transparent;"
-	);
+	noNotificationsLabel->setStyleSheet(QStringLiteral(
+	                                        "color: %1; font-size: 14px; border: none; background: transparent;")
+	                                    .arg(Palette::textSecondary));
 	notificationsLayout->addWidget(noNotificationsLabel);
 
 	notificationsScrollArea = new QScrollArea;
@@ -119,7 +120,7 @@ void NotificationsCenter::addNotificationRow(const QString &imdbId)
 		return;
 	}
 
-	const QString newSeasonString = "<span style=\"color: " COLOR_ACCENT_LIGHT ";\">New Season</span>";
+	const QString newSeasonString = QStringLiteral("<span style=\"color: %1;\">New Season</span>").arg(Palette::accentLight);
 	const QString text = match->title + "<br>" + newSeasonString;
 
 	auto *row = new QWidget;
@@ -142,7 +143,9 @@ void NotificationsCenter::addNotificationRow(const QString &imdbId)
 	auto *label = new QLabel(text, row);
 	label->setProperty("notificationImdbId", imdbId);
 	label->setTextFormat(Qt::RichText);
-	label->setStyleSheet("color: " COLOR_TEXT_SECONDARY "; font-size: 14px; border: none; background: transparent;");
+	label->setStyleSheet(QStringLiteral(
+	                         "color: %1; font-size: 14px; border: none; background: transparent;")
+	                     .arg(Palette::textSecondary));
 	label->setWordWrap(true);
 
 	rowLayout->addWidget(poster);

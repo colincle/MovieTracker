@@ -1,6 +1,6 @@
 #include "AddBar.hpp"
 #include "AssetsPaths.hpp"
-#include "ColorPalette.hpp"
+#include "Palette.hpp"
 #include "IconButton.hpp"
 
 #include <QHBoxLayout>
@@ -11,10 +11,9 @@ static constexpr int BUTTON_HEIGHT = 40;
 AddBar::AddBar(QWidget *parent)
 	: QWidget(parent)
 {
-	setStyleSheet(
-	    "background-color: " COLOR_BG_SECONDARY ";"
-	    "border-bottom: 1px solid " COLOR_BORDER ";"
-	);
+	setStyleSheet(QStringLiteral(
+	                  "background-color: %1; border-bottom: 1px solid %2;")
+	              .arg(Palette::bgSecondary, Palette::border));
 	setAttribute(Qt::WA_StyledBackground, true);
 
 	setupLayout();
@@ -33,20 +32,20 @@ void AddBar::setupLayout()
 	searchBar->setFixedHeight(BUTTON_HEIGHT);
 	searchBar->setFrame(false);
 	searchBar->installEventFilter(this);
-	searchBar->setStyleSheet(
-	    "QLineEdit {"
-	    "    background-color: " COLOR_SURFACE ";"
-	    "    color: " COLOR_TEXT_SECONDARY ";"
-	    "    border: 1px solid " COLOR_BORDER ";"
-	    "    border-radius: 10px;"
-	    "    padding-left: 12px;"
-	    "    padding-right: 28px;"
-	    "    selection-background-color: " COLOR_ACCENT_LIGHT ";"
-	    "    selection-color: white;"
-	    "}"
-	);
+	searchBar->setStyleSheet(QStringLiteral(
+	                             "QLineEdit {"
+	                             "    background-color: %1;"
+	                             "    color: %2;"
+	                             "    border: 1px solid %3;"
+	                             "    border-radius: 10px;"
+	                             "    padding-left: 12px;"
+	                             "    padding-right: 28px;"
+	                             "    selection-background-color: %4;"
+	                             "    selection-color: white;"
+	                             "}")
+	                         .arg(Palette::surface, Palette::textSecondary, Palette::border, Palette::accentLight));
 
-	returnButton = new IconButton(CROSS_ICON, BUTTON_HEIGHT, COLOR_ACCENT, COLOR_SURFACE, this);
+	returnButton = new IconButton(CROSS_ICON, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
 
 	layout->addWidget(searchBar, 1);
 	layout->addWidget(returnButton);

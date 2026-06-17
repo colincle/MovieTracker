@@ -1,6 +1,6 @@
 #include "TopBar.hpp"
 #include "AssetsPaths.hpp"
-#include "ColorPalette.hpp"
+#include "Palette.hpp"
 #include "IconButton.hpp"
 #include "TextButton.hpp"
 
@@ -12,30 +12,30 @@ static constexpr int NOTIFICATION_DOT_SIZE = 10;
 
 static QString sortMenuStyleSheet()
 {
-	return
-	    "QMenu {"
-	    "    background-color: " COLOR_BG_SECONDARY ";"
-	    "    border: 1px solid " COLOR_BORDER ";"
-	    "    border-radius: 8px;"
-	    "    padding: 4px;"
-	    "}"
-	    "QMenu::item {"
-	    "    color: " COLOR_TEXT_PRIMARY ";"
-	    "    padding: 8px 20px;"
-	    "    border-radius: 4px;"
-	    "}"
-	    "QMenu::item:selected {"
-	    "    background-color: " COLOR_SURFACE ";"
-	    "}";
+	return QStringLiteral(
+	           "QMenu {"
+	           "    background-color: %1;"
+	           "    border: 1px solid %2;"
+	           "    border-radius: 8px;"
+	           "    padding: 4px;"
+	           "}"
+	           "QMenu::item {"
+	           "    color: %3;"
+	           "    padding: 8px 20px;"
+	           "    border-radius: 4px;"
+	           "}"
+	           "QMenu::item:selected {"
+	           "    background-color: %4;"
+	           "}")
+	       .arg(Palette::bgSecondary, Palette::border, Palette::textPrimary, Palette::surface);
 }
 
 TopBar::TopBar(AppStorage &appStorage, QWidget *parent)
 	: appStorage(appStorage), QWidget(parent)
 {
-	setStyleSheet(
-	    "background-color: " COLOR_BG_SECONDARY ";"
-	    "border-bottom: 1px solid " COLOR_BORDER ";"
-	);
+	setStyleSheet(QStringLiteral(
+	                  "background-color: %1; border-bottom: 1px solid %2;")
+	              .arg(Palette::bgSecondary, Palette::border));
 	setAttribute(Qt::WA_StyledBackground, true);
 
 	setupLayout();
@@ -57,21 +57,21 @@ void TopBar::setupLayout()
 	tvShowsButton = new TextButton("TV shows", BUTTON_HEIGHT, this);
 	moviesButton->toggleActive();
 
-	notificationsButton = new IconButton(NOTIFICATIONS_ICON, BUTTON_HEIGHT, COLOR_ACCENT, COLOR_SURFACE, this);
+	notificationsButton = new IconButton(NOTIFICATIONS_ICON, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
 
 	notificationDot = new QWidget(notificationsButton);
 	notificationDot->setAttribute(Qt::WA_StyledBackground, true);
 	notificationDot->setFixedSize(NOTIFICATION_DOT_SIZE, NOTIFICATION_DOT_SIZE);
-	notificationDot->setStyleSheet(
-	    "background-color: " COLOR_ERROR ";"
-	    "border-radius: " + QString::number(NOTIFICATION_DOT_SIZE / 2) + "px;"
-	);
+	notificationDot->setStyleSheet(QStringLiteral(
+	                                   "background-color: %1; border-radius: %2px;")
+	                               .arg(Palette::error)
+	                               .arg(NOTIFICATION_DOT_SIZE / 2));
 	notificationDot->move(BUTTON_HEIGHT - NOTIFICATION_DOT_SIZE, 0);
 	notificationDot->hide();
 
-	sortButton = new IconButton(SORT_ICON, BUTTON_HEIGHT, COLOR_ACCENT, COLOR_SURFACE, this);
-	rankButton = new IconButton(RANK_ICON, BUTTON_HEIGHT, COLOR_ACCENT, COLOR_SURFACE, this);
-	addButton = new IconButton(ADD_ICON, BUTTON_HEIGHT, COLOR_ACCENT, COLOR_SURFACE, this);
+	sortButton = new IconButton(SORT_ICON, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
+	rankButton = new IconButton(RANK_ICON, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
+	addButton = new IconButton(ADD_ICON, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
 
 	layout->addWidget(moviesButton);
 	layout->addWidget(tvShowsButton);

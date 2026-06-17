@@ -1,6 +1,6 @@
 #include "TitleCard.hpp"
 #include "AssetsPaths.hpp"
-#include "ColorPalette.hpp"
+#include "Palette.hpp"
 #include "ElidedLabel.hpp"
 
 #include <QDir>
@@ -42,12 +42,12 @@ void TitleCard::setupUi()
 {
 	setFixedSize(cardWidth, posterHeight + titleLabelHeight);
 	setCursor(Qt::PointingHandCursor);
-	setStyleSheet(
-	    "TitleCard {"
-	    "    background-color: " COLOR_BG_SECONDARY ";"
-	    "    border: 1px solid " COLOR_BORDER ";"
-	    "}"
-	);
+	setStyleSheet(QStringLiteral(
+	                  "TitleCard {"
+	                  "    background-color: %1;"
+	                  "    border: 1px solid %2;"
+	                  "}")
+	              .arg(Palette::bgSecondary, Palette::border));
 
 	setupPosterLabel();
 	setupTitleLabel();
@@ -75,19 +75,18 @@ void TitleCard::setupTitleLabel()
 {
 	titleLabel = new ElidedLabel(title.title, 2, this);
 	titleLabel->setGeometry(0, posterHeight, cardWidth, titleLabelHeight);
-	titleLabel->setStyleSheet(
-	    "border: none; background: transparent;"
-	    "color: " COLOR_TEXT_PRIMARY "; font-size: 12px;"
-	);
+	titleLabel->setStyleSheet(QStringLiteral(
+	                              "border: none; background: transparent; color: %1; font-size: 12px;")
+	                          .arg(Palette::textPrimary));
 	titleLabel->setAlignment(Qt::AlignCenter);
 }
 
 void TitleCard::setupButtons()
 {
-	viewedButton = new IconButton(VIEWED_ICON, BTN_SIZE, COLOR_SUCCESS, COLOR_SURFACE, this);
-	notViewedButton = new IconButton(NOT_VIEWED_ICON, BTN_SIZE, COLOR_ERROR, COLOR_SURFACE, this);
-	deleteButton = new IconButton(DELETE_ICON, BTN_SIZE, COLOR_ERROR, COLOR_SURFACE, this);
-	uploadPosterButton = new IconButton(IMAGE_UPLOAD_ICON, BTN_SIZE, COLOR_ACCENT, COLOR_SURFACE, this);
+	viewedButton = new IconButton(VIEWED_ICON, BTN_SIZE, Palette::success, Palette::surface, this);
+	notViewedButton = new IconButton(NOT_VIEWED_ICON, BTN_SIZE, Palette::error, Palette::surface, this);
+	deleteButton = new IconButton(DELETE_ICON, BTN_SIZE, Palette::error, Palette::surface, this);
+	uploadPosterButton = new IconButton(IMAGE_UPLOAD_ICON, BTN_SIZE, Palette::accent, Palette::surface, this);
 
 	viewedButton->move(BTN_MARGIN, posterHeight - BTN_SIZE - BTN_MARGIN);
 	notViewedButton->move(BTN_MARGIN, posterHeight - BTN_SIZE - BTN_MARGIN);

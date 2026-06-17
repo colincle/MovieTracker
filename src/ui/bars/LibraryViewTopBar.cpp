@@ -1,6 +1,6 @@
 #include "LibraryViewTopBar.hpp"
 #include "AssetsPaths.hpp"
-#include "ColorPalette.hpp"
+#include "Palette.hpp"
 
 #include <QHBoxLayout>
 #include <QKeyEvent>
@@ -30,24 +30,24 @@ void LibraryViewTopBar::setupLayout()
 	searchInput->setFrame(false);
 	searchInput->setFixedHeight(40);
 	searchInput->installEventFilter(this);
-	searchInput->setStyleSheet(
-	    "QLineEdit {"
-	    "    background-color: " COLOR_SURFACE ";"
-	    "    color: " COLOR_TEXT_SECONDARY ";"
-	    "    border: 1px solid " COLOR_BORDER ";"
-	    "    border-radius: 10px;"
-	    "    padding-left: 12px;"
-	    "    padding-right: 28px;"
-	    "    selection-background-color: " COLOR_ACCENT_LIGHT ";"
-	    "    selection-color: white;"
-	    "}"
-	);
+	searchInput->setStyleSheet(QStringLiteral(
+	                               "QLineEdit {"
+	                               "    background-color: %1;"
+	                               "    color: %2;"
+	                               "    border: 1px solid %3;"
+	                               "    border-radius: 10px;"
+	                               "    padding-left: 12px;"
+	                               "    padding-right: 28px;"
+	                               "    selection-background-color: %4;"
+	                               "    selection-color: white;"
+	                               "}")
+	                           .arg(Palette::surface, Palette::textSecondary, Palette::border, Palette::accentLight));
 	searchInput->hide();
 
-	searchButton = new IconButton(SEARCH_ICON, 40, COLOR_ACCENT, COLOR_SURFACE, this);
-	closeButton = new IconButton(CROSS_ICON, 40, COLOR_ACCENT, COLOR_SURFACE, this);
-	zoomInButton = new IconButton(ZOOM_IN_ICON, 40, COLOR_ACCENT, COLOR_SURFACE, this);
-	zoomOutButton = new IconButton(ZOOM_OUT_ICON, 40, COLOR_ACCENT, COLOR_SURFACE, this);
+	searchButton = new IconButton(SEARCH_ICON, 40, Palette::accent, Palette::surface, this);
+	closeButton = new IconButton(CROSS_ICON, 40, Palette::accent, Palette::surface, this);
+	zoomInButton = new IconButton(ZOOM_IN_ICON, 40, Palette::accent, Palette::surface, this);
+	zoomOutButton = new IconButton(ZOOM_OUT_ICON, 40, Palette::accent, Palette::surface, this);
 	zoomInButton->setAutoRepeat(true);
 	zoomInButton->setAutoRepeatDelay(200);
 	zoomInButton->setAutoRepeatInterval(100);

@@ -1,5 +1,5 @@
 #include "TextButton.hpp"
-#include "ColorPalette.hpp"
+#include "Palette.hpp"
 
 #include <QFont>
 
@@ -32,12 +32,12 @@ TextButton::TextButton(const QString &text, int size, QWidget *parent)
 
 QString TextButton::normalStyle() const
 {
-	return makeStyle(COLOR_SURFACE, COLOR_ACCENT);
+	return makeStyle(Palette::surface, Palette::accent);
 }
 
 QString TextButton::activeStyle() const
 {
-	return makeStyle(COLOR_ACCENT, COLOR_SURFACE);
+	return makeStyle(Palette::accent, Palette::surface);
 }
 
 void TextButton::toggleActive()

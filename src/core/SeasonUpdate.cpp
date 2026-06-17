@@ -10,7 +10,7 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
-static constexpr int RECHECK_INTERVAL_DAYS = 14;
+static constexpr int RECHECK_INTERVAL_DAYS = 1;
 
 SeasonUpdate::SeasonUpdate(AppStorage &appStorage, QObject *parent)
 	: QObject(parent)

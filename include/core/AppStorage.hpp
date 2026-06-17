@@ -28,6 +28,7 @@ public:
 	void toggleViewed(const QString &imdbId);
 	void setPoster(const QString &imdbId, const QPixmap &image);
 	void setLibraryCardWidth(int width);
+	void setTheme(QString theme);
 	void setWindowSize(int width, int height);
 	bool importFrom(const QString &zipPath);
 	bool exportTo(const QString &zipPath);
@@ -40,6 +41,7 @@ public:
 	void removeNotifications();
 
 	const int getLibraryCardWidth() const { return libraryCardWidth; }
+	const QString getTheme() const { return theme; }
 	const WindowSize getWindowSize() const { return windowSize; }
 	const std::vector<Title> &getTitles() const { return titles; }
 	std::vector<Title> &getTitlesMutable() { return titles; }
@@ -51,6 +53,7 @@ public:
 private:
 	QString appFilePath;
 	QString omdbApiKey;
+	QString theme;
 	QString postersPath;
 	int libraryCardWidth;
 	WindowSize windowSize;
