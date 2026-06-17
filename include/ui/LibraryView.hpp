@@ -15,17 +15,29 @@ class LibraryView : public QWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit LibraryView(AppStorage &appStorage, QWidget *parent = nullptr);
 
-	void applySort(SortMode sort) { currentSort = sort; populate(); }
-	void applyTab(LibraryTab tab) { currentTab = tab; populate(); }
-	void applyFilter(ViewFilter filter) { currentFilter = filter; populate(); }
+	void applySort(SortMode sort)
+	{
+		currentSort = sort;
+		populate();
+	}
+	void applyTab(LibraryTab tab)
+	{
+		currentTab = tab;
+		populate();
+	}
+	void applyFilter(ViewFilter filter)
+	{
+		currentFilter = filter;
+		populate();
+	}
 
-protected:
+  protected:
 	void resizeEvent(QResizeEvent *event) override;
 
-private:
+  private:
 	int cardWidth;
 	static constexpr int MIN_CARD_WIDTH = 150;
 	static constexpr int MAX_CARD_WIDTH = 300;
@@ -34,7 +46,7 @@ private:
 
 	AppStorage &appStorage;
 
-	SortMode currentSort = SortMode::LastViewed;
+	SortMode currentSort = SortMode::WatchDate;
 	LibraryTab currentTab = LibraryTab::Movies;
 	ViewFilter currentFilter = ViewFilter::All;
 

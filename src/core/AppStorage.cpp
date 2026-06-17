@@ -19,10 +19,7 @@ static QString posterPath(const QString &postersPath, const QString &imdbId)
 
 static auto findByImdbId(std::vector<Title> &titles, const QString &imdbId)
 {
-	return std::find_if(
-	           titles.begin(),
-	           titles.end(),
-	[&](const Title & t) { return t.imdbId == imdbId; });
+	return std::find_if(titles.begin(), titles.end(), [&](const Title &t) { return t.imdbId == imdbId; });
 }
 
 Title AppStorage::titleFromStorageJson(const QJsonObject &obj) const
@@ -43,9 +40,6 @@ Title AppStorage::titleFromStorageJson(const QJsonObject &obj) const
 	t.totalSeasons = obj["totalSeasons"].toString();
 
 	t.posterNotFound = obj["posterNotFound"].toBool(false);
-
-	t.isMovie = t.type == "movie";
-	t.isSeries = t.type == "series";
 
 	t.rank = obj["rank"].toInt(0);
 	t.viewed = obj["viewed"].toBool(false);
@@ -95,9 +89,9 @@ QJsonObject AppStorage::titleToStorageJson(const Title &t) const
 
 AppStorage::AppStorage()
 {
-	const QString dirPath = APP_DATA_DIR;
-	postersPath = dirPath + "/" APP_POSTERS_DIR;
-	appFilePath = dirPath + "/" APP_DATA_FILE;
+	const QString dirPath = AppPaths::dataDir();
+	postersPath = dirPath + "/" + AppPaths::postersDir;
+	appFilePath = dirPath + "/" + AppPaths::dataFile;
 
 	ensureDirectoryExists(dirPath);
 	ensureDirectoryExists(postersPath);
@@ -131,8 +125,7 @@ void AppStorage::load()
 
 		if(!t.posterImage.load(posterPath(postersPath, t.imdbId)))
 		{
-			t.posterImage.load(POSTER_PLACEHOLDER);
-			t.posterNotFound = true;
+			t.posterImage.load(AssetsPaths::posterPlaceholder);
 		}
 
 		titles.push_back(std::move(t));
@@ -168,8 +161,8 @@ void AppStorage::save()
 	root["libraryCardWidth"] = libraryCardWidth;
 	root["theme"] = theme;
 	root["omdbApiKey"] = omdbApiKey;
-	root["titles"] = arr;
 	root["notifications"] = notificationsArr;
+	root["titles"] = arr;
 
 	if(!writeJsonFile(appFilePath, root))
 	{
@@ -181,10 +174,10 @@ bool AppStorage::exportTo(const QString &zipPath)
 {
 	QMutexLocker locker(&mutex);
 
-	QDir appDir(APP_DATA_DIR);
+	QDir appDir(AppPaths::dataDir());
 	QProcess process;
 	process.setWorkingDirectory(appDir.absolutePath() + "/..");
-	process.start("zip", { "-r", zipPath, appDir.dirName() });
+	process.start("zip", {"-r", zipPath, appDir.dirName()});
 	return process.waitForFinished(10000) && process.exitCode() == 0;
 }
 
@@ -197,10 +190,10 @@ bool AppStorage::importFrom(const QString &zipPath)
 		return false;
 	}
 
-	QDir appDir(APP_DATA_DIR);
+	QDir appDir(AppPaths::dataDir());
 	QProcess process;
 	process.setWorkingDirectory(appDir.absolutePath() + "/..");
-	process.start("unzip", { "-o", zipPath, "-d", "." });
+	process.start("unzip", {"-o", zipPath, "-d", "."});
 
 	if(!process.waitForFinished(10000) || process.exitCode() != 0)
 	{
@@ -319,7 +312,6 @@ void AppStorage::setPoster(const QString &imdbId, const QPixmap &image)
 	image.save(posterPath(postersPath, imdbId), "PNG");
 
 	it->posterImage = image;
-	it->posterNotFound = false;
 
 	save();
 	emit titlesUpdated();
@@ -368,8 +360,5 @@ bool AppStorage::contains(const QString &imdbId) const
 {
 	QMutexLocker locker(&mutex);
 
-	return std::any_of(
-	       titles.begin(),
-	titles.end(),
-	[&](const Title & t) { return t.imdbId == imdbId; });
+	return std::any_of(titles.begin(), titles.end(), [&](const Title &t) { return t.imdbId == imdbId; });
 }

@@ -13,12 +13,12 @@ class NotificationsCenter : public QObject
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit NotificationsCenter(AppStorage &appStorage, QObject *parent = nullptr);
 
 	void popup(QWidget *anchor);
 
-private:
+  private:
 	AppStorage &appStorage;
 
 	QSoundEffect notificationSound;

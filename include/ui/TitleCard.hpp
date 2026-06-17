@@ -11,25 +11,26 @@ class TitleCard : public QWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit TitleCard(const Title &title, AppStorage &appStorage, int cardWidth, QWidget *parent = nullptr);
 
-protected:
+  protected:
 	void enterEvent(QEnterEvent *event) override;
 	void leaveEvent(QEvent *event) override;
 	void mousePressEvent(QMouseEvent *event) override;
+	void paintEvent(QPaintEvent *event) override;
 
-signals:
+  signals:
 	void clicked();
 
-private:
+  private:
 	Title title;
 	AppStorage &appStorage;
 	int cardWidth;
 	int posterHeight;
 	int titleLabelHeight;
 
-	QLabel *posterLabel;
+	QPixmap posterPixmap;
 	ElidedLabel *titleLabel;
 	IconButton *notViewedButton;
 	IconButton *viewedButton;
@@ -37,7 +38,6 @@ private:
 	IconButton *uploadPosterButton;
 
 	void setupUi();
-	void setupPosterLabel();
 	void setupTitleLabel();
 	void setupButtons();
 	void connectButtons();

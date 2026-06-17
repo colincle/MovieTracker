@@ -4,9 +4,7 @@
 #include <QResizeEvent>
 
 ElidedLabel::ElidedLabel(const QString &text, int maxLines, QWidget *parent)
-	: QLabel(parent)
-	, fullText(text)
-	, maxLines(maxLines)
+    : QLabel(parent), fullText(text), maxLines(maxLines)
 {
 	setWordWrap(false);
 	updateElidedText();
@@ -47,9 +45,7 @@ void ElidedLabel::updateElidedText()
 
 	for(int i = 0; i < words.size(); ++i)
 	{
-		const QString candidate = lines[lineIndex].isEmpty()
-		                          ? words[i]
-		                          : lines[lineIndex] + " " + words[i];
+		const QString candidate = lines[lineIndex].isEmpty() ? words[i] : lines[lineIndex] + " " + words[i];
 
 		if(lines[lineIndex].isEmpty() || fm.horizontalAdvance(candidate) <= w)
 		{

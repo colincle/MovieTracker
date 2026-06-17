@@ -1,7 +1,17 @@
 #pragma once
 
 #include <QStandardPaths>
+#include <QString>
 
-#define APP_DATA_DIR     QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
-#define APP_DATA_FILE    "movieTracker.json"
-#define APP_POSTERS_DIR  "Posters"
+namespace AppPaths
+{
+
+inline QString dataDir()
+{
+	return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+}
+
+inline constexpr const char *dataFile = "movieTracker.json";
+inline constexpr const char *postersDir = "Posters";
+
+} // namespace AppPaths

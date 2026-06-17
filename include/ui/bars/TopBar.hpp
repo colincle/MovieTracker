@@ -12,10 +12,10 @@ class TopBar : public QWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit TopBar(AppStorage &appStorage, QWidget *parent = nullptr);
 
-private:
+  private:
 	AppStorage &appStorage;
 
 	IconButton *notificationsButton;
@@ -38,7 +38,7 @@ private:
 	void onSortClicked();
 	void onRankClicked();
 
-signals:
+  signals:
 	void requestAddMode();
 	void requestSort(SortMode sortMode);
 	void requestTab(LibraryTab tab);

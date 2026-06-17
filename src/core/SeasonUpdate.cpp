@@ -12,9 +12,7 @@
 
 static constexpr int RECHECK_INTERVAL_DAYS = 1;
 
-SeasonUpdate::SeasonUpdate(AppStorage &appStorage, QObject *parent)
-	: QObject(parent)
-	, appStorage(appStorage)
+SeasonUpdate::SeasonUpdate(AppStorage &appStorage, QObject *parent) : QObject(parent), appStorage(appStorage)
 {
 	QMutexLocker locker(&appStorage.getMutex());
 
@@ -32,12 +30,12 @@ SeasonUpdate::SeasonUpdate(AppStorage &appStorage, QObject *parent)
 
 bool SeasonUpdate::isEligible(const Title &t) const
 {
-	if(!t.isSeries)
-{
-	return false;
-}
+	if(t.type != "series")
+	{
+		return false;
+	}
 
-return t.lastChecked.daysTo(QDate::currentDate()) > RECHECK_INTERVAL_DAYS;
+	return t.lastChecked.daysTo(QDate::currentDate()) > RECHECK_INTERVAL_DAYS;
 }
 
 namespace
@@ -51,21 +49,14 @@ struct SeasonFetchResult
 	QJsonObject data;
 };
 
-SeasonFetchResult fetchSeasonInfo(const QString &apiKey, const QString &imdbId)
+SeasonFetchResult parseReply(QNetworkReply *reply)
 {
-	QNetworkAccessManager manager;
-	QEventLoop loop;
-	QNetworkReply *reply = manager.get(QNetworkRequest(OmdbSearch::makeUrl(apiKey, "i", imdbId)));
-	QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-	loop.exec();
-
 	SeasonFetchResult result;
 
 	if(reply->error() != QNetworkReply::NoError)
 	{
 		const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 		const QString message = reply->errorString();
-		reply->deleteLater();
 
 		if(status == 401 || OmdbSearch::isAuthError(message))
 		{
@@ -79,10 +70,7 @@ SeasonFetchResult fetchSeasonInfo(const QString &apiKey, const QString &imdbId)
 		return result;
 	}
 
-	const QByteArray data = reply->readAll();
-	reply->deleteLater();
-
-	result.data = QJsonDocument::fromJson(data).object();
+	result.data = QJsonDocument::fromJson(reply->readAll()).object();
 
 	if(result.data["Response"].toString() == "False")
 	{
@@ -109,17 +97,46 @@ void applySeasonUpdate(Title &t, const QJsonObject &root, std::vector<QString> &
 	}
 }
 
-}
+} // namespace
 
 void SeasonUpdate::updateSeries()
 {
 	QMutexLocker locker(&appStorage.getMutex());
 
+	const int count = static_cast<int>(titles.size());
+	QNetworkAccessManager manager;
+	QVector<SeasonFetchResult> results(count);
+	int pending = count;
+	QEventLoop loop;
+
+	for(int i = 0; i < count; ++i)
+	{
+		QNetworkReply *reply =
+		    manager.get(QNetworkRequest(OmdbSearch::makeUrl(appStorage.getKey(), "i", titles[i]->imdbId)));
+
+		QObject::connect(reply, &QNetworkReply::finished, &loop,
+		                 [&, i, reply]()
+		                 {
+			                 results[i] = parseReply(reply);
+			                 reply->deleteLater();
+
+			                 if(--pending == 0)
+			                 {
+				                 loop.quit();
+			                 }
+		                 });
+	}
+
+	if(pending > 0)
+	{
+		loop.exec();
+	}
+
 	std::vector<QString> notifications;
 
-	for(Title *t : titles)
+	for(int i = 0; i < count; ++i)
 	{
-		const SeasonFetchResult result = fetchSeasonInfo(appStorage.getKey(), t->imdbId);
+		const SeasonFetchResult &result = results[i];
 
 		if(result.isAuthFailure)
 		{
@@ -138,7 +155,7 @@ void SeasonUpdate::updateSeries()
 			continue;
 		}
 
-		applySeasonUpdate(*t, result.data, notifications);
+		applySeasonUpdate(*titles[i], result.data, notifications);
 	}
 
 	appStorage.addNotifications(notifications);

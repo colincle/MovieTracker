@@ -1,25 +1,25 @@
 #pragma once
 
 #include "IconButton.hpp"
+#include "SearchBar.hpp"
 #include "SortEnums.hpp"
 #include "TextButton.hpp"
 
-#include <QLineEdit>
 #include <QWidget>
 
 class LibraryViewTopBar : public QWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit LibraryViewTopBar(QWidget *parent = nullptr);
 
-signals:
+  signals:
 	void searchRequested(const QString &query);
 	void filterChanged(ViewFilter filter);
 	void zoomRequested(int zoomValue);
 
-private:
+  private:
 	TextButton *showAllButton;
 	TextButton *showToWatchButton;
 
@@ -27,7 +27,7 @@ private:
 	IconButton *closeButton;
 	IconButton *zoomInButton;
 	IconButton *zoomOutButton;
-	QLineEdit *searchInput;
+	SearchBar *searchInput;
 
 	void setupLayout();
 	void connectSignals();
@@ -39,6 +39,4 @@ private:
 
 	void openSearch();
 	void closeSearch();
-
-	bool eventFilter(QObject *obj, QEvent *event) override;
 };

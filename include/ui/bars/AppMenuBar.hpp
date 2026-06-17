@@ -8,15 +8,15 @@ class AppMenuBar : public QMenuBar
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit AppMenuBar(AppStorage &appStorage, QWidget *parent = nullptr);
 
-private:
+  private:
 	AppStorage &appStorage;
 
 	void onImportLibraryTriggered();
 	void onExportLibraryTriggered();
 
-signals:
+  signals:
 	void themeChanged(const QString &theme);
 };

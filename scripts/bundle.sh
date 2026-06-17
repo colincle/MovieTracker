@@ -57,7 +57,7 @@ trap cleanup ERR
 # Build binary
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
-cmake ..
+cmake -DSHIPPED=ON ..
 make
 cd "$ROOT_DIR"
 

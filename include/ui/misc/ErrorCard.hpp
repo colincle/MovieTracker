@@ -9,13 +9,13 @@ class ErrorCard : public QWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit ErrorCard(QWidget *parent, const QString &message);
 
 	void show();
 	void setMessage(const QString &message);
 
-private:
+  private:
 	QLabel *label;
 
 	void updateHeight();

@@ -4,17 +4,17 @@
 
 class TextButton : public QPushButton
 {
-public:
+  public:
 	explicit TextButton(const QString &text, int size, QWidget *parent = nullptr);
 
 	void toggleActive();
 	bool isActive() const;
 
-protected:
+  protected:
 	void enterEvent(QEnterEvent *event) override;
 	void leaveEvent(QEvent *event) override;
 
-private:
+  private:
 	bool active = false;
 
 	QString normalStyle() const;

@@ -11,7 +11,7 @@
 #include <QString>
 #include <QUrl>
 
-struct resultTitle
+struct ResultTitle
 {
 	QString title;
 	QString year;
@@ -31,40 +31,40 @@ enum class SearchErrorType
 	NotFound
 };
 
-struct results
+struct Results
 {
 	SearchErrorType errorType = SearchErrorType::None;
 	QString error;
-	std::vector<resultTitle> titles;
+	std::vector<ResultTitle> titles;
 };
 
 class OmdbSearch : public QObject
 {
 	Q_OBJECT
 
-public:
+  public:
 	OmdbSearch(AppStorage &appStorage, QString query, QString apiKey, QObject *parent = nullptr);
 	OmdbSearch(AppStorage &appStorage, QString apiKey, QObject *parent = nullptr);
 
 	void search();
 	void fetchById(const QString &imdbId, const QPixmap &posterImage, bool posterNotFound);
-	const results &getResults() const;
+	const Results &getResults() const;
 
 	static QUrl makeUrl(const QString &apiKey, const QString &param, const QString &value);
 	static bool isAuthError(const QString &message);
 
-signals:
+  signals:
 	void searchFinished();
 	void titleFetched();
 	void titleFetchFailed();
 
-private slots:
+  private slots:
 	void onReplyFinished();
 
-private:
+  private:
 	AppStorage &appStorage;
 
-	results searchResults;
+	Results searchResults;
 
 	QString requestUrl;
 	QString apiKey;

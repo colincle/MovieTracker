@@ -1,20 +1,33 @@
+# Build
 build/
-orig/
-icon.iconset/
-CMakeCache.txt
-notes
-claudeRecommandations
 CMakeFiles/
+CMakeCache.txt
 cmake_install.cmake
 Makefile
 compile_commands.json
 MovieTracker_autogen/
+MovieTracker
+
+# Compiled objects
 moc_*
 *.o
+*.o.d
 *.obj
 *.d
-*.o.d
-MovieTracker
+
+# App bundle
+*.app
+icon.iconset/
+
+# Formatter
+orig/
+.clang-format
+
+# Editor / OS
 .DS_Store
 .vscode
 .claude
+
+# Notes
+notes
+claudeRecommandations

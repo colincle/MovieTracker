@@ -24,27 +24,22 @@ QUrl OmdbSearch::makeUrl(const QString &apiKey, const QString &param, const QStr
 
 bool OmdbSearch::isAuthError(const QString &message)
 {
-	return message.contains("api key", Qt::CaseInsensitive)
-	       || message.contains("authentication", Qt::CaseInsensitive);
+	return message.contains("api key", Qt::CaseInsensitive) || message.contains("authentication", Qt::CaseInsensitive);
 }
 
 OmdbSearch::OmdbSearch(AppStorage &appStorage, QString query, QString key, QObject *parent)
-	: QObject(parent)
-	, appStorage(appStorage)
-	, apiKey(key)
+    : QObject(parent), appStorage(appStorage), apiKey(key)
 {
 	requestUrl = makeUrl(apiKey, "s", query).toString();
 }
 
 OmdbSearch::OmdbSearch(AppStorage &appStorage, QString key, QObject *parent)
-	: QObject(parent)
-	, appStorage(appStorage)
-	, apiKey(key)
+    : QObject(parent), appStorage(appStorage), apiKey(key)
 {
 	requestUrl = makeUrl(apiKey, "s", QString()).toString();
 }
 
-const results &OmdbSearch::getResults() const
+const Results &OmdbSearch::getResults() const
 {
 	return searchResults;
 }
@@ -59,10 +54,8 @@ void OmdbSearch::fetchById(const QString &imdbId, const QPixmap &posterImage, bo
 {
 	QNetworkReply *reply = networkManager.get(QNetworkRequest(makeUrl(apiKey, "i", imdbId)));
 
-	connect(reply, &QNetworkReply::finished, this, [this, reply, posterImage, posterNotFound]()
-	{
-		onFetchByIdFinished(reply, posterImage, posterNotFound);
-	});
+	connect(reply, &QNetworkReply::finished, this,
+	        [this, reply, posterImage, posterNotFound]() { onFetchByIdFinished(reply, posterImage, posterNotFound); });
 }
 
 void OmdbSearch::onFetchByIdFinished(QNetworkReply *reply, const QPixmap &posterImage, bool posterNotFound)
@@ -102,8 +95,6 @@ Title OmdbSearch::titleFromOmdbJson(const QJsonObject &root, const QPixmap &post
 	t.totalSeasons = root["totalSeasons"].toString();
 	t.posterImage = posterImage;
 	t.posterNotFound = posterNotFound;
-	t.isMovie = t.type == "movie";
-	t.isSeries = t.type == "series";
 
 	return t;
 }
@@ -112,10 +103,7 @@ void OmdbSearch::loadDetailsForTitle(int i, const QString &imdbId)
 {
 	QNetworkReply *reply = networkManager.get(QNetworkRequest(makeUrl(apiKey, "i", imdbId)));
 
-	connect(reply, &QNetworkReply::finished, this, [this, i, reply]()
-	{
-		onDetailsFinished(reply, i);
-	});
+	connect(reply, &QNetworkReply::finished, this, [this, i, reply]() { onDetailsFinished(reply, i); });
 }
 
 void OmdbSearch::onDetailsFinished(QNetworkReply *reply, int i)
@@ -137,7 +125,7 @@ void OmdbSearch::loadPosterForTitle(int i, const QString &posterUrl)
 {
 	if(posterUrl == "N/A")
 	{
-		searchResults.titles[i].posterImage.load(POSTER_PLACEHOLDER);
+		searchResults.titles[i].posterImage.load(AssetsPaths::posterPlaceholder);
 		searchResults.titles[i].posterNotFound = true;
 		checkSearchComplete();
 		return;
@@ -145,10 +133,7 @@ void OmdbSearch::loadPosterForTitle(int i, const QString &posterUrl)
 
 	QNetworkReply *reply = networkManager.get(QNetworkRequest(QUrl(posterUrl)));
 
-	connect(reply, &QNetworkReply::finished, this, [this, i, reply]()
-	{
-		onPosterFinished(reply, i);
-	});
+	connect(reply, &QNetworkReply::finished, this, [this, i, reply]() { onPosterFinished(reply, i); });
 }
 
 void OmdbSearch::onPosterFinished(QNetworkReply *reply, int i)
@@ -157,7 +142,7 @@ void OmdbSearch::onPosterFinished(QNetworkReply *reply, int i)
 
 	if(reply->error() != QNetworkReply::NoError || !image.loadFromData(reply->readAll()))
 	{
-		image.load(POSTER_PLACEHOLDER);
+		image.load(AssetsPaths::posterPlaceholder);
 		searchResults.titles[i].posterNotFound = true;
 	}
 
@@ -173,9 +158,9 @@ void OmdbSearch::checkSearchComplete()
 	}
 }
 
-static resultTitle resultTitleFromJson(const QJsonObject &obj)
+static ResultTitle ResultTitleFromJson(const QJsonObject &obj)
 {
-	resultTitle t;
+	ResultTitle t;
 	t.title = obj["Title"].toString();
 	t.year = obj["Year"].toString();
 	t.imdbId = obj["imdbID"].toString();
@@ -184,16 +169,15 @@ static resultTitle resultTitleFromJson(const QJsonObject &obj)
 	return t;
 }
 
-static void classifyReplyError(QNetworkReply *reply, results &out)
+static void classifyReplyError(QNetworkReply *reply, Results &out)
 {
 	const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 	out.error = reply->errorString();
-	out.errorType = (status == 401 || OmdbSearch::isAuthError(out.error))
-	                ? SearchErrorType::AuthInvalid
-	                : SearchErrorType::Network;
+	out.errorType =
+	    (status == 401 || OmdbSearch::isAuthError(out.error)) ? SearchErrorType::AuthInvalid : SearchErrorType::Network;
 }
 
-static void classifyResponseError(const QJsonObject &root, results &out)
+static void classifyResponseError(const QJsonObject &root, Results &out)
 {
 	out.error = root["Error"].toString();
 	out.errorType = OmdbSearch::isAuthError(out.error) ? SearchErrorType::AuthInvalid : SearchErrorType::NotFound;
@@ -235,7 +219,7 @@ void OmdbSearch::onReplyFinished()
 
 	for(const QJsonValue &value : root["Search"].toArray())
 	{
-		resultTitle t = resultTitleFromJson(value.toObject());
+		ResultTitle t = ResultTitleFromJson(value.toObject());
 
 		if(t.type == "movie" || t.type == "series")
 		{

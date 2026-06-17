@@ -13,16 +13,11 @@ static constexpr int CARD_PADDING_VERTICAL = 10;
 static constexpr int CARD_ICON_SIZE = 24;
 static constexpr int CARD_SPACING = 8;
 
-ErrorCard::ErrorCard(QWidget *parent, const QString &message)
-	: QWidget(parent)
+ErrorCard::ErrorCard(QWidget *parent, const QString &message) : QWidget(parent)
 {
 	setAttribute(Qt::WA_StyledBackground, true);
 	setFixedWidth(CARD_WIDTH);
-	setStyleSheet(
-	    QStringLiteral("background-color: %1; border-radius: %2px;")
-	    .arg(Palette::error)
-	    .arg(CARD_RADIUS)
-	);
+	setStyleSheet(QStringLiteral("background-color: %1; border-radius: %2px;").arg(Palette::error).arg(CARD_RADIUS));
 
 	auto *layout = new QHBoxLayout(this);
 	layout->setContentsMargins(CARD_PADDING_LEFT, CARD_PADDING_VERTICAL, CARD_PADDING_RIGHT, CARD_PADDING_VERTICAL);
@@ -36,7 +31,7 @@ ErrorCard::ErrorCard(QWidget *parent, const QString &message)
 	label->setOpenExternalLinks(true);
 	label->setText(message);
 
-	auto *closeButton = new IconButton(CROSS_ICON, CARD_ICON_SIZE, "white", Palette::error, this);
+	auto *closeButton = new IconButton(AssetsPaths::crossIcon, CARD_ICON_SIZE, "white", Palette::error, this);
 
 	layout->addWidget(label);
 	layout->addStretch();

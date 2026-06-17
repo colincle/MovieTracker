@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QIODevice>
 #include <QJsonDocument>
+#include <QSaveFile>
 #include <QMessageBox>
 
 void ensureDirectoryExists(const QString &path)
@@ -56,15 +57,14 @@ QJsonObject readJsonFile(const QString &filePath)
 
 bool writeJsonFile(const QString &filePath, const QJsonObject &root)
 {
-	QFile file(filePath);
+	QSaveFile file(filePath);
 
-	if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+	if(!file.open(QIODevice::WriteOnly))
 	{
 		qWarning() << "Failed to open file for writing:" << filePath;
 		return false;
 	}
 
 	file.write(QJsonDocument(root).toJson(QJsonDocument::Indented));
-	file.close();
-	return true;
+	return file.commit();
 }

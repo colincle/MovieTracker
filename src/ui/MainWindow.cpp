@@ -14,8 +14,7 @@
 static constexpr int TOPBAR_HEIGHT = 70;
 static constexpr int ERROR_CARD_MARGIN = 5;
 
-MainWindow::MainWindow(QWidget *parent)
-	: QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
 	setMinimumSize(800, 600);
 	resize(appStorage.getWindowSize().width, appStorage.getWindowSize().height);
@@ -69,35 +68,39 @@ void MainWindow::setupErrorCard()
 
 	errorCard->move(ERROR_CARD_MARGIN, topBar->height() + ERROR_CARD_MARGIN);
 
-	connect(&appStorage, &AppStorage::saveFailed, this, [this]()
-	{
-		errorCard->setMessage("Failed to save your library — check disk space and permissions.");
-		errorCard->show();
-	});
+	connect(&appStorage, &AppStorage::saveFailed, this,
+	        [this]()
+	        {
+		        errorCard->setMessage(SAVE_ERROR_MESSAGE);
+		        errorCard->show();
+	        });
 }
 
 void MainWindow::setupSeasonUpdateController()
 {
 	seasonUpdateController = new SeasonUpdateController(appStorage, this);
 
-	connect(seasonUpdateController, &SeasonUpdateController::updateStarted, this, [this]()
-	{
-		seasonOverlay = makeSeasonOverlay();
-		appMenuBar->setEnabled(false);
-	});
+	connect(seasonUpdateController, &SeasonUpdateController::updateStarted, this,
+	        [this]()
+	        {
+		        seasonOverlay = makeSeasonOverlay();
+		        appMenuBar->setEnabled(false);
+	        });
 
-	connect(seasonUpdateController, &SeasonUpdateController::updateFinished, this, [this]()
-	{
-		appMenuBar->setEnabled(true);
-		seasonOverlay->deleteLater();
-		seasonOverlay = nullptr;
-	});
+	connect(seasonUpdateController, &SeasonUpdateController::updateFinished, this,
+	        [this]()
+	        {
+		        appMenuBar->setEnabled(true);
+		        seasonOverlay->deleteLater();
+		        seasonOverlay = nullptr;
+	        });
 
-	connect(seasonUpdateController, &SeasonUpdateController::updateFailed, this, [this](const QString & message)
-	{
-		errorCard->setMessage(message);
-		errorCard->show();
-	});
+	connect(seasonUpdateController, &SeasonUpdateController::updateFailed, this,
+	        [this](const QString &message)
+	        {
+		        errorCard->setMessage(message);
+		        errorCard->show();
+	        });
 
 	connect(&appStorage, &AppStorage::apiKeyChanged, seasonUpdateController, &SeasonUpdateController::start);
 }
@@ -165,11 +168,12 @@ void MainWindow::connectSignals()
 	connect(topBar, &TopBar::requestTab, libraryView, &LibraryView::applyTab);
 	connect(addBar, &AddBar::searchRequested, searchResults, &SearchResults::search);
 
-	connect(searchResults, &SearchResults::searchError, this, [this](const QString & message)
-	{
-		errorCard->setMessage(message);
-		errorCard->show();
-	});
+	connect(searchResults, &SearchResults::searchError, this,
+	        [this](const QString &message)
+	        {
+		        errorCard->setMessage(message);
+		        errorCard->show();
+	        });
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

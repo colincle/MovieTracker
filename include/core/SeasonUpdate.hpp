@@ -9,18 +9,18 @@ class SeasonUpdate : public QObject
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit SeasonUpdate(AppStorage &appStorage, QObject *parent = nullptr);
 
 	bool isEmpty() const { return queueEmpty; }
 	void updateSeries();
 
-signals:
+  signals:
 	void apiKeyError();
 	void networkError();
 	void seriesUpdated();
 
-private:
+  private:
 	AppStorage &appStorage;
 	QVector<Title *> titles;
 	bool queueEmpty = false;

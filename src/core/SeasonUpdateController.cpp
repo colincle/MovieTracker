@@ -11,12 +11,8 @@
 static constexpr int SEASON_RETRY_INTERVAL_MS = 5000;
 static constexpr int MIN_DISPLAY_MS = 1000;
 
-static const QString NETWORK_ERROR_MESSAGE =
-    "Couldn't check for new seasons — check your internet connection.";
-
 SeasonUpdateController::SeasonUpdateController(AppStorage &appStorage, QObject *parent)
-	: QObject(parent)
-	, appStorage(appStorage)
+    : QObject(parent), appStorage(appStorage)
 {
 	QNetworkInformation::loadDefaultBackend();
 
@@ -47,10 +43,7 @@ void SeasonUpdateController::start()
 		return;
 	}
 
-	QTimer::singleShot(0, this, [this, queue]()
-	{
-		runAttempt(queue);
-	});
+	QTimer::singleShot(0, this, [this, queue]() { runAttempt(queue); });
 }
 
 void SeasonUpdateController::runAttempt(SeasonUpdate *queue)
@@ -63,17 +56,23 @@ void SeasonUpdateController::runAttempt(SeasonUpdate *queue)
 	QString errorMessage;
 	bool isNetworkError = false;
 
-	connect(queue, &SeasonUpdate::apiKeyError, this, [&errorMessage, &isNetworkError]()
-	{
-		errorMessage = API_KEY_ERROR_MESSAGE;
-		isNetworkError = false;
-	}, Qt::QueuedConnection);
+	connect(
+	    queue, &SeasonUpdate::apiKeyError, this,
+	    [&errorMessage, &isNetworkError]()
+	    {
+		    errorMessage = API_KEY_ERROR_MESSAGE;
+		    isNetworkError = false;
+	    },
+	    Qt::QueuedConnection);
 
-	connect(queue, &SeasonUpdate::networkError, this, [&errorMessage, &isNetworkError]()
-	{
-		errorMessage = NETWORK_ERROR_MESSAGE;
-		isNetworkError = true;
-	}, Qt::QueuedConnection);
+	connect(
+	    queue, &SeasonUpdate::networkError, this,
+	    [&errorMessage, &isNetworkError]()
+	    {
+		    errorMessage = SEASON_NETWORK_ERROR_MESSAGE;
+		    isNetworkError = true;
+	    },
+	    Qt::QueuedConnection);
 
 	connect(queue, &SeasonUpdate::seriesUpdated, &appStorage, &AppStorage::titlesUpdated, Qt::QueuedConnection);
 
@@ -81,19 +80,20 @@ void SeasonUpdateController::runAttempt(SeasonUpdate *queue)
 	auto future = QtConcurrent::run([queue]() { queue->updateSeries(); });
 
 	QFutureWatcher<void> watcher;
-	connect(&watcher, &QFutureWatcher<void>::finished, &loop, [&]()
-	{
-		const int remaining = MIN_DISPLAY_MS - static_cast<int>(elapsed.elapsed());
+	connect(&watcher, &QFutureWatcher<void>::finished, &loop,
+	        [&]()
+	        {
+		        const int remaining = MIN_DISPLAY_MS - static_cast<int>(elapsed.elapsed());
 
-		if(remaining > 0)
-		{
-			QTimer::singleShot(remaining, &loop, &QEventLoop::quit);
-		}
-		else
-		{
-			loop.quit();
-		}
-	});
+		        if(remaining > 0)
+		        {
+			        QTimer::singleShot(remaining, &loop, &QEventLoop::quit);
+		        }
+		        else
+		        {
+			        loop.quit();
+		        }
+	        });
 	watcher.setFuture(future);
 	loop.exec();
 

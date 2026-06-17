@@ -6,17 +6,17 @@ class ElidedLabel : public QLabel
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit ElidedLabel(const QString &text, int maxLines = 1, QWidget *parent = nullptr);
 
 	void refreshElision();
 
 	QSize minimumSizeHint() const override;
 
-protected:
+  protected:
 	void resizeEvent(QResizeEvent *event) override;
 
-private:
+  private:
 	QString fullText;
 	int maxLines;
 

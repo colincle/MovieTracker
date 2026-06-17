@@ -1,30 +1,28 @@
 #pragma once
 
 #include "IconButton.hpp"
+#include "SearchBar.hpp"
 
-#include <QLineEdit>
 #include <QWidget>
 
 class AddBar : public QWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit AddBar(QWidget *parent = nullptr);
 
-signals:
+  signals:
 	void requestNormalMode();
 	void searchRequested(const QString &query);
 
-private:
+  private:
 	IconButton *returnButton;
-	QLineEdit *searchBar;
+	SearchBar *searchBar;
 
 	void setupLayout();
 	void connectSignals();
 
 	void onReturnClicked();
 	void onSearchCommitted();
-
-	bool eventFilter(QObject *obj, QEvent *event) override;
 };

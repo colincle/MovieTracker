@@ -12,30 +12,27 @@ static constexpr int NOTIFICATION_DOT_SIZE = 10;
 
 static QString sortMenuStyleSheet()
 {
-	return QStringLiteral(
-	           "QMenu {"
-	           "    background-color: %1;"
-	           "    border: 1px solid %2;"
-	           "    border-radius: 8px;"
-	           "    padding: 4px;"
-	           "}"
-	           "QMenu::item {"
-	           "    color: %3;"
-	           "    padding: 8px 20px;"
-	           "    border-radius: 4px;"
-	           "}"
-	           "QMenu::item:selected {"
-	           "    background-color: %4;"
-	           "}")
-	       .arg(Palette::bgSecondary, Palette::border, Palette::textPrimary, Palette::surface);
+	return QStringLiteral("QMenu {"
+	                      "    background-color: %1;"
+	                      "    border: 1px solid %2;"
+	                      "    border-radius: 8px;"
+	                      "    padding: 4px;"
+	                      "}"
+	                      "QMenu::item {"
+	                      "    color: %3;"
+	                      "    padding: 8px 20px;"
+	                      "    border-radius: 4px;"
+	                      "}"
+	                      "QMenu::item:selected {"
+	                      "    background-color: %4;"
+	                      "}")
+	    .arg(Palette::bgSecondary, Palette::border, Palette::textPrimary, Palette::surface);
 }
 
-TopBar::TopBar(AppStorage &appStorage, QWidget *parent)
-	: appStorage(appStorage), QWidget(parent)
+TopBar::TopBar(AppStorage &appStorage, QWidget *parent) : appStorage(appStorage), QWidget(parent)
 {
-	setStyleSheet(QStringLiteral(
-	                  "background-color: %1; border-bottom: 1px solid %2;")
-	              .arg(Palette::bgSecondary, Palette::border));
+	setStyleSheet(QStringLiteral("background-color: %1; border-bottom: 1px solid %2;")
+	                  .arg(Palette::bgSecondary, Palette::border));
 	setAttribute(Qt::WA_StyledBackground, true);
 
 	setupLayout();
@@ -57,21 +54,21 @@ void TopBar::setupLayout()
 	tvShowsButton = new TextButton("TV shows", BUTTON_HEIGHT, this);
 	moviesButton->toggleActive();
 
-	notificationsButton = new IconButton(NOTIFICATIONS_ICON, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
+	notificationsButton =
+	    new IconButton(AssetsPaths::notificationsIcon, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
 
 	notificationDot = new QWidget(notificationsButton);
 	notificationDot->setAttribute(Qt::WA_StyledBackground, true);
 	notificationDot->setFixedSize(NOTIFICATION_DOT_SIZE, NOTIFICATION_DOT_SIZE);
-	notificationDot->setStyleSheet(QStringLiteral(
-	                                   "background-color: %1; border-radius: %2px;")
-	                               .arg(Palette::error)
-	                               .arg(NOTIFICATION_DOT_SIZE / 2));
+	notificationDot->setStyleSheet(QStringLiteral("background-color: %1; border-radius: %2px;")
+	                                   .arg(Palette::error)
+	                                   .arg(NOTIFICATION_DOT_SIZE / 2));
 	notificationDot->move(BUTTON_HEIGHT - NOTIFICATION_DOT_SIZE, 0);
 	notificationDot->hide();
 
-	sortButton = new IconButton(SORT_ICON, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
-	rankButton = new IconButton(RANK_ICON, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
-	addButton = new IconButton(ADD_ICON, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
+	sortButton = new IconButton(AssetsPaths::sortIcon, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
+	rankButton = new IconButton(AssetsPaths::rankIcon, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
+	addButton = new IconButton(AssetsPaths::addIcon, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
 
 	layout->addWidget(moviesButton);
 	layout->addWidget(tvShowsButton);
@@ -128,7 +125,8 @@ void TopBar::onSortClicked()
 
 	connect(menu->addAction("A – Z"), &QAction::triggered, this, [this]() { emit requestSort(SortMode::AlphaAZ); });
 	connect(menu->addAction("Release"), &QAction::triggered, this, [this]() { emit requestSort(SortMode::Release); });
-	connect(menu->addAction("Last Viewed"), &QAction::triggered, this, [this]() { emit requestSort(SortMode::LastViewed); });
+	connect(menu->addAction("Watch date"), &QAction::triggered, this,
+	        [this]() { emit requestSort(SortMode::WatchDate); });
 	connect(menu->addAction("Rank"), &QAction::triggered, this, [this]() { emit requestSort(SortMode::Rank); });
 
 	menu->popup(sortButton->mapToGlobal(QPoint(0, sortButton->height() + 4)));

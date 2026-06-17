@@ -2,9 +2,7 @@
 
 #include <QPainter>
 
-Spinner::Spinner(QString color, int speed, QWidget *parent)
-	: QWidget(parent)
-	, color(color)
+Spinner::Spinner(QString color, int speed, QWidget *parent) : QWidget(parent), color(color)
 {
 	speed = qBound(1, speed, 10);
 
@@ -12,10 +10,7 @@ Spinner::Spinner(QString color, int speed, QWidget *parent)
 
 	prepareNextMove();
 
-	connect(&timer, &QTimer::timeout, this, [this, progressPerFrame]()
-	{
-		onTick(progressPerFrame);
-	});
+	connect(&timer, &QTimer::timeout, this, [this, progressPerFrame]() { onTick(progressPerFrame); });
 
 	timer.start(16);
 	setMinimumSize(24, 24);
@@ -63,24 +58,18 @@ void Spinner::paintEvent(QPaintEvent *)
 	const qreal gap = size * 0.08;
 	const qreal square = (size - gap) / 2.0;
 
-	const QPointF cells[4] =
-	{
-		{0, 0 },
-		{square + gap, 0 },
-		{square + gap, square + gap},
-		{0, square + gap},
+	const QPointF cells[4] = {
+	    {0, 0},
+	    {square + gap, 0},
+	    {square + gap, square + gap},
+	    {0, square + gap},
 	};
 
 	for(int i = 0; i < 3; ++i)
 	{
-		QPointF pos = (i == movingBlock)
-		              ? cells[movingFrom] * (1.0 - progress) + cells[movingTo] * progress
-		              : cells[blockCell[i]];
+		QPointF pos = (i == movingBlock) ? cells[movingFrom] * (1.0 - progress) + cells[movingTo] * progress
+		                                 : cells[blockCell[i]];
 
-		p.drawRoundedRect(
-		    QRectF(pos.x(), pos.y(), square, square),
-		    square * 0.1,
-		    square * 0.1
-		);
+		p.drawRoundedRect(QRectF(pos.x(), pos.y(), square, square), square * 0.1, square * 0.1);
 	}
 }

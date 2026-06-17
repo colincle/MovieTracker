@@ -10,7 +10,7 @@ struct ValidationResult
 
 class ImportedFileValidator
 {
-public:
+  public:
 	static ValidationResult validate(const QString &filePath);
 	static bool entriesAreSafe(const QString &zipPath);
 };

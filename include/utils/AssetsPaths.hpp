@@ -1,40 +1,36 @@
 #pragma once
 
-// -----------------------------------------------------------------------------
-// Asset paths — switch between the two blocks depending on the build target.
-//
-// DEV:      running the binary directly from build/ during development.
-// SHIPPED:  running inside a .app bundle produced by scripts/bundle.sh.
-// Uncomment the SHIPPED block and comment out the DEV block before
-// running the bundle script.
-// -----------------------------------------------------------------------------
+#ifdef SHIPPED
+#define ASSETS_ROOT_ "../Resources/assets"
+#else
+#define ASSETS_ROOT_ "../assets"
+#endif
 
-// -- DEV ----------------------------------------------------------------------
-#define ASSETS_ROOT "../assets"
-// -----------------------------------------------------------------------------
-
-// -- SHIPPED ------------------------------------------------------------------
-// #define ASSETS_ROOT "/../Resources/assets"
-// -----------------------------------------------------------------------------
+namespace AssetsPaths
+{
 
 // Icons
-#define ADD_ICON            ASSETS_ROOT "/icons/add.svg"
-#define ADDED_ICON          ASSETS_ROOT "/icons/added.svg"
-#define SEARCH_ICON         ASSETS_ROOT "/icons/search.svg"
-#define RANK_ICON           ASSETS_ROOT "/icons/rank.svg"
-#define SORT_ICON           ASSETS_ROOT "/icons/sort.svg"
-#define CROSS_ICON          ASSETS_ROOT "/icons/cross.svg"
-#define DELETE_ICON         ASSETS_ROOT "/icons/delete.svg"
-#define VIEWED_ICON         ASSETS_ROOT "/icons/viewed.svg"
-#define NOT_VIEWED_ICON     ASSETS_ROOT "/icons/notViewed.svg"
-#define IMAGE_UPLOAD_ICON   ASSETS_ROOT "/icons/imageUpload.svg"
-#define NOTIFICATIONS_ICON  ASSETS_ROOT "/icons/notifications.svg"
-#define ZOOM_IN_ICON        ASSETS_ROOT "/icons/zoomIn.svg"
-#define ZOOM_OUT_ICON       ASSETS_ROOT "/icons/zoomOut.svg"
+inline constexpr const char *addIcon = ASSETS_ROOT_ "/icons/add.svg";
+inline constexpr const char *addedIcon = ASSETS_ROOT_ "/icons/added.svg";
+inline constexpr const char *searchIcon = ASSETS_ROOT_ "/icons/search.svg";
+inline constexpr const char *rankIcon = ASSETS_ROOT_ "/icons/rank.svg";
+inline constexpr const char *sortIcon = ASSETS_ROOT_ "/icons/sort.svg";
+inline constexpr const char *crossIcon = ASSETS_ROOT_ "/icons/cross.svg";
+inline constexpr const char *deleteIcon = ASSETS_ROOT_ "/icons/delete.svg";
+inline constexpr const char *viewedIcon = ASSETS_ROOT_ "/icons/viewed.svg";
+inline constexpr const char *notViewedIcon = ASSETS_ROOT_ "/icons/notViewed.svg";
+inline constexpr const char *imageUploadIcon = ASSETS_ROOT_ "/icons/imageUpload.svg";
+inline constexpr const char *notificationsIcon = ASSETS_ROOT_ "/icons/notifications.svg";
+inline constexpr const char *zoomInIcon = ASSETS_ROOT_ "/icons/zoomIn.svg";
+inline constexpr const char *zoomOutIcon = ASSETS_ROOT_ "/icons/zoomOut.svg";
 
 // Images
-#define POSTER_PLACEHOLDER  ASSETS_ROOT "/images/placeholderPoster.png"
-#define NO_MOVIES_FOUND     ASSETS_ROOT "/images/noMoviesFound.png"
+inline constexpr const char *posterPlaceholder = ASSETS_ROOT_ "/images/placeholderPoster.png";
+inline constexpr const char *noMoviesFound = ASSETS_ROOT_ "/images/noMoviesFound.png";
 
 // Sounds
-#define NOTIFICATION_SOUND  ASSETS_ROOT "/sounds/notification.wav"
+inline constexpr const char *notificationSound = ASSETS_ROOT_ "/sounds/notification.wav";
+
+} // namespace AssetsPaths
+
+#undef ASSETS_ROOT_

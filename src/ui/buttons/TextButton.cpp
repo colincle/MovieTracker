@@ -5,18 +5,20 @@
 
 static QString makeStyle(const QString &bg, const QString &fg)
 {
-	return
-	    "QPushButton {"
-	    "   background-color: " + bg + ";"
-	    "   border: none;"
-	    "   border-radius: 6px;"
-	    "   padding: 0px 14px;"
-	    "   color: " + fg + ";"
-	    "}";
+	return "QPushButton {"
+	       "   background-color: " +
+	       bg +
+	       ";"
+	       "   border: none;"
+	       "   border-radius: 6px;"
+	       "   padding: 0px 14px;"
+	       "   color: " +
+	       fg +
+	       ";"
+	       "}";
 }
 
-TextButton::TextButton(const QString &text, int size, QWidget *parent)
-	: QPushButton(text, parent)
+TextButton::TextButton(const QString &text, int size, QWidget *parent) : QPushButton(text, parent)
 {
 	setCursor(Qt::PointingHandCursor);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);

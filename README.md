@@ -8,12 +8,13 @@ A desktop app to track your movies and TV shows. Built with C++ and Qt6.
 
 ## Features
 
-- **Library** — Browse your movies and TV shows in a poster grid, sortable by title, release date, last viewed, or rank.
-- **Search & add** — Search the OMDb database by title and add results to your library in one click. Results are limited to movies and TV shows (other OMDb entry types, like video games, are filtered out).
+- **Library** — Browse your movies and TV shows in a poster grid, sortable by title, release date, last viewed, or rank. Zoom the card size in or out to your preference — it's remembered across sessions.
+- **Search & add** — Search the OMDb database by title and add results to your library in one click. Results show the title, year, and plot, and are limited to movies and TV shows.
 - **Missing poster recovery** — If OMDb has no poster for a title, the library card shows an upload button so you can pick a local image to use instead.
 - **Watched tracking** — Mark titles as watched or unwatched. Filter the library to show only titles left to watch.
-- **Season updates** — On launch, the app checks OMDb for new seasons on your tracked TV shows (every 14 days). Shows with a new season are automatically reset to unwatched.
+- **Season updates** — On launch, the app checks OMDb for new seasons on your tracked TV shows (checked daily). Shows with a new season are automatically reset to unwatched.
 - **Notifications** — New seasons show up as a badge on the bell icon; click it for a dropdown listing each show with its poster, with a sound played when one arrives.
+- **Light and dark theme** — Switch between themes in Settings; the UI updates instantly.
 - **Export / Import** — Back up your full library (titles, posters, API key) as a zip file and restore it on any machine.
 - **Tournament ranking** — *(coming soon)* Head-to-head tournament to rank every title in your library.
 
@@ -42,8 +43,6 @@ cd build && ./MovieTracker
 
 To produce a standalone `.app` with Qt dependencies bundled in, use the provided script. `macdeployqt` must be in your PATH.
 
-Before running the script, switch to SHIPPED asset paths: open `include/utils/AssetsPaths.hpp`, comment out the **DEV** block and uncomment the **SHIPPED** block. Switch back after bundling for development.
-
 ```bash
 ./scripts/bundle.sh "MovieTracker"
 ```
@@ -54,7 +53,7 @@ This builds the binary, creates the `.app` structure, generates the icon, copies
 
 ## Setup
 
-On first launch, go to **Omdb API key → Set API Key** in the menu bar and enter your OMDb key. Without it, search and season update checks will not work.
+On first launch, open **Settings** from the menu bar and enter your OMDb API key. Without it, search and season update checks will not work.
 
 ---
 

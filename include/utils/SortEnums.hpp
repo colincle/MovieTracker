@@ -4,7 +4,7 @@ enum class SortMode
 {
 	AlphaAZ,
 	Rank,
-	LastViewed,
+	WatchDate,
 	Release
 };
 

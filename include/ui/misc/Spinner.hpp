@@ -8,13 +8,13 @@ class Spinner : public QWidget
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit Spinner(QString color, int speed, QWidget *parent = nullptr);
 
-protected:
+  protected:
 	void paintEvent(QPaintEvent *) override;
 
-private:
+  private:
 	QTimer timer;
 	QString color;
 

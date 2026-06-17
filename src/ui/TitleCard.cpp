@@ -5,35 +5,21 @@
 
 #include <QDir>
 #include <QFileDialog>
-#include <QHBoxLayout>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
-#include <QVBoxLayout>
 
 static constexpr int BTN_SIZE = 36;
 static constexpr int BTN_MARGIN = 8;
-
-static QPixmap roundedPixmap(const QPixmap &src, int radius)
-{
-	QPixmap result(src.size());
-	result.fill(Qt::transparent);
-	QPainter p(&result);
-	p.setRenderHint(QPainter::Antialiasing);
-	QPainterPath path;
-	path.addRoundedRect(src.rect(), radius, radius);
-	p.setClipPath(path);
-	p.drawPixmap(0, 0, src);
-	return result;
-}
+static constexpr int POSTER_RADIUS = 10;
 
 TitleCard::TitleCard(const Title &title, AppStorage &appStorage, int cardWidth, QWidget *parent)
-	: QWidget(parent)
-	, title(title)
-	, appStorage(appStorage)
-	, cardWidth(cardWidth)
-	, posterHeight(cardWidth * 3 / 2)
-	, titleLabelHeight(cardWidth / 5)
+    : QWidget(parent)
+    , title(title)
+    , appStorage(appStorage)
+    , cardWidth(cardWidth)
+    , posterHeight(cardWidth * 3 / 2)
+    , titleLabelHeight(cardWidth / 5)
 {
 	setupUi();
 }
@@ -42,51 +28,48 @@ void TitleCard::setupUi()
 {
 	setFixedSize(cardWidth, posterHeight + titleLabelHeight);
 	setCursor(Qt::PointingHandCursor);
-	setStyleSheet(QStringLiteral(
-	                  "TitleCard {"
-	                  "    background-color: %1;"
-	                  "    border: 1px solid %2;"
-	                  "}")
-	              .arg(Palette::bgSecondary, Palette::border));
 
-	setupPosterLabel();
+	posterPixmap = title.posterImage.scaled(QSize(cardWidth, posterHeight), Qt::KeepAspectRatioByExpanding,
+	                                        Qt::SmoothTransformation);
+
 	setupTitleLabel();
 	setupButtons();
 	hideButtons();
 	connectButtons();
 }
 
-void TitleCard::setupPosterLabel()
+void TitleCard::paintEvent(QPaintEvent *)
 {
-	posterLabel = new QLabel(this);
-	posterLabel->setGeometry(0, 0, cardWidth, posterHeight);
-	posterLabel->setStyleSheet("border: none; background: transparent;");
-	posterLabel->setAlignment(Qt::AlignCenter);
-	posterLabel->setPixmap(roundedPixmap(
-	                           title.posterImage.scaled(
-	                               QSize(cardWidth, posterHeight),
-	                               Qt::KeepAspectRatioByExpanding,
-	                               Qt::SmoothTransformation),
-	                           10)
-	                      );
+	QPainter p(this);
+	p.setRenderHint(QPainter::Antialiasing);
+
+	// Poster with rounded clip — no background behind it
+	p.save();
+	QPainterPath clip;
+	clip.addRoundedRect(QRectF(0, 0, cardWidth, posterHeight), POSTER_RADIUS, POSTER_RADIUS);
+	p.setClipPath(clip);
+	const int x = (cardWidth - posterPixmap.width()) / 2;
+	const int y = (posterHeight - posterPixmap.height()) / 2;
+	p.drawPixmap(x, y, posterPixmap);
+	p.restore();
 }
 
 void TitleCard::setupTitleLabel()
 {
 	titleLabel = new ElidedLabel(title.title, 2, this);
 	titleLabel->setGeometry(0, posterHeight, cardWidth, titleLabelHeight);
-	titleLabel->setStyleSheet(QStringLiteral(
-	                              "border: none; background: transparent; color: %1; font-size: 12px;")
-	                          .arg(Palette::textPrimary));
+	titleLabel->setStyleSheet(
+	    QStringLiteral("border: none; background: transparent; color: %1; font-size: 12px;").arg(Palette::textPrimary));
 	titleLabel->setAlignment(Qt::AlignCenter);
 }
 
 void TitleCard::setupButtons()
 {
-	viewedButton = new IconButton(VIEWED_ICON, BTN_SIZE, Palette::success, Palette::surface, this);
-	notViewedButton = new IconButton(NOT_VIEWED_ICON, BTN_SIZE, Palette::error, Palette::surface, this);
-	deleteButton = new IconButton(DELETE_ICON, BTN_SIZE, Palette::error, Palette::surface, this);
-	uploadPosterButton = new IconButton(IMAGE_UPLOAD_ICON, BTN_SIZE, Palette::accent, Palette::surface, this);
+	viewedButton = new IconButton(AssetsPaths::viewedIcon, BTN_SIZE, Palette::success, Palette::surface, this);
+	notViewedButton = new IconButton(AssetsPaths::notViewedIcon, BTN_SIZE, Palette::error, Palette::surface, this);
+	deleteButton = new IconButton(AssetsPaths::deleteIcon, BTN_SIZE, Palette::error, Palette::surface, this);
+	uploadPosterButton =
+	    new IconButton(AssetsPaths::imageUploadIcon, BTN_SIZE, Palette::accent, Palette::surface, this);
 
 	viewedButton->move(BTN_MARGIN, posterHeight - BTN_SIZE - BTN_MARGIN);
 	notViewedButton->move(BTN_MARGIN, posterHeight - BTN_SIZE - BTN_MARGIN);
@@ -129,12 +112,8 @@ void TitleCard::onDeleteClicked()
 
 void TitleCard::onUploadPosterClicked()
 {
-	const QString path = QFileDialog::getOpenFileName(
-	                         this,
-	                         "Choose Poster Image",
-	                         QDir::homePath(),
-	                         "Images (*.png *.jpg *.jpeg)"
-	                     );
+	const QString path =
+	    QFileDialog::getOpenFileName(this, "Choose Poster Image", QDir::homePath(), "Images (*.png *.jpg *.jpeg)");
 
 	if(path.isEmpty())
 	{
@@ -153,14 +132,10 @@ void TitleCard::onUploadPosterClicked()
 	title.posterImage = image;
 	title.posterNotFound = false;
 
-	posterLabel->setPixmap(roundedPixmap(
-	                           image.scaled(
-	                               QSize(cardWidth, posterHeight),
-	                               Qt::KeepAspectRatioByExpanding,
-	                               Qt::SmoothTransformation),
-	                           10)
-	                      );
+	posterPixmap =
+	    image.scaled(QSize(cardWidth, posterHeight), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
 
+	update();
 	uploadPosterButton->hide();
 }
 

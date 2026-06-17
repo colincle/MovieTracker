@@ -5,9 +5,7 @@
 #include <QTimer>
 
 IconButton::IconButton(const QString &iconPath, int size, QString color1, QString color2, QWidget *parent)
-	: QPushButton(parent)
-	, color1(color1)
-	, color2(color2)
+    : QPushButton(parent), color1(color1), color2(color2)
 {
 	const int iconSize = size / 1.5;
 
@@ -23,12 +21,13 @@ IconButton::IconButton(const QString &iconPath, int size, QString color1, QStrin
 
 QString IconButton::styleSheet(const QString &bgColor) const
 {
-	return
-	    "QPushButton {"
-	    "    background-color: " + bgColor + ";"
-	    "    border: none;"
-	    "    border-radius: 6px;"
-	    "}";
+	return "QPushButton {"
+	       "    background-color: " +
+	       bgColor +
+	       ";"
+	       "    border: none;"
+	       "    border-radius: 6px;"
+	       "}";
 }
 
 void IconButton::applyNormal()
@@ -58,11 +57,12 @@ void IconButton::leaveEvent(QEvent *event)
 void IconButton::showEvent(QShowEvent *event)
 {
 	QPushButton::showEvent(event);
-	QTimer::singleShot(0, this, [this]()
-	{
-		if(underMouse())
-		{
-			applyHover();
-		}
-	});
+	QTimer::singleShot(0, this,
+	                   [this]()
+	                   {
+		                   if(underMouse())
+		                   {
+			                   applyHover();
+		                   }
+	                   });
 }

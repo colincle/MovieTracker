@@ -6,9 +6,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-AppMenuBar::AppMenuBar(AppStorage &appStorage, QWidget *parent)
-	: QMenuBar(parent)
-	, appStorage(appStorage)
+AppMenuBar::AppMenuBar(AppStorage &appStorage, QWidget *parent) : QMenuBar(parent), appStorage(appStorage)
 {
 	auto *libraryMenu = addMenu("Library");
 
@@ -24,22 +22,19 @@ AppMenuBar::AppMenuBar(AppStorage &appStorage, QWidget *parent)
 
 	connect(importAction, &QAction::triggered, this, &AppMenuBar::onImportLibraryTriggered);
 	connect(exportAction, &QAction::triggered, this, &AppMenuBar::onExportLibraryTriggered);
-	connect(settings, &QAction::triggered, this, [this, &appStorage]()
-	{
-		SettingsWindow window(appStorage, parentWidget());
-		connect(&window, &SettingsWindow::themeChanged, this, &AppMenuBar::themeChanged);
-		window.exec();
-	});
+	connect(settings, &QAction::triggered, this,
+	        [this, &appStorage]()
+	        {
+		        SettingsWindow window(appStorage, parentWidget());
+		        connect(&window, &SettingsWindow::themeChanged, this, &AppMenuBar::themeChanged);
+		        window.exec();
+	        });
 }
 
 void AppMenuBar::onImportLibraryTriggered()
 {
-	QString zipPath = QFileDialog::getOpenFileName(
-	                      parentWidget(),
-	                      "Import Library",
-	                      QDir::homePath(),
-	                      "MovieTracker Backup (*.zip)"
-	                  );
+	QString zipPath =
+	    QFileDialog::getOpenFileName(parentWidget(), "Import Library", QDir::homePath(), "MovieTracker Backup (*.zip)");
 
 	if(zipPath.isEmpty())
 	{
@@ -75,11 +70,7 @@ void AppMenuBar::onImportLibraryTriggered()
 void AppMenuBar::onExportLibraryTriggered()
 {
 	QString zipPath = QFileDialog::getSaveFileName(
-	                      parentWidget(),
-	                      "Export Library",
-	                      QDir::homePath() + "/movieTracker_backup.zip",
-	                      "MovieTracker Backup (*.zip)"
-	                  );
+	    parentWidget(), "Export Library", QDir::homePath() + "/movieTracker_backup.zip", "MovieTracker Backup (*.zip)");
 
 	if(zipPath.isEmpty())
 	{

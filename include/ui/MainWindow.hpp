@@ -15,10 +15,10 @@ class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
-public:
+  public:
 	MainWindow(QWidget *parent = nullptr);
 
-private:
+  private:
 	AppStorage appStorage;
 	AppMenuBar *appMenuBar;
 	ErrorCard *errorCard;

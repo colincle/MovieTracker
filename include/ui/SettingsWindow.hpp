@@ -11,10 +11,10 @@ class SettingsWindow : public QDialog
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit SettingsWindow(AppStorage &appStorage, QWidget *parent = nullptr);
 
-private:
+  private:
 	AppStorage &appStorage;
 	QPushButton *lightTab;
 	QPushButton *darkTab;
@@ -29,6 +29,6 @@ private:
 	void onApplyClicked();
 	void refreshStyle();
 
-signals:
+  signals:
 	void themeChanged(const QString &theme);
 };

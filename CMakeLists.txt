@@ -25,7 +25,13 @@ foreach(DIR ${INCLUDE_DIRS})
     endif()
 endforeach()
 
+option(SHIPPED "Build for app bundle deployment" OFF)
+
 add_executable(MovieTracker ${SOURCES})
+
+if(SHIPPED)
+    target_compile_definitions(MovieTracker PRIVATE SHIPPED)
+endif()
 
 target_include_directories(MovieTracker PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include

@@ -22,9 +22,6 @@ struct Title
 	QPixmap posterImage;
 	bool posterNotFound = false;
 
-	bool isMovie = false;
-	bool isSeries = false;
-
 	int rank = 0;
 	bool viewed = false;
 	QDate lastViewed = QDate::currentDate();

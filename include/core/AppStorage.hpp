@@ -19,7 +19,7 @@ class AppStorage : public QObject
 {
 	Q_OBJECT
 
-public:
+  public:
 	AppStorage();
 
 	void setOmdbApiKey(QString key);
@@ -50,7 +50,7 @@ public:
 
 	QRecursiveMutex &getMutex() { return mutex; }
 
-private:
+  private:
 	QString appFilePath;
 	QString omdbApiKey;
 	QString theme;
@@ -65,7 +65,7 @@ private:
 	Title titleFromStorageJson(const QJsonObject &obj) const;
 	QJsonObject titleToStorageJson(const Title &t) const;
 
-signals:
+  signals:
 	void titlesUpdated();
 	void saveFailed();
 	void apiKeyChanged();

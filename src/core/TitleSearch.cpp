@@ -18,22 +18,19 @@ static int fuzzyScore(const QString &pattern, const QString &str)
 
 static bool titleLevenshteinMatches(const Title &t, const QString &query)
 {
-	return levenshteinMatches(query, t.title)
-	       || levenshteinMatches(query, t.actors)
-	       || levenshteinMatches(query, t.director)
-	       || levenshteinMatches(query, t.year)
-	       || levenshteinMatches(query, t.released);
+	return levenshteinMatches(query, t.title) || levenshteinMatches(query, t.actors) ||
+	       levenshteinMatches(query, t.director) || levenshteinMatches(query, t.year) ||
+	       levenshteinMatches(query, t.released);
 }
 
 static int titleBestScore(const Title &t, const QString &query)
 {
-	return std::max(
-	{
-		fuzzyScore(query, t.title),
-		fuzzyScore(query, t.actors),
-		fuzzyScore(query, t.director),
-		fuzzyScore(query, t.year),
-		fuzzyScore(query, t.released),
+	return std::max({
+	    fuzzyScore(query, t.title),
+	    fuzzyScore(query, t.actors),
+	    fuzzyScore(query, t.director),
+	    fuzzyScore(query, t.year),
+	    fuzzyScore(query, t.released),
 	});
 }
 
@@ -54,17 +51,13 @@ std::vector<Title> scoreAndRankTitles(const std::vector<Title> &titles, const QS
 		{
 			scored.emplace_back(score, t);
 		}
-		else
-			if(titleLevenshteinMatches(t, query))
-			{
-				scored.emplace_back(1, t);
-			}
+		else if(titleLevenshteinMatches(t, query))
+		{
+			scored.emplace_back(1, t);
+		}
 	}
 
-	std::sort(scored.begin(), scored.end(), [](const auto & a, const auto & b)
-	{
-		return a.first > b.first;
-	});
+	std::sort(scored.begin(), scored.end(), [](const auto &a, const auto &b) { return a.first > b.first; });
 
 	std::vector<Title> result;
 
@@ -87,12 +80,12 @@ std::vector<Title> filterTitles(const std::vector<Title> &titles, LibraryTab tab
 			continue;
 		}
 
-		if(tab == LibraryTab::Movies && t.isMovie)
+		if(tab == LibraryTab::Movies && t.type == "movie")
 		{
 			result.push_back(t);
 		}
 
-		if(tab == LibraryTab::TvShows && t.isSeries)
+		if(tab == LibraryTab::TvShows && t.type == "series")
 		{
 			result.push_back(t);
 		}
@@ -128,32 +121,23 @@ void sortTitles(std::vector<Title> &titles, SortMode mode)
 	switch(mode)
 	{
 	case SortMode::AlphaAZ:
-		std::sort(titles.begin(), titles.end(), [](const Title & a, const Title & b)
-		{
-			return sortKey(a.title) < sortKey(b.title);
-		});
+		std::sort(titles.begin(), titles.end(),
+		          [](const Title &a, const Title &b) { return sortKey(a.title) < sortKey(b.title); });
 		break;
 
 	case SortMode::Release:
-		std::sort(titles.begin(), titles.end(), [](const Title & a, const Title & b)
-		{
-			return QDate::fromString(a.released, "dd MMM yyyy")
-			       > QDate::fromString(b.released, "dd MMM yyyy");
-		});
+		std::sort(
+		    titles.begin(), titles.end(), [](const Title &a, const Title &b)
+		    { return QDate::fromString(a.released, "dd MMM yyyy") > QDate::fromString(b.released, "dd MMM yyyy"); });
 		break;
 
-	case SortMode::LastViewed:
-		std::sort(titles.begin(), titles.end(), [](const Title & a, const Title & b)
-		{
-			return a.lastViewed < b.lastViewed;
-		});
+	case SortMode::WatchDate:
+		std::sort(titles.begin(), titles.end(),
+		          [](const Title &a, const Title &b) { return a.lastViewed < b.lastViewed; });
 		break;
 
 	case SortMode::Rank:
-		std::sort(titles.begin(), titles.end(), [](const Title & a, const Title & b)
-		{
-			return a.rank < b.rank;
-		});
+		std::sort(titles.begin(), titles.end(), [](const Title &a, const Title &b) { return a.rank < b.rank; });
 		break;
 	}
 }

@@ -11,17 +11,17 @@ class SeasonUpdateController : public QObject
 {
 	Q_OBJECT
 
-public:
+  public:
 	explicit SeasonUpdateController(AppStorage &appStorage, QObject *parent = nullptr);
 
 	void start();
 
-signals:
+  signals:
 	void updateStarted();
 	void updateFinished();
 	void updateFailed(const QString &message);
 
-private:
+  private:
 	AppStorage &appStorage;
 	QTimer *retryTimer;
 

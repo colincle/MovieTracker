@@ -3,12 +3,10 @@
 #include "Palette.hpp"
 
 #include <QHBoxLayout>
-#include <QKeyEvent>
 
 static constexpr int SEARCH_INPUT_WIDTH = 220;
 
-LibraryViewTopBar::LibraryViewTopBar(QWidget *parent)
-	: QWidget(parent)
+LibraryViewTopBar::LibraryViewTopBar(QWidget *parent) : QWidget(parent)
 {
 	setupLayout();
 	connectSignals();
@@ -24,30 +22,13 @@ void LibraryViewTopBar::setupLayout()
 	showToWatchButton = new TextButton("To watch", 40, this);
 	showAllButton->toggleActive();
 
-	searchInput = new QLineEdit(this);
-	searchInput->setPlaceholderText(" Search...");
-	searchInput->setClearButtonEnabled(true);
-	searchInput->setFrame(false);
-	searchInput->setFixedHeight(40);
-	searchInput->installEventFilter(this);
-	searchInput->setStyleSheet(QStringLiteral(
-	                               "QLineEdit {"
-	                               "    background-color: %1;"
-	                               "    color: %2;"
-	                               "    border: 1px solid %3;"
-	                               "    border-radius: 10px;"
-	                               "    padding-left: 12px;"
-	                               "    padding-right: 28px;"
-	                               "    selection-background-color: %4;"
-	                               "    selection-color: white;"
-	                               "}")
-	                           .arg(Palette::surface, Palette::textSecondary, Palette::border, Palette::accentLight));
+	searchInput = new SearchBar(this);
 	searchInput->hide();
 
-	searchButton = new IconButton(SEARCH_ICON, 40, Palette::accent, Palette::surface, this);
-	closeButton = new IconButton(CROSS_ICON, 40, Palette::accent, Palette::surface, this);
-	zoomInButton = new IconButton(ZOOM_IN_ICON, 40, Palette::accent, Palette::surface, this);
-	zoomOutButton = new IconButton(ZOOM_OUT_ICON, 40, Palette::accent, Palette::surface, this);
+	searchButton = new IconButton(AssetsPaths::searchIcon, 40, Palette::accent, Palette::surface, this);
+	closeButton = new IconButton(AssetsPaths::crossIcon, 40, Palette::accent, Palette::surface, this);
+	zoomInButton = new IconButton(AssetsPaths::zoomInIcon, 40, Palette::accent, Palette::surface, this);
+	zoomOutButton = new IconButton(AssetsPaths::zoomOutIcon, 40, Palette::accent, Palette::surface, this);
 	zoomInButton->setAutoRepeat(true);
 	zoomInButton->setAutoRepeatDelay(200);
 	zoomInButton->setAutoRepeatInterval(100);
@@ -75,6 +56,7 @@ void LibraryViewTopBar::connectSignals()
 	connect(closeButton, &QPushButton::clicked, this, &LibraryViewTopBar::closeSearch);
 	connect(searchInput, &QLineEdit::returnPressed, this, &LibraryViewTopBar::onSearchCommitted);
 	connect(searchInput, &QLineEdit::textChanged, this, &LibraryViewTopBar::onSearchTextChanged);
+	connect(searchInput, &SearchBar::escapePressed, this, &LibraryViewTopBar::closeSearch);
 	connect(zoomInButton, &QPushButton::clicked, this, [this]() { emit zoomRequested(10); });
 	connect(zoomOutButton, &QPushButton::clicked, this, [this]() { emit zoomRequested(-10); });
 }
@@ -132,20 +114,4 @@ void LibraryViewTopBar::closeSearch()
 	emit searchRequested("");
 	closeButton->hide();
 	searchButton->show();
-}
-
-bool LibraryViewTopBar::eventFilter(QObject *obj, QEvent *event)
-{
-	if(obj == searchInput && event->type() == QEvent::KeyPress)
-	{
-		auto *keyEvent = static_cast<QKeyEvent *>(event);
-
-		if(keyEvent->key() == Qt::Key_Escape)
-		{
-			closeSearch();
-			return true;
-		}
-	}
-
-	return QWidget::eventFilter(obj, event);
 }

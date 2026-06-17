@@ -14,27 +14,25 @@ static constexpr int POPUP_Y_OFFSET = 4;
 
 static QString notificationsMenuStyleSheet()
 {
-	return QStringLiteral(
-	           "QMenu {"
-	           "    background-color: %1;"
-	           "    border: 1px solid %2;"
-	           "    border-radius: 8px;"
-	           "    padding: 0px;"
-	           "}"
-	           "QMenu::item {"
-	           "    border: none;"
-	           "    margin: 0px;"
-	           "    padding: 0px;"
-	           "    background: transparent;"
-	           "}")
-	       .arg(Palette::bgSecondary, Palette::border);
+	return QStringLiteral("QMenu {"
+	                      "    background-color: %1;"
+	                      "    border: 1px solid %2;"
+	                      "    border-radius: 8px;"
+	                      "    padding: 0px;"
+	                      "}"
+	                      "QMenu::item {"
+	                      "    border: none;"
+	                      "    margin: 0px;"
+	                      "    padding: 0px;"
+	                      "    background: transparent;"
+	                      "}")
+	    .arg(Palette::bgSecondary, Palette::border);
 }
 
 NotificationsCenter::NotificationsCenter(AppStorage &appStorage, QObject *parent)
-	: QObject(parent)
-	, appStorage(appStorage)
+    : QObject(parent), appStorage(appStorage)
 {
-	notificationSound.setSource(QUrl::fromLocalFile(NOTIFICATION_SOUND));
+	notificationSound.setSource(QUrl::fromLocalFile(AssetsPaths::notificationSound));
 	notificationSound.setVolume(1.0);
 
 	setupMenu();
@@ -59,9 +57,9 @@ void NotificationsCenter::setupMenu()
 	notificationsLayout->setSpacing(4);
 
 	noNotificationsLabel = new QLabel("No notifications", notificationsContainer);
-	noNotificationsLabel->setStyleSheet(QStringLiteral(
-	                                        "color: %1; font-size: 14px; border: none; background: transparent;")
-	                                    .arg(Palette::textSecondary));
+	noNotificationsLabel->setStyleSheet(
+	    QStringLiteral("color: %1; font-size: 14px; border: none; background: transparent;")
+	        .arg(Palette::textSecondary));
 	notificationsLayout->addWidget(noNotificationsLabel);
 
 	notificationsScrollArea = new QScrollArea;
@@ -71,10 +69,8 @@ void NotificationsCenter::setupMenu()
 	notificationsScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	notificationsScrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	notificationsScrollArea->setFixedWidth(NOTIFICATIONS_WIDTH);
-	notificationsScrollArea->setStyleSheet(
-	    "QScrollArea { background: transparent; border: none; }"
-	    "QScrollBar:vertical { width: 0px; }"
-	);
+	notificationsScrollArea->setStyleSheet("QScrollArea { background: transparent; border: none; }"
+	                                       "QScrollBar:vertical { width: 0px; }");
 	notificationsScrollArea->viewport()->setStyleSheet("background: transparent; border: none;");
 
 	notificationsMenu = new QMenu;
@@ -87,9 +83,9 @@ void NotificationsCenter::setupMenu()
 
 const Title *NotificationsCenter::findTitleForNotification(const QString &imdbId) const
 {
-for(const Title &t : appStorage.getTitles())
-{
-	if(t.imdbId == imdbId)
+	for(const Title &t : appStorage.getTitles())
+	{
+		if(t.imdbId == imdbId)
 		{
 			return &t;
 		}
@@ -100,9 +96,9 @@ for(const Title &t : appStorage.getTitles())
 
 bool NotificationsCenter::notificationRowExists(const QString &imdbId) const
 {
-for(QLabel *label : notificationsContainer->findChildren<QLabel *>())
-{
-	if(label != noNotificationsLabel && label->property("notificationImdbId").toString() == imdbId)
+	for(QLabel *label : notificationsContainer->findChildren<QLabel *>())
+	{
+		if(label != noNotificationsLabel && label->property("notificationImdbId").toString() == imdbId)
 		{
 			return true;
 		}
@@ -120,7 +116,8 @@ void NotificationsCenter::addNotificationRow(const QString &imdbId)
 		return;
 	}
 
-	const QString newSeasonString = QStringLiteral("<span style=\"color: %1;\">New Season</span>").arg(Palette::accentLight);
+	const QString newSeasonString =
+	    QStringLiteral("<span style=\"color: %1;\">New Season</span>").arg(Palette::accentLight);
 	const QString text = match->title + "<br>" + newSeasonString;
 
 	auto *row = new QWidget;
@@ -134,18 +131,13 @@ void NotificationsCenter::addNotificationRow(const QString &imdbId)
 	poster->setFixedSize(NOTIFICATION_POSTER_WIDTH, NOTIFICATION_POSTER_HEIGHT);
 	poster->setStyleSheet("border: none; background: transparent;");
 	poster->setPixmap(
-	    match->posterImage.scaled(
-	        poster->size(),
-	        Qt::KeepAspectRatioByExpanding,
-	        Qt::SmoothTransformation)
-	);
+	    match->posterImage.scaled(poster->size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
 
 	auto *label = new QLabel(text, row);
 	label->setProperty("notificationImdbId", imdbId);
 	label->setTextFormat(Qt::RichText);
-	label->setStyleSheet(QStringLiteral(
-	                         "color: %1; font-size: 14px; border: none; background: transparent;")
-	                     .arg(Palette::textSecondary));
+	label->setStyleSheet(QStringLiteral("color: %1; font-size: 14px; border: none; background: transparent;")
+	                         .arg(Palette::textSecondary));
 	label->setWordWrap(true);
 
 	rowLayout->addWidget(poster);
