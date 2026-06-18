@@ -7,9 +7,19 @@
 #include <QJsonObject>
 #include <QProcess>
 
-static const QStringList REQUIRED_STRING_FIELDS = {"actors",       "director", "imdbId",   "lastChecked",
-                                                   "lastViewed",   "plot",     "released", "title",
-                                                   "totalSeasons", "type",     "year"};
+static const QStringList REQUIRED_STRING_FIELDS = {
+    "actors",
+    "director",
+    "imdbId",
+    "lastChecked",
+    "lastViewed",
+    "plot",
+    "released",
+    "title",
+    "totalSeasons",
+    "type",
+    "year"
+};
 
 static const QStringList VALID_TYPES = {"movie", "series"};
 
@@ -94,7 +104,8 @@ bool ImportedFileValidator::entriesAreSafe(const QString &zipPath)
 		return false;
 	}
 
-	const QStringList entries = QString::fromUtf8(listProcess.readAllStandardOutput()).split('\n', Qt::SkipEmptyParts);
+	const QStringList entries = QString::fromUtf8(listProcess.readAllStandardOutput())
+	                                .split('\n', Qt::SkipEmptyParts);
 
 	for(const QString &entry : entries)
 	{

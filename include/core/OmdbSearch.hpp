@@ -43,14 +43,18 @@ class OmdbSearch : public QObject
 	Q_OBJECT
 
   public:
-	OmdbSearch(AppStorage &appStorage, QString query, QString apiKey, QObject *parent = nullptr);
+	OmdbSearch(
+	    AppStorage &appStorage, QString query, QString apiKey, QObject *parent = nullptr
+	);
 	OmdbSearch(AppStorage &appStorage, QString apiKey, QObject *parent = nullptr);
 
 	void search();
-	void fetchById(const QString &imdbId, const QPixmap &posterImage, bool posterNotFound);
+	void
+	fetchById(const QString &imdbId, const QPixmap &posterImage, bool posterNotFound);
 	const Results &getResults() const;
 
-	static QUrl makeUrl(const QString &apiKey, const QString &param, const QString &value);
+	static QUrl
+	makeUrl(const QString &apiKey, const QString &param, const QString &value);
 	static bool isAuthError(const QString &message);
 
   signals:
@@ -73,11 +77,15 @@ class OmdbSearch : public QObject
 
 	int pendingPosters = 0;
 
-	Title titleFromOmdbJson(const QJsonObject &root, const QPixmap &posterImage, bool posterNotFound);
+	Title titleFromOmdbJson(
+	    const QJsonObject &root, const QPixmap &posterImage, bool posterNotFound
+	);
 	void loadDetailsForTitle(int i, const QString &imdbId);
 	void onDetailsFinished(QNetworkReply *reply, int i);
 	void loadPosterForTitle(int i, const QString &posterUrl);
-	void onFetchByIdFinished(QNetworkReply *reply, const QPixmap &posterImage, bool posterNotFound);
+	void onFetchByIdFinished(
+	    QNetworkReply *reply, const QPixmap &posterImage, bool posterNotFound
+	);
 	void onPosterFinished(QNetworkReply *reply, int i);
 	void checkSearchComplete();
 };

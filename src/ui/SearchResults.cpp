@@ -19,7 +19,8 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-SearchResults::SearchResults(AppStorage &storage, QWidget *parent) : QWidget(parent), appStorage(storage)
+SearchResults::SearchResults(AppStorage &storage, QWidget *parent)
+    : QWidget(parent), appStorage(storage)
 {
 	setStyleSheet(QStringLiteral("background-color: %1;").arg(Palette::bgPrimary));
 	setAttribute(Qt::WA_StyledBackground, true);
@@ -85,19 +86,23 @@ void SearchResults::search(QString query)
 	auto *omdbSearch = new OmdbSearch(appStorage, query, appStorage.getKey(), this);
 	currentSearch = omdbSearch;
 
-	connect(omdbSearch, &OmdbSearch::searchFinished, this,
-	        [this, omdbSearch]()
-	        {
-		        if(omdbSearch != currentSearch)
-		        {
-			        omdbSearch->deleteLater();
-			        return;
-		        }
+	connect(
+	    omdbSearch,
+	    &OmdbSearch::searchFinished,
+	    this,
+	    [this, omdbSearch]()
+	    {
+		    if(omdbSearch != currentSearch)
+		    {
+			    omdbSearch->deleteLater();
+			    return;
+		    }
 
-		        currentSearch = nullptr;
-		        spinner->hide();
-		        onSearchFinished(omdbSearch);
-	        });
+		    currentSearch = nullptr;
+		    spinner->hide();
+		    onSearchFinished(omdbSearch);
+	    }
+	);
 
 	omdbSearch->search();
 }
@@ -106,14 +111,17 @@ void SearchResults::onSearchFinished(OmdbSearch *omdbSearch)
 {
 	const Results &r = omdbSearch->getResults();
 
-	if(r.errorType == SearchErrorType::AuthInvalid || r.errorType == SearchErrorType::Network)
+	if(r.errorType == SearchErrorType::AuthInvalid ||
+	   r.errorType == SearchErrorType::Network)
 	{
 		clearResultsLayout();
 		scrollArea->hide();
 		clearExtraLayoutWidgets();
 
-		emit searchError(r.errorType == SearchErrorType::AuthInvalid ? API_KEY_ERROR_MESSAGE
-		                                                             : SEARCH_NETWORK_ERROR_MESSAGE);
+		emit searchError(
+		    r.errorType == SearchErrorType::AuthInvalid ? API_KEY_ERROR_MESSAGE
+		                                                : SEARCH_NETWORK_ERROR_MESSAGE
+		);
 
 		omdbSearch->deleteLater();
 		return;
@@ -143,22 +151,27 @@ void SearchResults::onSearchFinished(OmdbSearch *omdbSearch)
 	scrollArea->show();
 	omdbSearch->deleteLater();
 
-	QTimer::singleShot(0, this,
-	                   [this]()
-	                   {
-		                   for(ElidedLabel *label : resultsContainer->findChildren<ElidedLabel *>())
-		                   {
-			                   label->refreshElision();
-		                   }
-	                   });
+	QTimer::singleShot(
+	    0,
+	    this,
+	    [this]()
+	    {
+		    for(ElidedLabel *label : resultsContainer->findChildren<ElidedLabel *>())
+		    {
+			    label->refreshElision();
+		    }
+	    }
+	);
 }
 
 QWidget *SearchResults::makeResultRow(const ResultTitle &title)
 {
 	auto *row = new QWidget;
-	row->setStyleSheet(QStringLiteral("background-color: %1;"
-	                                  "border: 1px solid %2;"
-	                                  "border-radius: 10px;")
+	row->setStyleSheet(QStringLiteral(
+	                       "background-color: %1;"
+	                       "border: 1px solid %2;"
+	                       "border-radius: 10px;"
+	)
 	                       .arg(Palette::bgSecondary, Palette::border));
 
 	row->setFixedHeight(174);
@@ -169,7 +182,10 @@ QWidget *SearchResults::makeResultRow(const ResultTitle &title)
 
 	rowLayout->addWidget(makePosterLabel(title));
 	rowLayout->addWidget(makeTitleInfo(title), 1);
-	rowLayout->addWidget(appStorage.contains(title.imdbId) ? makeDoneButton(title, row) : makeAddButton(title, row));
+	rowLayout->addWidget(
+	    appStorage.contains(title.imdbId) ? makeDoneButton(title, row)
+	                                      : makeAddButton(title, row)
+	);
 
 	return row;
 }
@@ -179,7 +195,11 @@ QLabel *SearchResults::makePosterLabel(const ResultTitle &title)
 	auto *poster = new QLabel;
 	poster->setFixedSize(100, 150);
 	poster->setStyleSheet("border: none; background: transparent;");
-	poster->setPixmap(title.posterImage.scaled(poster->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+	poster->setPixmap(title.posterImage.scaled(
+	    poster->size(),
+	    Qt::KeepAspectRatio,
+	    Qt::SmoothTransformation
+	));
 	return poster;
 }
 
@@ -210,7 +230,10 @@ QLabel *SearchResults::makeTitleLabel(const ResultTitle &title)
 
 	auto *label = new ElidedLabel(title.title);
 	label->setFont(font);
-	label->setStyleSheet(QStringLiteral("color: %1; border: none; background: transparent;").arg(Palette::textPrimary));
+	label->setStyleSheet(
+	    QStringLiteral("color: %1; border: none; background: transparent;")
+	        .arg(Palette::textPrimary)
+	);
 	label->setFixedHeight(QFontMetrics(font).height());
 	return label;
 }
@@ -224,7 +247,9 @@ QLabel *SearchResults::makeYearLabel(const ResultTitle &title)
 	auto *label = new QLabel(title.year);
 	label->setFont(font);
 	label->setStyleSheet(
-	    QStringLiteral("color: %1; border: none; background: transparent;").arg(Palette::textSecondary));
+	    QStringLiteral("color: %1; border: none; background: transparent;")
+	        .arg(Palette::textSecondary)
+	);
 	label->setFixedHeight(QFontMetrics(font).height());
 	return label;
 }
@@ -234,8 +259,12 @@ QLabel *SearchResults::makePlotLabel(const ResultTitle &title)
 	const bool hasPlot = !title.plot.isEmpty() && title.plot != "N/A";
 
 	auto *label = new ElidedLabel(hasPlot ? title.plot : QString(), 0);
-	label->setStyleSheet(QStringLiteral("color: %1; font-size: 12px; border: none; background: transparent;")
-	                         .arg(Palette::textSecondary));
+	label->setStyleSheet(
+	    QStringLiteral(
+	        "color: %1; font-size: 12px; border: none; background: transparent;"
+	    )
+	        .arg(Palette::textSecondary)
+	);
 	label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 	label->setAlignment(Qt::AlignTop | Qt::AlignLeft);
 	return label;
@@ -243,39 +272,58 @@ QLabel *SearchResults::makePlotLabel(const ResultTitle &title)
 
 IconButton *SearchResults::makeDoneButton(const ResultTitle &title, QWidget *row)
 {
-	auto *doneButton = new IconButton(AssetsPaths::addedIcon, 40, Palette::success, Palette::surface, row);
+	auto *doneButton = new IconButton(
+	    AssetsPaths::addedIcon,
+	    40,
+	    Palette::success,
+	    Palette::surface,
+	    row
+	);
 
-	connect(doneButton, &QPushButton::clicked, this,
-	        [this, title, doneButton, row]()
-	        {
-		        appStorage.deleteTitle(title.imdbId);
-		        auto *addButton = makeAddButton(title, row);
-		        qobject_cast<QHBoxLayout *>(row->layout())->replaceWidget(doneButton, addButton);
-		        doneButton->deleteLater();
-	        });
+	connect(
+	    doneButton,
+	    &QPushButton::clicked,
+	    this,
+	    [this, title, doneButton, row]()
+	    {
+		    appStorage.deleteTitle(title.imdbId);
+		    auto *addButton = makeAddButton(title, row);
+		    qobject_cast<QHBoxLayout *>(row->layout())
+		        ->replaceWidget(doneButton, addButton);
+		    doneButton->deleteLater();
+	    }
+	);
 
 	return doneButton;
 }
 
 IconButton *SearchResults::makeAddButton(const ResultTitle &title, QWidget *row)
 {
-	auto *addButton = new IconButton(AssetsPaths::addIcon, 40, Palette::accent, Palette::surface, row);
+	auto *addButton =
+	    new IconButton(AssetsPaths::addIcon, 40, Palette::accent, Palette::surface, row);
 
-	connect(addButton, &QPushButton::clicked, this,
-	        [this, title, addButton, row]() { onAddClicked(title, addButton, row); });
+	connect(
+	    addButton,
+	    &QPushButton::clicked,
+	    this,
+	    [this, title, addButton, row]() { onAddClicked(title, addButton, row); }
+	);
 
 	return addButton;
 }
 
-void SearchResults::restoreRowButton(QWidget *row, Spinner *rowSpinner, IconButton *oldAddButton,
-                                     IconButton *replacement)
+void SearchResults::restoreRowButton(
+    QWidget *row, Spinner *rowSpinner, IconButton *oldAddButton, IconButton *replacement
+)
 {
 	qobject_cast<QHBoxLayout *>(row->layout())->replaceWidget(rowSpinner, replacement);
 	rowSpinner->deleteLater();
 	oldAddButton->deleteLater();
 }
 
-void SearchResults::onAddClicked(const ResultTitle &title, IconButton *addButton, QWidget *row)
+void SearchResults::onAddClicked(
+    const ResultTitle &title, IconButton *addButton, QWidget *row
+)
 {
 	auto *rowSpinner = new Spinner(Palette::accent, 6, row);
 	rowSpinner->setFixedSize(40, 40);
@@ -286,19 +334,27 @@ void SearchResults::onAddClicked(const ResultTitle &title, IconButton *addButton
 
 	auto *fetch = new OmdbSearch(appStorage, appStorage.getKey(), this);
 
-	connect(fetch, &OmdbSearch::titleFetched, this,
-	        [this, title, rowSpinner, addButton, row, fetch]()
-	        {
-		        restoreRowButton(row, rowSpinner, addButton, makeDoneButton(title, row));
-		        fetch->deleteLater();
-	        });
+	connect(
+	    fetch,
+	    &OmdbSearch::titleFetched,
+	    this,
+	    [this, title, rowSpinner, addButton, row, fetch]()
+	    {
+		    restoreRowButton(row, rowSpinner, addButton, makeDoneButton(title, row));
+		    fetch->deleteLater();
+	    }
+	);
 
-	connect(fetch, &OmdbSearch::titleFetchFailed, this,
-	        [this, title, rowSpinner, addButton, row, fetch]()
-	        {
-		        restoreRowButton(row, rowSpinner, addButton, makeAddButton(title, row));
-		        fetch->deleteLater();
-	        });
+	connect(
+	    fetch,
+	    &OmdbSearch::titleFetchFailed,
+	    this,
+	    [this, title, rowSpinner, addButton, row, fetch]()
+	    {
+		    restoreRowButton(row, rowSpinner, addButton, makeAddButton(title, row));
+		    fetch->deleteLater();
+	    }
+	);
 
 	fetch->fetchById(title.imdbId, title.posterImage, title.posterNotFound);
 }

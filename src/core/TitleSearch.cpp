@@ -34,7 +34,8 @@ static int titleBestScore(const Title &t, const QString &query)
 	});
 }
 
-std::vector<Title> scoreAndRankTitles(const std::vector<Title> &titles, const QString &query)
+std::vector<Title>
+scoreAndRankTitles(const std::vector<Title> &titles, const QString &query)
 {
 	if(query.isEmpty())
 	{
@@ -57,7 +58,11 @@ std::vector<Title> scoreAndRankTitles(const std::vector<Title> &titles, const QS
 		}
 	}
 
-	std::sort(scored.begin(), scored.end(), [](const auto &a, const auto &b) { return a.first > b.first; });
+	std::sort(
+	    scored.begin(),
+	    scored.end(),
+	    [](const auto &a, const auto &b) { return a.first > b.first; }
+	);
 
 	std::vector<Title> result;
 
@@ -69,7 +74,8 @@ std::vector<Title> scoreAndRankTitles(const std::vector<Title> &titles, const QS
 	return result;
 }
 
-std::vector<Title> filterTitles(const std::vector<Title> &titles, LibraryTab tab, ViewFilter filter)
+std::vector<Title>
+filterTitles(const std::vector<Title> &titles, LibraryTab tab, ViewFilter filter)
 {
 	std::vector<Title> result;
 
@@ -121,25 +127,48 @@ void sortTitles(std::vector<Title> &titles, SortMode mode)
 	switch(mode)
 	{
 	case SortMode::AlphaAZ:
-		std::sort(titles.begin(), titles.end(),
-		          [](const Title &a, const Title &b) { return sortKey(a.title) < sortKey(b.title); });
+		std::sort(
+		    titles.begin(),
+		    titles.end(),
+		    [](const Title &a, const Title &b)
+		    { return sortKey(a.title) < sortKey(b.title); }
+		);
 		break;
 
 	case SortMode::Release:
 		std::sort(
-		    titles.begin(), titles.end(), [](const Title &a, const Title &b)
-		    { return QDate::fromString(a.released, "dd MMM yyyy") > QDate::fromString(b.released, "dd MMM yyyy"); });
+		    titles.begin(),
+		    titles.end(),
+		    [](const Title &a, const Title &b)
+		    {
+			    return QDate::fromString(a.released, "dd MMM yyyy") >
+			           QDate::fromString(b.released, "dd MMM yyyy");
+		    }
+		);
 		break;
 
 	case SortMode::WatchDate:
-		std::sort(titles.begin(), titles.end(),
-		          [](const Title &a, const Title &b) { return a.lastViewed < b.lastViewed; });
+		std::sort(
+		    titles.begin(),
+		    titles.end(),
+		    [](const Title &a, const Title &b) { return a.lastViewed < b.lastViewed; }
+		);
 		break;
 
 	case SortMode::Rank:
-		titles.erase(std::remove_if(titles.begin(), titles.end(), [](const Title &t) { return t.rank == 0; }),
-		             titles.end());
-		std::sort(titles.begin(), titles.end(), [](const Title &a, const Title &b) { return a.rank < b.rank; });
+		titles.erase(
+		    std::remove_if(
+		        titles.begin(),
+		        titles.end(),
+		        [](const Title &t) { return t.rank == 0; }
+		    ),
+		    titles.end()
+		);
+		std::sort(
+		    titles.begin(),
+		    titles.end(),
+		    [](const Title &a, const Title &b) { return a.rank < b.rank; }
+		);
 		break;
 	}
 }

@@ -17,21 +17,39 @@ ErrorCard::ErrorCard(QWidget *parent, const QString &message) : QWidget(parent)
 {
 	setAttribute(Qt::WA_StyledBackground, true);
 	setFixedWidth(CARD_WIDTH);
-	setStyleSheet(QStringLiteral("background-color: %1; border-radius: %2px;").arg(Palette::error).arg(CARD_RADIUS));
+	setStyleSheet(QStringLiteral("background-color: %1; border-radius: %2px;")
+	                  .arg(Palette::error)
+	                  .arg(CARD_RADIUS));
 
 	auto *layout = new QHBoxLayout(this);
-	layout->setContentsMargins(CARD_PADDING_LEFT, CARD_PADDING_VERTICAL, CARD_PADDING_RIGHT, CARD_PADDING_VERTICAL);
+	layout->setContentsMargins(
+	    CARD_PADDING_LEFT,
+	    CARD_PADDING_VERTICAL,
+	    CARD_PADDING_RIGHT,
+	    CARD_PADDING_VERTICAL
+	);
 	layout->setSpacing(CARD_SPACING);
 
 	label = new QLabel(this);
-	label->setFixedWidth(CARD_WIDTH - CARD_PADDING_LEFT - CARD_PADDING_RIGHT - CARD_SPACING - CARD_ICON_SIZE);
-	label->setStyleSheet("color: white; border: none; background: transparent; font-size: 13px;");
+	label->setFixedWidth(
+	    CARD_WIDTH - CARD_PADDING_LEFT - CARD_PADDING_RIGHT - CARD_SPACING -
+	    CARD_ICON_SIZE
+	);
+	label->setStyleSheet(
+	    "color: white; border: none; background: transparent; font-size: 13px;"
+	);
 	label->setWordWrap(true);
 	label->setTextFormat(Qt::RichText);
 	label->setOpenExternalLinks(true);
 	label->setText(message);
 
-	auto *closeButton = new IconButton(AssetsPaths::crossIcon, CARD_ICON_SIZE, "white", Palette::error, this);
+	auto *closeButton = new IconButton(
+	    AssetsPaths::crossIcon,
+	    CARD_ICON_SIZE,
+	    "white",
+	    Palette::error,
+	    this
+	);
 
 	layout->addWidget(label);
 	layout->addStretch();

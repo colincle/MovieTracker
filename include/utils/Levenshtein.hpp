@@ -18,7 +18,8 @@ inline int levenshtein(const QString &a, const QString &b)
 
 		for(int j = 1; j <= n; ++j)
 		{
-			int next = (a[i - 1] == b[j - 1]) ? row[j - 1] : 1 + std::min({row[j - 1], row[j], prev});
+			int next = (a[i - 1] == b[j - 1]) ? row[j - 1]
+			                                  : 1 + std::min({row[j - 1], row[j], prev});
 			row[j - 1] = prev;
 			prev = next;
 		}

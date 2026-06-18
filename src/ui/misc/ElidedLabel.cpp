@@ -31,7 +31,8 @@ QSize ElidedLabel::minimumSizeHint() const
 void ElidedLabel::updateElidedText()
 {
 	const QFontMetrics fm = fontMetrics();
-	const int effectiveLines = maxLines > 0 ? maxLines : qMax(1, height() / fm.lineSpacing());
+	const int effectiveLines =
+	    maxLines > 0 ? maxLines : qMax(1, height() / fm.lineSpacing());
 
 	if(effectiveLines == 1)
 	{
@@ -42,7 +43,8 @@ void ElidedLabel::updateElidedText()
 	QLabel::setText(buildLines(fm, effectiveLines, width()).join('\n'));
 }
 
-QStringList ElidedLabel::buildLines(const QFontMetrics &fm, int effectiveLines, int w) const
+QStringList
+ElidedLabel::buildLines(const QFontMetrics &fm, int effectiveLines, int w) const
 {
 	QTextLayout layout(fullText, font());
 	layout.beginLayout();
@@ -72,8 +74,9 @@ QStringList ElidedLabel::buildLines(const QFontMetrics &fm, int effectiveLines, 
 
 	const Span last = spans.last();
 	const bool truncated = last.start + last.length < fullText.size();
-	lines << (truncated ? fm.elidedText(fullText.mid(last.start), Qt::ElideRight, w)
-	                    : fullText.mid(last.start, last.length).trimmed());
+	lines
+	    << (truncated ? fm.elidedText(fullText.mid(last.start), Qt::ElideRight, w)
+	                  : fullText.mid(last.start, last.length).trimmed());
 
 	return lines;
 }

@@ -3,6 +3,7 @@
 #include "AppStorage.hpp"
 #include "ElidedLabel.hpp"
 #include "IconButton.hpp"
+#include "IconTextButton.hpp"
 #include "Title.hpp"
 
 #include <QWidget>
@@ -12,7 +13,10 @@ class TitleCard : public QWidget
 	Q_OBJECT
 
   public:
-	explicit TitleCard(const Title &title, AppStorage &appStorage, int cardWidth, QWidget *parent = nullptr);
+	explicit TitleCard(
+	    const Title &title, AppStorage &appStorage, int cardWidth,
+	    QWidget *parent = nullptr
+	);
 
   protected:
 	void enterEvent(QEnterEvent *event) override;
@@ -32,8 +36,8 @@ class TitleCard : public QWidget
 
 	QPixmap posterPixmap;
 	ElidedLabel *titleLabel;
-	IconButton *notViewedButton;
-	IconButton *viewedButton;
+	IconTextButton *notViewedButton;
+	IconTextButton *viewedButton;
 	IconButton *deleteButton;
 	IconButton *uploadPosterButton;
 

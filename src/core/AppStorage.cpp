@@ -19,7 +19,11 @@ static QString posterPath(const QString &postersPath, const QString &imdbId)
 
 static auto findByImdbId(std::vector<Title> &titles, const QString &imdbId)
 {
-	return std::find_if(titles.begin(), titles.end(), [&](const Title &t) { return t.imdbId == imdbId; });
+	return std::find_if(
+	    titles.begin(),
+	    titles.end(),
+	    [&](const Title &t) { return t.imdbId == imdbId; }
+	);
 }
 
 Title AppStorage::titleFromStorageJson(const QJsonObject &obj) const
@@ -325,7 +329,8 @@ void AppStorage::addNotifications(const std::vector<QString> &values)
 
 	for(const QString &value : values)
 	{
-		if(std::find(notifications.begin(), notifications.end(), value) == notifications.end())
+		if(std::find(notifications.begin(), notifications.end(), value) ==
+		   notifications.end())
 		{
 			notifications.push_back(value);
 			added = true;
@@ -360,5 +365,9 @@ bool AppStorage::contains(const QString &imdbId) const
 {
 	QMutexLocker locker(&mutex);
 
-	return std::any_of(titles.begin(), titles.end(), [&](const Title &t) { return t.imdbId == imdbId; });
+	return std::any_of(
+	    titles.begin(),
+	    titles.end(),
+	    [&](const Title &t) { return t.imdbId == imdbId; }
+	);
 }

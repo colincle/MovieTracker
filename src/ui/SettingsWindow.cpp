@@ -11,24 +11,29 @@
 
 static QString tabActive()
 {
-	return QStringLiteral("QPushButton {"
-	                      "    background-color: %1; color: %2;"
-	                      "    border: none; border-radius: 6px; padding: 5px 16px;"
-	                      "}")
+	return QStringLiteral(
+	           "QPushButton {"
+	           "    background-color: %1; color: %2;"
+	           "    border: none; border-radius: 6px; padding: 5px 16px;"
+	           "}"
+	)
 	    .arg(Palette::accent, Palette::textPrimary);
 }
 
 static QString tabInactive()
 {
-	return QStringLiteral("QPushButton {"
-	                      "    background-color: %1; color: %2;"
-	                      "    border: none; border-radius: 6px; padding: 5px 16px;"
-	                      "}"
-	                      "QPushButton:hover { color: %3; }")
+	return QStringLiteral(
+	           "QPushButton {"
+	           "    background-color: %1; color: %2;"
+	           "    border: none; border-radius: 6px; padding: 5px 16px;"
+	           "}"
+	           "QPushButton:hover { color: %3; }"
+	)
 	    .arg(Palette::surface, Palette::textSecondary, Palette::textPrimary);
 }
 
-SettingsWindow::SettingsWindow(AppStorage &appStorage, QWidget *parent) : QDialog(parent), appStorage(appStorage)
+SettingsWindow::SettingsWindow(AppStorage &appStorage, QWidget *parent)
+    : QDialog(parent), appStorage(appStorage)
 {
 	setWindowTitle("Settings");
 	setMinimumWidth(400);
@@ -41,12 +46,21 @@ QString SettingsWindow::buildStyleSheet() const
 	return QStringLiteral(
 	           "QDialog { background-color: %1; }"
 	           "QLabel { color: %2; background: transparent; }"
-	           "QLineEdit { background-color: %3; color: %2; border: 1px solid %4; border-radius: 6px; padding: 6px "
+	           "QLineEdit { background-color: %3; color: %2; border: 1px solid %4; "
+	           "border-radius: 6px; padding: 6px "
 	           "10px; }"
-	           "QPushButton { background-color: %5; color: %2; border: none; border-radius: 6px; padding: 6px 18px; }"
-	           "QPushButton:disabled { background-color: %3; color: %6; }")
-	    .arg(Palette::bgPrimary, Palette::textPrimary, Palette::surface, Palette::border, Palette::accent,
-	         Palette::textSecondary);
+	           "QPushButton { background-color: %5; color: %2; border: none; "
+	           "border-radius: 6px; padding: 6px 18px; }"
+	           "QPushButton:disabled { background-color: %3; color: %6; }"
+	)
+	    .arg(
+	        Palette::bgPrimary,
+	        Palette::textPrimary,
+	        Palette::surface,
+	        Palette::border,
+	        Palette::accent,
+	        Palette::textSecondary
+	    );
 }
 
 void SettingsWindow::setupUi()
@@ -90,35 +104,43 @@ QWidget *SettingsWindow::makeThemeSection()
 	lightTab->setStyleSheet(isLight ? tabActive() : tabInactive());
 	darkTab->setStyleSheet(isLight ? tabInactive() : tabActive());
 
-	connect(lightTab, &QPushButton::clicked, this,
-	        [this]()
-	        {
-		        if(appStorage.getTheme() == "light")
-		        {
-			        return;
-		        }
+	connect(
+	    lightTab,
+	    &QPushButton::clicked,
+	    this,
+	    [this]()
+	    {
+		    if(appStorage.getTheme() == "light")
+		    {
+			    return;
+		    }
 
-		        appStorage.setTheme("light");
-		        emit themeChanged("light");
-		        refreshStyle();
-		        lightTab->setStyleSheet(tabActive());
-		        darkTab->setStyleSheet(tabInactive());
-	        });
+		    appStorage.setTheme("light");
+		    emit themeChanged("light");
+		    refreshStyle();
+		    lightTab->setStyleSheet(tabActive());
+		    darkTab->setStyleSheet(tabInactive());
+	    }
+	);
 
-	connect(darkTab, &QPushButton::clicked, this,
-	        [this]()
-	        {
-		        if(appStorage.getTheme() == "dark")
-		        {
-			        return;
-		        }
+	connect(
+	    darkTab,
+	    &QPushButton::clicked,
+	    this,
+	    [this]()
+	    {
+		    if(appStorage.getTheme() == "dark")
+		    {
+			    return;
+		    }
 
-		        appStorage.setTheme("dark");
-		        emit themeChanged("dark");
-		        refreshStyle();
-		        darkTab->setStyleSheet(tabActive());
-		        lightTab->setStyleSheet(tabInactive());
-	        });
+		    appStorage.setTheme("dark");
+		    emit themeChanged("dark");
+		    refreshStyle();
+		    darkTab->setStyleSheet(tabActive());
+		    lightTab->setStyleSheet(tabInactive());
+	    }
+	);
 
 	tabLayout->addWidget(lightTab);
 	tabLayout->addWidget(darkTab);
@@ -149,7 +171,9 @@ QWidget *SettingsWindow::makeApiKeySection()
 
 	applyButton = new QPushButton("Add Key");
 	applyButton->setAutoDefault(false);
-	applyButton->setEnabled(!appStorage.getKey().isEmpty() || !apiKeyEdit->text().simplified().isEmpty());
+	applyButton->setEnabled(
+	    !appStorage.getKey().isEmpty() || !apiKeyEdit->text().simplified().isEmpty()
+	);
 
 	auto *fieldRow = new QWidget;
 	auto *fieldLayout = new QHBoxLayout(fieldRow);
@@ -158,8 +182,13 @@ QWidget *SettingsWindow::makeApiKeySection()
 	fieldLayout->addWidget(apiKeyEdit, 1);
 	fieldLayout->addWidget(applyButton);
 
-	connect(apiKeyEdit, &QLineEdit::textChanged, this,
-	        [this](const QString &text) { applyButton->setEnabled(!text.simplified().isEmpty()); });
+	connect(
+	    apiKeyEdit,
+	    &QLineEdit::textChanged,
+	    this,
+	    [this](const QString &text)
+	    { applyButton->setEnabled(!text.simplified().isEmpty()); }
+	);
 
 	connect(apiKeyEdit, &QLineEdit::returnPressed, applyButton, &QPushButton::click);
 	connect(applyButton, &QPushButton::clicked, this, &SettingsWindow::onApplyClicked);
@@ -198,10 +227,13 @@ void SettingsWindow::onApplyClicked()
 
 	appStorage.setOmdbApiKey(key);
 
-	QTimer::singleShot(600, this,
-	                   [this]()
-	                   {
-		                   applyButton->setEnabled(true);
-		                   applyButton->setText("Add Key");
-	                   });
+	QTimer::singleShot(
+	    600,
+	    this,
+	    [this]()
+	    {
+		    applyButton->setEnabled(true);
+		    applyButton->setText("Add Key");
+	    }
+	);
 }

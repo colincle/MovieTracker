@@ -18,7 +18,8 @@ static QString makeStyle(const QString &bg, const QString &fg)
 	       "}";
 }
 
-TextButton::TextButton(const QString &text, int size, QWidget *parent) : QPushButton(text, parent)
+TextButton::TextButton(const QString &text, int size, QWidget *parent)
+    : QPushButton(text, parent)
 {
 	setCursor(Qt::PointingHandCursor);
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);

@@ -18,14 +18,20 @@ SeasonUpdateController::SeasonUpdateController(AppStorage &appStorage, QObject *
 
 	retryTimer = new QTimer(this);
 	retryTimer->setInterval(SEASON_RETRY_INTERVAL_MS);
-	connect(retryTimer, &QTimer::timeout, this, &SeasonUpdateController::checkConnectivityAndRetry);
+	connect(
+	    retryTimer,
+	    &QTimer::timeout,
+	    this,
+	    &SeasonUpdateController::checkConnectivityAndRetry
+	);
 }
 
 void SeasonUpdateController::checkConnectivityAndRetry()
 {
 	auto *networkInfo = QNetworkInformation::instance();
 
-	if(networkInfo && networkInfo->reachability() != QNetworkInformation::Reachability::Online)
+	if(networkInfo &&
+	   networkInfo->reachability() != QNetworkInformation::Reachability::Online)
 	{
 		return;
 	}
@@ -57,43 +63,59 @@ void SeasonUpdateController::runAttempt(SeasonUpdate *queue)
 	bool isNetworkError = false;
 
 	connect(
-	    queue, &SeasonUpdate::apiKeyError, this,
+	    queue,
+	    &SeasonUpdate::apiKeyError,
+	    this,
 	    [&errorMessage, &isNetworkError]()
 	    {
 		    errorMessage = API_KEY_ERROR_MESSAGE;
 		    isNetworkError = false;
 	    },
-	    Qt::QueuedConnection);
+	    Qt::QueuedConnection
+	);
 
 	connect(
-	    queue, &SeasonUpdate::networkError, this,
+	    queue,
+	    &SeasonUpdate::networkError,
+	    this,
 	    [&errorMessage, &isNetworkError]()
 	    {
 		    errorMessage = SEASON_NETWORK_ERROR_MESSAGE;
 		    isNetworkError = true;
 	    },
-	    Qt::QueuedConnection);
+	    Qt::QueuedConnection
+	);
 
-	connect(queue, &SeasonUpdate::seriesUpdated, &appStorage, &AppStorage::titlesUpdated, Qt::QueuedConnection);
+	connect(
+	    queue,
+	    &SeasonUpdate::seriesUpdated,
+	    &appStorage,
+	    &AppStorage::titlesUpdated,
+	    Qt::QueuedConnection
+	);
 
 	QEventLoop loop;
 	auto future = QtConcurrent::run([queue]() { queue->updateSeries(); });
 
 	QFutureWatcher<void> watcher;
-	connect(&watcher, &QFutureWatcher<void>::finished, &loop,
-	        [&]()
-	        {
-		        const int remaining = MIN_DISPLAY_MS - static_cast<int>(elapsed.elapsed());
+	connect(
+	    &watcher,
+	    &QFutureWatcher<void>::finished,
+	    &loop,
+	    [&]()
+	    {
+		    const int remaining = MIN_DISPLAY_MS - static_cast<int>(elapsed.elapsed());
 
-		        if(remaining > 0)
-		        {
-			        QTimer::singleShot(remaining, &loop, &QEventLoop::quit);
-		        }
-		        else
-		        {
-			        loop.quit();
-		        }
-	        });
+		    if(remaining > 0)
+		    {
+			    QTimer::singleShot(remaining, &loop, &QEventLoop::quit);
+		    }
+		    else
+		    {
+			    loop.quit();
+		    }
+	    }
+	);
 	watcher.setFuture(future);
 	loop.exec();
 
@@ -101,7 +123,9 @@ void SeasonUpdateController::runAttempt(SeasonUpdate *queue)
 	handleAttemptResult(errorMessage, isNetworkError);
 }
 
-void SeasonUpdateController::handleAttemptResult(const QString &errorMessage, bool isNetworkError)
+void SeasonUpdateController::handleAttemptResult(
+    const QString &errorMessage, bool isNetworkError
+)
 {
 	if(errorMessage.isEmpty())
 	{

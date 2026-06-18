@@ -25,7 +25,13 @@ void AddBar::setupLayout()
 
 	searchBar = new SearchBar(this);
 
-	returnButton = new IconButton(AssetsPaths::crossIcon, BUTTON_HEIGHT, Palette::accent, Palette::surface, this);
+	returnButton = new IconButton(
+	    AssetsPaths::crossIcon,
+	    BUTTON_HEIGHT,
+	    Palette::accent,
+	    Palette::surface,
+	    this
+	);
 
 	layout->addWidget(searchBar, 1);
 	layout->addWidget(returnButton);
@@ -35,12 +41,16 @@ void AddBar::connectSignals()
 {
 	connect(returnButton, &QPushButton::clicked, this, &AddBar::onReturnClicked);
 	connect(searchBar, &QLineEdit::returnPressed, this, &AddBar::onSearchCommitted);
-	connect(searchBar, &SearchBar::escapePressed, this,
-	        [this]()
-	        {
-		        searchBar->clear();
-		        emit requestNormalMode();
-	        });
+	connect(
+	    searchBar,
+	    &SearchBar::escapePressed,
+	    this,
+	    [this]()
+	    {
+		    searchBar->clear();
+		    emit requestNormalMode();
+	    }
+	);
 }
 
 void AddBar::onReturnClicked()

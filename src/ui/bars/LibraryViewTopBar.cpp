@@ -25,10 +25,34 @@ void LibraryViewTopBar::setupLayout()
 	searchInput = new SearchBar(this);
 	searchInput->hide();
 
-	searchButton = new IconButton(AssetsPaths::searchIcon, 40, Palette::accent, Palette::surface, this);
-	closeButton = new IconButton(AssetsPaths::crossIcon, 40, Palette::accent, Palette::surface, this);
-	zoomInButton = new IconButton(AssetsPaths::zoomInIcon, 40, Palette::accent, Palette::surface, this);
-	zoomOutButton = new IconButton(AssetsPaths::zoomOutIcon, 40, Palette::accent, Palette::surface, this);
+	searchButton = new IconButton(
+	    AssetsPaths::searchIcon,
+	    40,
+	    Palette::accent,
+	    Palette::surface,
+	    this
+	);
+	closeButton = new IconButton(
+	    AssetsPaths::crossIcon,
+	    40,
+	    Palette::accent,
+	    Palette::surface,
+	    this
+	);
+	zoomInButton = new IconButton(
+	    AssetsPaths::zoomInIcon,
+	    40,
+	    Palette::accent,
+	    Palette::surface,
+	    this
+	);
+	zoomOutButton = new IconButton(
+	    AssetsPaths::zoomOutIcon,
+	    40,
+	    Palette::accent,
+	    Palette::surface,
+	    this
+	);
 	zoomInButton->setAutoRepeat(true);
 	zoomInButton->setAutoRepeatDelay(200);
 	zoomInButton->setAutoRepeatInterval(100);
@@ -50,15 +74,50 @@ void LibraryViewTopBar::setupLayout()
 
 void LibraryViewTopBar::connectSignals()
 {
-	connect(showAllButton, &QPushButton::clicked, this, &LibraryViewTopBar::onShowAllClicked);
-	connect(showToWatchButton, &QPushButton::clicked, this, &LibraryViewTopBar::onShowToWatchClicked);
+	connect(
+	    showAllButton,
+	    &QPushButton::clicked,
+	    this,
+	    &LibraryViewTopBar::onShowAllClicked
+	);
+	connect(
+	    showToWatchButton,
+	    &QPushButton::clicked,
+	    this,
+	    &LibraryViewTopBar::onShowToWatchClicked
+	);
 	connect(searchButton, &QPushButton::clicked, this, &LibraryViewTopBar::openSearch);
 	connect(closeButton, &QPushButton::clicked, this, &LibraryViewTopBar::closeSearch);
-	connect(searchInput, &QLineEdit::returnPressed, this, &LibraryViewTopBar::onSearchCommitted);
-	connect(searchInput, &QLineEdit::textChanged, this, &LibraryViewTopBar::onSearchTextChanged);
-	connect(searchInput, &SearchBar::escapePressed, this, &LibraryViewTopBar::closeSearch);
-	connect(zoomInButton, &QPushButton::clicked, this, [this]() { emit zoomRequested(10); });
-	connect(zoomOutButton, &QPushButton::clicked, this, [this]() { emit zoomRequested(-10); });
+	connect(
+	    searchInput,
+	    &QLineEdit::returnPressed,
+	    this,
+	    &LibraryViewTopBar::onSearchCommitted
+	);
+	connect(
+	    searchInput,
+	    &QLineEdit::textChanged,
+	    this,
+	    &LibraryViewTopBar::onSearchTextChanged
+	);
+	connect(
+	    searchInput,
+	    &SearchBar::escapePressed,
+	    this,
+	    &LibraryViewTopBar::closeSearch
+	);
+	connect(
+	    zoomInButton,
+	    &QPushButton::clicked,
+	    this,
+	    [this]() { emit zoomRequested(10); }
+	);
+	connect(
+	    zoomOutButton,
+	    &QPushButton::clicked,
+	    this,
+	    [this]() { emit zoomRequested(-10); }
+	);
 }
 
 void LibraryViewTopBar::onShowAllClicked()

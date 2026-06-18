@@ -30,7 +30,10 @@ class SearchResults : public QWidget
 	void setupLayout();
 	void onSearchFinished(OmdbSearch *omdbSearch);
 	void onAddClicked(const ResultTitle &title, IconButton *addButton, QWidget *row);
-	void restoreRowButton(QWidget *row, Spinner *rowSpinner, IconButton *oldAddButton, IconButton *replacement);
+	void restoreRowButton(
+	    QWidget *row, Spinner *rowSpinner, IconButton *oldAddButton,
+	    IconButton *replacement
+	);
 	QWidget *makeResultRow(const ResultTitle &title);
 	QLabel *makePosterLabel(const ResultTitle &title);
 	QWidget *makeTitleInfo(const ResultTitle &title);

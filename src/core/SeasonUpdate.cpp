@@ -12,7 +12,8 @@
 
 static constexpr int RECHECK_INTERVAL_DAYS = 1;
 
-SeasonUpdate::SeasonUpdate(AppStorage &appStorage, QObject *parent) : QObject(parent), appStorage(appStorage)
+SeasonUpdate::SeasonUpdate(AppStorage &appStorage, QObject *parent)
+    : QObject(parent), appStorage(appStorage)
 {
 	QMutexLocker locker(&appStorage.getMutex());
 
@@ -55,7 +56,8 @@ SeasonFetchResult parseReply(QNetworkReply *reply)
 
 	if(reply->error() != QNetworkReply::NoError)
 	{
-		const int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+		const int status =
+		    reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 		const QString message = reply->errorString();
 
 		if(status == 401 || OmdbSearch::isAuthError(message))
@@ -82,7 +84,9 @@ SeasonFetchResult parseReply(QNetworkReply *reply)
 	return result;
 }
 
-void applySeasonUpdate(Title &t, const QJsonObject &root, std::vector<QString> &notifications)
+void applySeasonUpdate(
+    Title &t, const QJsonObject &root, std::vector<QString> &notifications
+)
 {
 	t.lastChecked = QDate::currentDate();
 
@@ -111,20 +115,25 @@ void SeasonUpdate::updateSeries()
 
 	for(int i = 0; i < count; ++i)
 	{
-		QNetworkReply *reply =
-		    manager.get(QNetworkRequest(OmdbSearch::makeUrl(appStorage.getKey(), "i", titles[i]->imdbId)));
+		QNetworkReply *reply = manager.get(QNetworkRequest(
+		    OmdbSearch::makeUrl(appStorage.getKey(), "i", titles[i]->imdbId)
+		));
 
-		QObject::connect(reply, &QNetworkReply::finished, &loop,
-		                 [&, i, reply]()
-		                 {
-			                 results[i] = parseReply(reply);
-			                 reply->deleteLater();
+		QObject::connect(
+		    reply,
+		    &QNetworkReply::finished,
+		    &loop,
+		    [&, i, reply]()
+		    {
+			    results[i] = parseReply(reply);
+			    reply->deleteLater();
 
-			                 if(--pending == 0)
-			                 {
-				                 loop.quit();
-			                 }
-		                 });
+			    if(--pending == 0)
+			    {
+				    loop.quit();
+			    }
+		    }
+		);
 	}
 
 	if(pending > 0)

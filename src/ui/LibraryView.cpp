@@ -7,7 +7,8 @@
 #include <QScrollBar>
 #include <QVBoxLayout>
 
-LibraryView::LibraryView(AppStorage &appStorage, QWidget *parent) : QWidget(parent), appStorage(appStorage)
+LibraryView::LibraryView(AppStorage &appStorage, QWidget *parent)
+    : QWidget(parent), appStorage(appStorage)
 {
 	setupUi();
 	connectSignals();
@@ -61,20 +62,42 @@ QWidget *LibraryView::makeScrollArea()
 	scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	scrollArea->setWidget(cardsContainer);
-	scrollArea->setStyleSheet("QScrollArea { background: transparent; border: none; }"
-	                          "QScrollArea > QWidget > QWidget { background: transparent; }"
-	                          "QScrollBar:vertical { width: 0px; }");
+	scrollArea->setStyleSheet(
+	    "QScrollArea { background: transparent; border: none; }"
+	    "QScrollArea > QWidget > QWidget { background: transparent; }"
+	    "QScrollBar:vertical { width: 0px; }"
+	);
 
 	return scrollArea;
 }
 
 void LibraryView::connectSignals()
 {
-	connect(&appStorage, &AppStorage::titlesUpdated, this, [this]() { onSearchRequested(currentQuery); });
+	connect(
+	    &appStorage,
+	    &AppStorage::titlesUpdated,
+	    this,
+	    [this]() { onSearchRequested(currentQuery); }
+	);
 
-	connect(libraryViewTopBar, &LibraryViewTopBar::searchRequested, this, &LibraryView::onSearchRequested);
-	connect(libraryViewTopBar, &LibraryViewTopBar::filterChanged, this, &LibraryView::applyFilter);
-	connect(libraryViewTopBar, &LibraryViewTopBar::zoomRequested, this, &LibraryView::onZoomRequested);
+	connect(
+	    libraryViewTopBar,
+	    &LibraryViewTopBar::searchRequested,
+	    this,
+	    &LibraryView::onSearchRequested
+	);
+	connect(
+	    libraryViewTopBar,
+	    &LibraryViewTopBar::filterChanged,
+	    this,
+	    &LibraryView::applyFilter
+	);
+	connect(
+	    libraryViewTopBar,
+	    &LibraryViewTopBar::zoomRequested,
+	    this,
+	    &LibraryView::onZoomRequested
+	);
 	connect(resizeTimer, &QTimer::timeout, this, &LibraryView::populate);
 }
 
@@ -139,7 +162,11 @@ void LibraryView::populate()
 
 	for(const Title &t : filtered)
 	{
-		cardsLayout->addWidget(new TitleCard(t, appStorage, cardWidth, cardsContainer), row, col);
+		cardsLayout->addWidget(
+		    new TitleCard(t, appStorage, cardWidth, cardsContainer),
+		    row,
+		    col
+		);
 
 		if(++col >= cols)
 		{

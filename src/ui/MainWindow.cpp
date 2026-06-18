@@ -68,48 +68,71 @@ void MainWindow::setupErrorCard()
 
 	errorCard->move(ERROR_CARD_MARGIN, topBar->height() + ERROR_CARD_MARGIN);
 
-	connect(&appStorage, &AppStorage::saveFailed, this,
-	        [this]()
-	        {
-		        errorCard->setMessage(SAVE_ERROR_MESSAGE);
-		        errorCard->show();
-	        });
+	connect(
+	    &appStorage,
+	    &AppStorage::saveFailed,
+	    this,
+	    [this]()
+	    {
+		    errorCard->setMessage(SAVE_ERROR_MESSAGE);
+		    errorCard->show();
+	    }
+	);
 }
 
 void MainWindow::setupSeasonUpdateController()
 {
 	seasonUpdateController = new SeasonUpdateController(appStorage, this);
 
-	connect(seasonUpdateController, &SeasonUpdateController::updateStarted, this,
-	        [this]()
-	        {
-		        seasonOverlay = makeSeasonOverlay();
-		        appMenuBar->setEnabled(false);
-	        });
+	connect(
+	    seasonUpdateController,
+	    &SeasonUpdateController::updateStarted,
+	    this,
+	    [this]()
+	    {
+		    seasonOverlay = makeSeasonOverlay();
+		    appMenuBar->setEnabled(false);
+	    }
+	);
 
-	connect(seasonUpdateController, &SeasonUpdateController::updateFinished, this,
-	        [this]()
-	        {
-		        appMenuBar->setEnabled(true);
-		        seasonOverlay->deleteLater();
-		        seasonOverlay = nullptr;
-	        });
+	connect(
+	    seasonUpdateController,
+	    &SeasonUpdateController::updateFinished,
+	    this,
+	    [this]()
+	    {
+		    appMenuBar->setEnabled(true);
+		    seasonOverlay->deleteLater();
+		    seasonOverlay = nullptr;
+	    }
+	);
 
-	connect(seasonUpdateController, &SeasonUpdateController::updateFailed, this,
-	        [this](const QString &message)
-	        {
-		        errorCard->setMessage(message);
-		        errorCard->show();
-	        });
+	connect(
+	    seasonUpdateController,
+	    &SeasonUpdateController::updateFailed,
+	    this,
+	    [this](const QString &message)
+	    {
+		    errorCard->setMessage(message);
+		    errorCard->show();
+	    }
+	);
 
-	connect(&appStorage, &AppStorage::apiKeyChanged, seasonUpdateController, &SeasonUpdateController::start);
+	connect(
+	    &appStorage,
+	    &AppStorage::apiKeyChanged,
+	    seasonUpdateController,
+	    &SeasonUpdateController::start
+	);
 }
 
 QWidget *MainWindow::makeSeasonOverlay()
 {
 	auto *overlay = new QWidget(this);
 	overlay->setGeometry(rect());
-	overlay->setStyleSheet(QStringLiteral("background-color: %1;").arg(Palette::bgPrimary));
+	overlay->setStyleSheet(
+	    QStringLiteral("background-color: %1;").arg(Palette::bgPrimary)
+	);
 
 	auto *layout = new QVBoxLayout(overlay);
 
@@ -117,7 +140,9 @@ QWidget *MainWindow::makeSeasonOverlay()
 	spinner->setFixedSize(48, 48);
 
 	auto *label = new QLabel("Looking for new TV show seasons...", overlay);
-	label->setStyleSheet(QStringLiteral("color: %1; font-size: 16px;").arg(Palette::textSecondary));
+	label->setStyleSheet(
+	    QStringLiteral("color: %1; font-size: 16px;").arg(Palette::textSecondary)
+	);
 	label->setAlignment(Qt::AlignCenter);
 
 	layout->addStretch();
@@ -168,12 +193,16 @@ void MainWindow::connectSignals()
 	connect(topBar, &TopBar::requestTab, libraryView, &LibraryView::applyTab);
 	connect(addBar, &AddBar::searchRequested, searchResults, &SearchResults::search);
 
-	connect(searchResults, &SearchResults::searchError, this,
-	        [this](const QString &message)
-	        {
-		        errorCard->setMessage(message);
-		        errorCard->show();
-	        });
+	connect(
+	    searchResults,
+	    &SearchResults::searchError,
+	    this,
+	    [this](const QString &message)
+	    {
+		    errorCard->setMessage(message);
+		    errorCard->show();
+	    }
+	);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
