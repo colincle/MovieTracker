@@ -1,4 +1,5 @@
 #include "AppMenuBar.hpp"
+#include "HelpDialog.hpp"
 #include "ImportedFileValidator.hpp"
 #include "SettingsWindow.hpp"
 
@@ -41,6 +42,20 @@ AppMenuBar::AppMenuBar(AppStorage &appStorage, QWidget *parent)
 	    {
 		    SettingsWindow window(this->appStorage, parentWidget());
 		    window.exec();
+	    }
+	);
+
+	auto *helpMenu = addMenu("Help");
+	auto *howToAction = new QAction("How to use", this);
+	helpMenu->addAction(howToAction);
+	connect(
+	    howToAction,
+	    &QAction::triggered,
+	    this,
+	    [this]()
+	    {
+		    HelpDialog dialog(parentWidget());
+		    dialog.exec();
 	    }
 	);
 }

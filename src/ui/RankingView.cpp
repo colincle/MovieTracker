@@ -36,7 +36,6 @@ static QString cardStyleSheet()
 	    .arg(Palette::accent, Palette::surface);
 }
 
-// ---------------------------------------------------------------------------
 class RankingCard : public QWidget
 {
   public:
@@ -136,7 +135,6 @@ class RankingCard : public QWidget
 	int          cardW = 0;
 	int          posterH = 0;
 };
-// ---------------------------------------------------------------------------
 
 RankingView::RankingView(AppStorage &appStorage, QWidget *parent)
     : QWidget(parent), appStorage(appStorage)
