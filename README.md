@@ -18,7 +18,7 @@ A desktop app to track your movies and TV shows. Built with C++ and Qt6.
 - **Notifications** — New seasons show up as a badge on the bell icon; click it for a dropdown listing each show with its poster, with a sound played when one arrives.
 - **Light and dark theme** — Switch between themes in Settings; the UI updates instantly.
 - **Export / Import** — Back up your full library (titles, posters, API key) as a zip file and restore it on any machine.
-- **Tournament ranking** — Head-to-head binary search ranking for watched titles. The app picks two titles and asks which you prefer; each answer narrows the search until the title finds its exact place in the ranking. A library of 1000 titles takes at most 10 comparisons per title. Movies and TV shows are ranked separately. Rankings can be reset per type in Settings.
+- **Tournament ranking** — Head-to-head binary search ranking for watched titles. The app picks two titles and asks which you prefer; each answer narrows the search until the title finds its exact place in the ranking. A library of 1000 titles takes at most 10 comparisons per title. Movies and TV shows are ranked separately. Rankings can be reset per type in Settings. Individual titles can be unranked directly from the library card.
 
 ---
 

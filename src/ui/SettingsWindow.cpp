@@ -63,6 +63,7 @@ QString SettingsWindow::buildStyleSheet() const
 	           "border-radius: 6px; padding: 6px 18px; }"
 	           "QPushButton:pressed { background-color: %7; }"
 	           "QPushButton:disabled { background-color: %3; color: %6; }"
+	           "QFrame#separator { background-color: %4; border: none; }"
 	)
 	    .arg(
 	        Palette::bgPrimary,
@@ -383,7 +384,7 @@ QFrame *SettingsWindow::makeSeparator()
 {
 	auto *line = new QFrame;
 	line->setFrameShape(QFrame::HLine);
-	line->setStyleSheet(QStringLiteral("background-color: %1;").arg(Palette::border));
+	line->setObjectName("separator");
 	line->setFixedHeight(1);
 	return line;
 }
@@ -402,6 +403,17 @@ void SettingsWindow::switchTheme(const QString &theme)
 void SettingsWindow::refreshStyle()
 {
 	setStyleSheet(buildStyleSheet());
+
+	if(platformsList)
+		refreshPlatformsList();
+
+	if(addPlatformButton)
+		addPlatformButton->setStyleSheet(
+		    QStringLiteral(
+		        "QPushButton { background-color: %1; border: none; border-radius: 6px; }"
+		    )
+		        .arg(Palette::surface)
+		);
 }
 
 void SettingsWindow::onApplyClicked()

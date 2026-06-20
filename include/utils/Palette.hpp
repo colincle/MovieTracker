@@ -35,10 +35,10 @@ inline void setDark()
 
 inline void setLight()
 {
-	bgPrimary = "#F4F5F7";
-	bgSecondary = "#E8EAED";
-	surface = "#D8DCE2";
-	border = "#B8BEC8";
+	bgPrimary = "#EDEAE5";
+	bgSecondary = "#E2DED9";
+	surface = "#D3CFC8";
+	border = "#B6B1A9";
 	textPrimary = "#1F2328";
 	textSecondary = "#656D76";
 	accent = "#7C5CFF";
