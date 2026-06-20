@@ -37,8 +37,8 @@ class TitleDetailView : public QWidget
 	IconTextButton *toWatchBtn;
 	IconTextButton *watchedBtn;
 
-	QLabel  *watchedValueLabel   = nullptr;
-	QWidget *lastWatchedRow      = nullptr;
+	QLabel  *watchedValueLabel = nullptr;
+	QWidget *lastWatchedRow = nullptr;
 	QLabel  *lastWatchedValueLabel = nullptr;
 
 	void     setupUi();

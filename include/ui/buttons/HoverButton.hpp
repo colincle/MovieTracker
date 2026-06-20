@@ -13,7 +13,7 @@ class HoverButton : public QPushButton
 
   protected:
 	virtual void applyNormal() = 0;
-	virtual void applyHover()  = 0;
+	virtual void applyHover() = 0;
 
 	void enterEvent(QEnterEvent *event) override;
 	void leaveEvent(QEvent *event) override;

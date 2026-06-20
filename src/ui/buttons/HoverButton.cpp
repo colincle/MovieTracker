@@ -17,7 +17,15 @@ void HoverButton::leaveEvent(QEvent *event)
 void HoverButton::showEvent(QShowEvent *event)
 {
 	QPushButton::showEvent(event);
-	QTimer::singleShot(0, this, [this]() { if(underMouse()) applyHover(); });
+	QTimer::singleShot(
+	    0,
+	    this,
+	    [this]()
+	    {
+		    if(underMouse())
+			    applyHover();
+	    }
+	);
 }
 
 void HoverButton::unhover()

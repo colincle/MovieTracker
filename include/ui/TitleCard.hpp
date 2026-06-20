@@ -40,6 +40,7 @@ class TitleCard : public QWidget
 	IconTextButton *viewedButton;
 	IconButton     *deleteButton;
 	IconButton     *uploadPosterButton;
+	IconButton     *unrankButton;
 
 	void setupUi();
 	void setupTitleLabel();

@@ -28,6 +28,7 @@ class SettingsWindow : public QDialog
 	QWidget *makeThemeSection();
 	QWidget *makeApiKeySection();
 	QWidget *makeCustomStreamingPlatformsSection();
+	QWidget *makeRankingSection();
 	QFrame  *makeSeparator();
 
 	void    onApplyClicked();

@@ -51,7 +51,12 @@ const Results &OmdbSearch::getResults() const
 void OmdbSearch::search()
 {
 	QNetworkReply *reply = networkManager.get(QNetworkRequest(QUrl(requestUrl)));
-	connect(reply, &QNetworkReply::finished, this, [this, reply]() { onReplyFinished(reply); });
+	connect(
+	    reply,
+	    &QNetworkReply::finished,
+	    this,
+	    [this, reply]() { onReplyFinished(reply); }
+	);
 }
 
 void OmdbSearch::fetchById(

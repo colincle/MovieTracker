@@ -153,9 +153,12 @@ void sortTitles(std::vector<Title> &titles, SortMode mode)
 		    titles.end(),
 		    [](const Title &a, const Title &b)
 		    {
-			    if(!a.lastViewed.isValid() && !b.lastViewed.isValid()) return false;
-			    if(!a.lastViewed.isValid()) return true;
-			    if(!b.lastViewed.isValid()) return false;
+			    if(!a.lastViewed.isValid() && !b.lastViewed.isValid())
+				    return false;
+			    if(!a.lastViewed.isValid())
+				    return true;
+			    if(!b.lastViewed.isValid())
+				    return false;
 			    return a.lastViewed < b.lastViewed;
 		    }
 		);

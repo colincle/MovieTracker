@@ -5,6 +5,7 @@
 #include "OmdbSearch.hpp"
 #include "Spinner.hpp"
 
+#include <vector>
 #include <QGridLayout>
 #include <QLabel>
 #include <QScrollArea>
@@ -49,4 +50,7 @@ class SearchResults : public QWidget
 	QGridLayout *resultsLayout;
 	QScrollArea *scrollArea;
 	OmdbSearch  *currentSearch = nullptr;
+
+	std::vector<ResultTitle> lastResults;
+	void rebuildResults();
 };

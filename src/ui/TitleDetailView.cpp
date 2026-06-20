@@ -22,10 +22,6 @@ static constexpr int    MARGIN = 24;
 static constexpr double POSTER_RATIO = 0.66;
 static constexpr int    POSTER_RADIUS = 10;
 
-// ---------------------------------------------------------------------------
-// Construction
-// ---------------------------------------------------------------------------
-
 TitleDetailView::TitleDetailView(AppStorage &appStorage, QWidget *parent)
     : QWidget(parent), appStorage(appStorage)
 {
@@ -42,10 +38,6 @@ TitleDetailView::TitleDetailView(AppStorage &appStorage, QWidget *parent)
 	);
 }
 
-// ---------------------------------------------------------------------------
-// Public
-// ---------------------------------------------------------------------------
-
 void TitleDetailView::setTitle(const Title &title)
 {
 	currentTitle = title;
@@ -55,10 +47,6 @@ void TitleDetailView::setTitle(const Title &title)
 	updateWatchButtons();
 	populateInfo(title);
 }
-
-// ---------------------------------------------------------------------------
-// Setup
-// ---------------------------------------------------------------------------
 
 void TitleDetailView::setupUi()
 {
@@ -154,10 +142,6 @@ QWidget *TitleDetailView::buildContentRow()
 	return contentRow;
 }
 
-// ---------------------------------------------------------------------------
-// Poster
-// ---------------------------------------------------------------------------
-
 void TitleDetailView::resizeEvent(QResizeEvent *event)
 {
 	QWidget::resizeEvent(event);
@@ -195,10 +179,6 @@ void TitleDetailView::updatePosterSize()
 	posterLabel->setPixmap(result);
 }
 
-// ---------------------------------------------------------------------------
-// Watch state
-// ---------------------------------------------------------------------------
-
 void TitleDetailView::updateWatchButtons()
 {
 	toWatchBtn->setVisible(!currentTitle.viewed);
@@ -211,9 +191,7 @@ void TitleDetailView::updateWatchState()
 
 	if(currentTitle.lastViewed.isValid())
 	{
-		lastWatchedValueLabel->setText(
-		    currentTitle.lastViewed.toString("MMMM d, yyyy")
-		);
+		lastWatchedValueLabel->setText(currentTitle.lastViewed.toString("MMMM d, yyyy"));
 		lastWatchedRow->show();
 	}
 	else
@@ -238,14 +216,10 @@ void TitleDetailView::onDeleteClicked()
 	emit backRequested();
 }
 
-// ---------------------------------------------------------------------------
-// Info panel
-// ---------------------------------------------------------------------------
-
 void TitleDetailView::populateInfo(const Title &title)
 {
-	watchedValueLabel    = nullptr;
-	lastWatchedRow       = nullptr;
+	watchedValueLabel = nullptr;
+	lastWatchedRow = nullptr;
 	lastWatchedValueLabel = nullptr;
 
 	if(QLayout *old = infoContainer->layout())
@@ -421,10 +395,6 @@ void TitleDetailView::addWatchOnSection(QVBoxLayout *layout, const Title &title)
 	flow->addWidget(tryAll);
 	layout->addWidget(flow);
 }
-
-// ---------------------------------------------------------------------------
-// Static helpers
-// ---------------------------------------------------------------------------
 
 QFrame *TitleDetailView::makeSeparator()
 {

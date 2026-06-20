@@ -371,6 +371,59 @@ void AppStorage::removeNotifications()
 	emit notificationsChanged();
 }
 
+void AppStorage::clearRank(const QString &imdbId)
+{
+	QMutexLocker locker(&mutex);
+
+	auto it = findByImdbId(titles, imdbId);
+	if(it == titles.end() || it->rank == 0)
+		return;
+
+	const int    removedRank = it->rank;
+	const QString type       = it->type;
+
+	it->rank = 0;
+
+	for(Title &t : titles)
+		if(t.type == type && t.rank > removedRank)
+			t.rank--;
+
+	save();
+	emit titlesUpdated();
+}
+
+void AppStorage::resetRankings(const QString &type)
+{
+	QMutexLocker locker(&mutex);
+
+	for(Title &t : titles)
+		if(t.type == type)
+			t.rank = 0;
+
+	save();
+	emit titlesUpdated();
+}
+
+void AppStorage::insertRank(const QString &imdbId, int position, const QString &type)
+{
+	QMutexLocker locker(&mutex);
+
+	const int newRank = position + 1;
+
+	for(Title &t : titles)
+	{
+		if(t.type == type && t.rank >= newRank)
+			t.rank++;
+	}
+
+	auto it = findByImdbId(titles, imdbId);
+	if(it != titles.end())
+		it->rank = newRank;
+
+	save();
+	emit titlesUpdated();
+}
+
 void AppStorage::addStreamingPlatform(
     StreamingPlatform platform, const QString &sourceImagePath
 )

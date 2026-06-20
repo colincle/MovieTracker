@@ -16,7 +16,6 @@ IconButton::IconButton(
 	setFixedSize(size, size);
 	setIconSize(QSize(iconSize, iconSize));
 
-
 	applyNormal();
 }
 

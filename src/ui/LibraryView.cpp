@@ -162,7 +162,11 @@ void LibraryView::populate()
 
 	for(const Title &t : filtered)
 	{
-		auto *card = new TitleCard(t, appStorage, cardWidth, cardsContainer);
+		Title display = t;
+		if(currentSort == SortMode::Rank)
+			display.title = QStringLiteral("#%1 %2").arg(t.rank).arg(t.title);
+
+		auto *card = new TitleCard(display, appStorage, cardWidth, cardsContainer);
 		connect(card, &TitleCard::clicked, this, [this, t]() { emit titleClicked(t); });
 		cardsLayout->addWidget(card, row, col);
 

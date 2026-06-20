@@ -4,6 +4,7 @@
 #include "AddBar.hpp"
 #include "AppMenuBar.hpp"
 #include "LibraryView.hpp"
+#include "RankingView.hpp"
 #include "SearchResults.hpp"
 #include "TitleDetailView.hpp"
 #include "TopBar.hpp"
@@ -21,15 +22,16 @@ class MainWindow : public QMainWindow
 
   private:
 	AppStorage              appStorage;
-	AppMenuBar             *appMenuBar            = nullptr;
-	ErrorCard              *errorCard              = nullptr;
-	TopBar                 *topBar                 = nullptr;
-	AddBar                 *addBar                 = nullptr;
-	SearchResults          *searchResults          = nullptr;
-	LibraryView            *libraryView            = nullptr;
-	TitleDetailView        *titleDetailView        = nullptr;
+	AppMenuBar             *appMenuBar = nullptr;
+	ErrorCard              *errorCard = nullptr;
+	TopBar                 *topBar = nullptr;
+	AddBar                 *addBar = nullptr;
+	SearchResults          *searchResults = nullptr;
+	LibraryView            *libraryView = nullptr;
+	TitleDetailView        *titleDetailView = nullptr;
 	SeasonUpdateController *seasonUpdateController = nullptr;
 	QWidget                *seasonOverlay = nullptr;
+	RankingView            *rankingView = nullptr;
 
 	void     buildUi();
 	QWidget *makeSeasonOverlay();
@@ -43,6 +45,7 @@ class MainWindow : public QMainWindow
 	void enterAddMode();
 	void enterNormalMode();
 	void enterDetailMode(const Title &title);
+	void startRanking();
 
 	void resizeEvent(QResizeEvent *event) override;
 	void closeEvent(QCloseEvent *event) override;

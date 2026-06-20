@@ -6,6 +6,7 @@
 
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QMessageBox>
 #include <QSet>
 #include <QLabel>
 #include <QLineEdit>
@@ -40,7 +41,7 @@ QString tabInactive()
 	    .arg(Palette::surface, Palette::textSecondary, Palette::textPrimary);
 }
 
-} // namespace
+}
 
 SettingsWindow::SettingsWindow(AppStorage &appStorage, QWidget *parent)
     : QDialog(parent), appStorage(appStorage)
@@ -60,6 +61,7 @@ QString SettingsWindow::buildStyleSheet() const
 	           "10px; }"
 	           "QPushButton { background-color: %5; color: %2; border: none; "
 	           "border-radius: 6px; padding: 6px 18px; }"
+	           "QPushButton:pressed { background-color: %7; }"
 	           "QPushButton:disabled { background-color: %3; color: %6; }"
 	)
 	    .arg(
@@ -68,7 +70,8 @@ QString SettingsWindow::buildStyleSheet() const
 	        Palette::surface,
 	        Palette::border,
 	        Palette::accent,
-	        Palette::textSecondary
+	        Palette::textSecondary,
+	        Palette::accentLight
 	    );
 }
 
@@ -88,7 +91,9 @@ void SettingsWindow::setupUi()
 	if(auto *s = makeCustomStreamingPlatformsSection())
 	{
 		layout->addWidget(s);
+		layout->addWidget(makeSeparator());
 	}
+	layout->addWidget(makeRankingSection());
 	layout->addStretch();
 }
 
@@ -303,6 +308,67 @@ void SettingsWindow::refreshPlatformsList()
 	}
 
 	addPlatformButton->setVisible(platforms.size() < 10);
+}
+
+QWidget *SettingsWindow::makeRankingSection()
+{
+	auto *container = new QWidget;
+	auto *layout    = new QVBoxLayout(container);
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->setSpacing(12);
+
+	auto *title = new QLabel("Rankings");
+	QFont titleFont;
+	titleFont.setPixelSize(15);
+	titleFont.setBold(true);
+	title->setFont(titleFont);
+
+	auto *buttonRow    = new QWidget;
+	auto *buttonLayout = new QHBoxLayout(buttonRow);
+	buttonLayout->setContentsMargins(0, 0, 0, 0);
+	buttonLayout->setSpacing(8);
+
+	auto *moviesBtn  = new QPushButton("Reset Movies");
+	auto *showsBtn   = new QPushButton("Reset TV Shows");
+	moviesBtn->setAutoDefault(false);
+	showsBtn->setAutoDefault(false);
+
+	const QString resetButtonStyle = QStringLiteral(
+	    "QPushButton { background-color: %1; color: white; border: none;"
+	    "              border-radius: 6px; padding: 6px 18px; }"
+	    "QPushButton:pressed { background-color: %2; }"
+	)
+	    .arg(Palette::error, "#B91C1C");
+	moviesBtn->setStyleSheet(resetButtonStyle);
+	showsBtn->setStyleSheet(resetButtonStyle);
+
+	auto confirmReset = [this](const QString &label, const QString &type)
+	{
+		QMessageBox box(this);
+		box.setWindowTitle("Reset Rankings");
+		box.setText(
+		    "This will remove all " + label +
+		    " rankings. This cannot be undone."
+		);
+		box.setStandardButtons(QMessageBox::Yes | QMessageBox::Cancel);
+		box.setDefaultButton(QMessageBox::Cancel);
+		if(box.exec() == QMessageBox::Yes)
+			appStorage.resetRankings(type);
+	};
+
+	connect(moviesBtn, &QPushButton::clicked, this, [this, confirmReset]()
+	    { confirmReset("movie", "movie"); });
+	connect(showsBtn, &QPushButton::clicked, this, [this, confirmReset]()
+	    { confirmReset("TV show", "series"); });
+
+	buttonLayout->addWidget(moviesBtn);
+	buttonLayout->addWidget(showsBtn);
+	buttonLayout->addStretch();
+
+	layout->addWidget(title);
+	layout->addWidget(buttonRow);
+
+	return container;
 }
 
 QFrame *SettingsWindow::makeSeparator()

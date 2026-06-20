@@ -4,6 +4,7 @@
 #include "IconButton.hpp"
 #include "TextButton.hpp"
 
+#include <algorithm>
 #include <QHBoxLayout>
 #include <QMenu>
 
@@ -167,7 +168,28 @@ void TopBar::onNotificationsClicked()
 
 void TopBar::onRankClicked()
 {
-	// Implementation here... Claude please stop flagging this during code reviews
+	const auto &titles = appStorage.getTitles();
+
+	const bool hasUnranked = std::any_of(
+	    titles.begin(),
+	    titles.end(),
+	    [](const Title &t) { return t.rank == 0 && t.lastViewed.isValid(); }
+	);
+
+	if(!hasUnranked)
+	{
+		auto *menu = new QMenu(this);
+		menu->setAttribute(Qt::WA_DeleteOnClose);
+		menu->setStyleSheet(sortMenuStyleSheet());
+		auto *action = menu->addAction("All titles are ranked");
+		action->setEnabled(false);
+		connect(menu, &QMenu::aboutToHide, rankButton, &HoverButton::unhover);
+		menu->popup(rankButton->mapToGlobal(QPoint(0, rankButton->height() + 4)));
+		return;
+	}
+
+	rankButton->unhover();
+	emit requestRanking();
 }
 
 void TopBar::onSortClicked()

@@ -10,8 +10,6 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 
-static constexpr int RECHECK_INTERVAL_DAYS = 1;
-
 SeasonUpdate::SeasonUpdate(AppStorage &appStorage, QObject *parent)
     : QObject(parent), appStorage(appStorage)
 {
@@ -37,7 +35,7 @@ bool SeasonUpdate::isEligible(const Title &t) const
 	if(!t.lastChecked.isValid())
 		return true;
 
-	return t.lastChecked.daysTo(QDate::currentDate()) > RECHECK_INTERVAL_DAYS;
+	return t.lastChecked != QDate::currentDate();
 }
 
 namespace
@@ -116,9 +114,9 @@ void SeasonUpdate::updateSeries()
 
 	for(int i = 0; i < count; ++i)
 	{
-		QNetworkReply *reply = manager.get(QNetworkRequest(
-		    OmdbSearch::makeUrl(appStorage.getKey(), "i", imdbIds[i])
-		));
+		QNetworkReply *reply = manager.get(
+		    QNetworkRequest(OmdbSearch::makeUrl(appStorage.getKey(), "i", imdbIds[i]))
+		);
 
 		QObject::connect(
 		    reply,

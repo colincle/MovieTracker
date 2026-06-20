@@ -26,6 +26,12 @@ SearchResults::SearchResults(AppStorage &storage, QWidget *parent)
 	setAttribute(Qt::WA_StyledBackground, true);
 
 	setupLayout();
+
+	connect(&appStorage, &AppStorage::titlesUpdated, this, [this]()
+	{
+		if(!lastResults.empty())
+			rebuildResults();
+	});
 }
 
 void SearchResults::setupLayout()
@@ -134,34 +140,9 @@ void SearchResults::onSearchFinished(OmdbSearch *omdbSearch)
 		return;
 	}
 
-	int row = 0;
-	int col = 0;
-
-	for(const ResultTitle &title : r.titles)
-	{
-		resultsLayout->addWidget(makeResultRow(title), row, col);
-
-		if(++col >= 2)
-		{
-			col = 0;
-			++row;
-		}
-	}
-
-	scrollArea->show();
+	lastResults = r.titles;
+	rebuildResults();
 	omdbSearch->deleteLater();
-
-	QTimer::singleShot(
-	    0,
-	    this,
-	    [this]()
-	    {
-		    for(ElidedLabel *label : resultsContainer->findChildren<ElidedLabel *>())
-		    {
-			    label->refreshElision();
-		    }
-	    }
-	);
 }
 
 namespace
@@ -228,7 +209,7 @@ QLabel *makePlotLabel(const ResultTitle &title)
 	return label;
 }
 
-} // namespace
+}
 
 QWidget *SearchResults::makeResultRow(const ResultTitle &title)
 {
@@ -362,6 +343,33 @@ void SearchResults::onAddClicked(
 	);
 
 	fetch->fetchById(title.imdbId, title.posterImage, title.posterNotFound);
+}
+
+void SearchResults::rebuildResults()
+{
+	clearResultsLayout();
+
+	int row = 0;
+	int col = 0;
+
+	for(const ResultTitle &title : lastResults)
+	{
+		resultsLayout->addWidget(makeResultRow(title), row, col);
+
+		if(++col >= 2)
+		{
+			col = 0;
+			++row;
+		}
+	}
+
+	scrollArea->show();
+
+	QTimer::singleShot(0, this, [this]()
+	{
+		for(ElidedLabel *label : resultsContainer->findChildren<ElidedLabel *>())
+			label->refreshElision();
+	});
 }
 
 void SearchResults::setFullPageState(const QString &imagePath)

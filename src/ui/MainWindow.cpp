@@ -207,6 +207,30 @@ void MainWindow::enterDetailMode(const Title &title)
 	titleDetailView->show();
 }
 
+void MainWindow::startRanking()
+{
+	if(rankingView)
+		return;
+
+	rankingView = new RankingView(appStorage, this);
+	rankingView->setGeometry(rect());
+	rankingView->show();
+	rankingView->raise();
+
+	connect(
+	    rankingView,
+	    &RankingView::finished,
+	    this,
+	    [this]()
+	    {
+		    rankingView->deleteLater();
+		    rankingView = nullptr;
+	    }
+	);
+
+	rankingView->start();
+}
+
 void MainWindow::connectSignals()
 {
 	connect(topBar, &TopBar::requestAddMode, this, &MainWindow::enterAddMode);
@@ -238,6 +262,8 @@ void MainWindow::connectSignals()
 		    errorCard->show();
 	    }
 	);
+
+	connect(topBar, &TopBar::requestRanking, this, &MainWindow::startRanking);
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
@@ -245,6 +271,8 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 	QMainWindow::resizeEvent(event);
 	if(seasonOverlay)
 		seasonOverlay->setGeometry(rect());
+	if(rankingView)
+		rankingView->setGeometry(rect());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

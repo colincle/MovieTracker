@@ -48,7 +48,6 @@ void TitleCard::paintEvent(QPaintEvent *)
 	QPainter p(this);
 	p.setRenderHint(QPainter::Antialiasing);
 
-	// Poster with rounded clip — no background behind it
 	p.save();
 	QPainterPath clip;
 	clip.addRoundedRect(
@@ -112,6 +111,13 @@ void TitleCard::setupButtons()
 	    Palette::surface,
 	    this
 	);
+	unrankButton = new IconButton(
+	    AssetsPaths::unrankIcon,
+	    BTN_SIZE,
+	    Palette::accent,
+	    Palette::surface,
+	    this
+	);
 
 	viewedButton->move(BTN_MARGIN, posterHeight - BTN_SIZE - BTN_MARGIN);
 	notViewedButton->move(BTN_MARGIN, posterHeight - BTN_SIZE - BTN_MARGIN);
@@ -120,8 +126,10 @@ void TitleCard::setupButtons()
 	    posterHeight - BTN_SIZE - BTN_MARGIN
 	);
 	uploadPosterButton->move(cardWidth - BTN_SIZE - BTN_MARGIN, BTN_MARGIN);
+	unrankButton->move(BTN_MARGIN, BTN_MARGIN);
 
 	uploadPosterButton->setVisible(title.posterNotFound);
+	unrankButton->setVisible(false);
 }
 
 void TitleCard::connectButtons()
@@ -135,6 +143,12 @@ void TitleCard::connectButtons()
 	    this,
 	    &TitleCard::onUploadPosterClicked
 	);
+	connect(unrankButton, &QPushButton::clicked, this, [this]()
+	{
+		appStorage.clearRank(title.imdbId);
+		title.rank = 0;
+		unrankButton->hide();
+	});
 }
 
 void TitleCard::onViewedClicked()
@@ -223,6 +237,8 @@ void TitleCard::showButtons()
 	title.viewed ? notViewedButton->show() : viewedButton->show();
 	deleteButton->show();
 	deleteButton->raise();
+	if(title.rank > 0)
+		unrankButton->show();
 }
 
 void TitleCard::hideButtons()
@@ -230,4 +246,5 @@ void TitleCard::hideButtons()
 	viewedButton->hide();
 	notViewedButton->hide();
 	deleteButton->hide();
+	unrankButton->hide();
 }
