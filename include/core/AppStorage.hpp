@@ -93,7 +93,7 @@ class AppStorage : public QObject
 	QString                        lightAccentColor = Palette::defaultAccent;
 	QString                        postersPath;
 	QString                        platformImagesPath;
-	int                            libraryCardWidth;
+	int                            libraryCardWidth = 160;
 	WindowSize                     windowSize;
 	std::vector<Title>             titles;
 	std::vector<QString>           notifications;

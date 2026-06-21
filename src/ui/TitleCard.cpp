@@ -31,11 +31,14 @@ void TitleCard::setupUi()
 	setFixedSize(cardWidth, posterHeight + titleLabelHeight);
 	setCursor(Qt::PointingHandCursor);
 
-	posterPixmap = title.posterImage.scaled(
-	    QSize(cardWidth, posterHeight),
-	    Qt::KeepAspectRatioByExpanding,
-	    Qt::SmoothTransformation
-	);
+	if(!title.posterImage.isNull())
+	{
+		posterPixmap = title.posterImage.scaled(
+		    QSize(cardWidth, posterHeight),
+		    Qt::KeepAspectRatioByExpanding,
+		    Qt::SmoothTransformation
+		);
+	}
 
 	setupTitleLabel();
 	setupButtons();
