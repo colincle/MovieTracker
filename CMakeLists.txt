@@ -60,6 +60,8 @@ if(SHIPPED)
     target_compile_definitions(MovieTracker PRIVATE SHIPPED)
 endif()
 
+# EXCLUDE_FROM_ALL: tests are never built by the default "all" target (i.e. a plain
+# `cmake --build build`). Build them explicitly with `--target MovieTrackerTests`.
 if(BUILD_TESTS)
-    add_subdirectory(tests)
+    add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif()

@@ -81,6 +81,36 @@ Streaming platform logos are saved in:
 
 ---
 
+## Tests
+
+The project has a [Qt Test](https://doc.qt.io/qt-6/qttest-index.html) suite — 31 suites, 300+ cases — covering:
+
+- **Core logic** — storage and persistence, library import validation, sorting / filtering / fuzzy search, OMDb URL building and error detection, and season-update eligibility.
+- **UI behavior** — widgets, bars, dialogs, and views, exercised through signals, state transitions, and visibility (not pixels).
+- **Utilities** — JSON file IO, Levenshtein distance, and SVG recoloring.
+
+The app code is compiled once into a shared object library (`MovieTrackerLib`) that both the app and the test runner link against.
+
+Build and run the suite:
+
+```bash
+./scripts/test.sh
+```
+
+It prompts for an OMDb API key — press Enter to skip the network-dependent integration tests (those run against the live OMDb API and are otherwise skipped). Or configure it by hand:
+
+```bash
+cmake -B build -DBUILD_TESTS=ON
+cmake --build build
+cd build && ./tests/MovieTrackerTests
+```
+
+Any failures are written to `build/test_results.log`.
+
+For the GUI and visual behavior automated tests can't judge (layout, live theming, animations, native dialogs, the browser hand-off), see the manual checklist in [`tests/MANUAL_TESTING.md`](tests/MANUAL_TESTING.md).
+
+---
+
 ## On AI usage
 
 This project is hand-designed: the architecture, the Qt widget structure, and the feature decisions come from the developer, not a model. AI is used as a tool throughout development, mainly for:
@@ -88,4 +118,5 @@ This project is hand-designed: the architecture, the Qt widget structure, and th
 - **Code review** — catching bugs, leaks, and edge cases that were missed.
 - **Implementing changes that have already been scoped** — once a change is decided and understood, AI may write the diff, which then gets reviewed and adjusted rather than typed by hand.
 - **Sounding board** — discussing tradeoffs before deciding what to build.
+- **Test suite** — the automated Qt Test suite under `tests/` and the manual test plan were written by AI, working from the existing source.
 

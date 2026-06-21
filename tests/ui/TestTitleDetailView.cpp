@@ -32,7 +32,8 @@ class TestTitleDetailView : public QObject
 		return t;
 	}
 
-	// The two top-bar IconButtons are created in order: [0] = back, [1] = delete.
+	// Top-bar IconButtons in creation order: back, unrank, upload-poster, delete.
+	// Back is always first, delete always last.
 	static QList<IconButton *> iconButtons(TitleDetailView &v)
 	{
 		QList<IconButton *> result;
@@ -40,6 +41,14 @@ class TestTitleDetailView : public QObject
 			if(auto *ib = dynamic_cast<IconButton *>(b))
 				result.append(ib);
 		return result;
+	}
+
+	static IconButton *backButton(TitleDetailView &v) { return iconButtons(v).first(); }
+	static IconButton *deleteButton(TitleDetailView &v) { return iconButtons(v).last(); }
+	static IconButton *unrankButton(TitleDetailView &v) { return iconButtons(v).at(1); }
+	static IconButton *uploadPosterButton(TitleDetailView &v)
+	{
+		return iconButtons(v).at(2);
 	}
 
 	// toWatch/watched buttons use alwaysShowText, so their label is queryable.
@@ -86,7 +95,7 @@ class TestTitleDetailView : public QObject
 		AppStorage      storage;
 		TitleDetailView v(storage);
 		QSignalSpy      spy(&v, &TitleDetailView::backRequested);
-		iconButtons(v).at(0)->click();
+		backButton(v)->click();
 		QCOMPARE(spy.count(), 1);
 	}
 
@@ -98,7 +107,7 @@ class TestTitleDetailView : public QObject
 		v.setTitle(makeTitle("tt1", "X"));
 
 		QSignalSpy spy(&v, &TitleDetailView::backRequested);
-		iconButtons(v).at(1)->click();
+		deleteButton(v)->click();
 
 		QVERIFY(!storage.contains("tt1"));
 		QCOMPARE(spy.count(), 1);
@@ -169,6 +178,55 @@ class TestTitleDetailView : public QObject
 
 		QVERIFY(buttonWithText(v, "To watch")->isHidden());
 		QVERIFY(!buttonWithText(v, "Watched")->isHidden());
+	}
+
+	// ── upload-poster / unrank buttons ───────────────────────────────────────
+
+	void uploadPosterButtonShownOnlyWhenPosterMissing()
+	{
+		AppStorage      storage;
+		TitleDetailView v(storage);
+
+		Title present = makeTitle("tt1", "X");
+		present.posterNotFound = false;
+		v.setTitle(present);
+		QVERIFY(uploadPosterButton(v)->isHidden());
+
+		Title missing = makeTitle("tt2", "Y");
+		missing.posterNotFound = true;
+		v.setTitle(missing);
+		QVERIFY(!uploadPosterButton(v)->isHidden());
+	}
+
+	void unrankButtonShownOnlyWhenRanked()
+	{
+		AppStorage      storage;
+		TitleDetailView v(storage);
+
+		v.setTitle(makeTitle("tt1", "X")); // rank 0
+		QVERIFY(unrankButton(v)->isHidden());
+
+		Title ranked = makeTitle("tt2", "Y");
+		ranked.rank = 3;
+		v.setTitle(ranked);
+		QVERIFY(!unrankButton(v)->isHidden());
+	}
+
+	void unrankButtonClearsRankInStorage()
+	{
+		AppStorage storage;
+		Title      ranked = makeTitle("tt1", "X");
+		ranked.rank = 2;
+		storage.addTitle(ranked, QPixmap{});
+		storage.insertRank("tt1", 0, "movie"); // ensure a real rank in storage
+
+		TitleDetailView v(storage);
+		v.setTitle(ranked);
+		unrankButton(v)->click();
+
+		for(const Title &t : storage.getTitles())
+			if(t.imdbId == "tt1")
+				QCOMPARE(t.rank, 0);
 	}
 
 	// ── watch-on section ─────────────────────────────────────────────────────

@@ -45,8 +45,7 @@ inline QVector<HelpItem> helpItems()
 	        "Adding a movie or TV show",
 	        "Click the + button in the top bar to enter search mode. "
 	        "Type a movie or TV show (series) name to search the OMDb database. "
-	        "Click a result to expand it and preview its poster, release year, and plot. "
-	        "Click the checkmark button to add the title to your library. "
+	        "Click the plus button to add the title to your library. "
 	        "If the title is already in your library, the same button removes it "
 	        "instead.",
 	    },
@@ -56,14 +55,16 @@ inline QVector<HelpItem> helpItems()
 	        "reveal action buttons. "
 	        "An upload button appears when the poster is missing. "
 	        "Click it to select any image file from your computer to use as the poster "
-	        "cover for that title.",
+	        "cover for that title. "
+	        "The same upload button is also available on the title's detail page.",
 	    },
 	    {
 	        "Removing or clearing a rank",
 	        "Hover over a ranked title card in the library to reveal action buttons. "
 	        "Click the remove ranking button to clear that title's rank score. "
 	        "The title stays in your library and can be re-ranked at any time by "
-	        "starting a new ranking session.",
+	        "starting a new ranking session. "
+	        "This button is also available on the title's detail page.",
 	    },
 	    {
 	        "Streaming platforms - where to watch",
@@ -81,7 +82,7 @@ inline QVector<HelpItem> helpItems()
 	        "In the URL, write movietracker as a placeholder where the title should go - "
 	        "the app replaces it with the actual title name when you click the platform "
 	        "button. "
-	        "Example: https://www.netflix.com/search?q=movietracker",
+	        "Example: https://www.example.com/search?q=movietracker",
 	    },
 	    {
 	        "Exporting and backing up your library",
@@ -89,7 +90,8 @@ inline QVector<HelpItem> helpItems()
 	        "Choose where to save the backup file. "
 	        "The export is a .zip archive containing your full library data and all "
 	        "poster images. "
-	        "Use it as a backup or to copy and transfer your library to another machine.",
+	        "Use it as a backup or to copy and transfer your library to another "
+	        "computer.",
 	    },
 	    {
 	        "Importing and restoring a library backup",

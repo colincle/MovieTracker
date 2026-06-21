@@ -37,6 +37,8 @@ class TitleDetailView : public QWidget
 	QWidget        *infoContainer;
 	IconButton     *backBtn = nullptr;
 	IconButton     *deleteBtn = nullptr;
+	IconButton     *uploadPosterBtn = nullptr;
+	IconButton     *unrankBtn = nullptr;
 	IconTextButton *toWatchBtn;
 	IconTextButton *watchedBtn;
 
@@ -56,9 +58,12 @@ class TitleDetailView : public QWidget
 
 	void updatePosterSize();
 	void updateWatchButtons();
+	void updateActionButtons();
 	void updateWatchState();
 	void onWatchToggled();
 	void onDeleteClicked();
+	void onUploadPosterClicked();
+	void onUnrankClicked();
 
 	static QWidget *makeRow(const QString &label, const QString &value);
 	static QFrame  *makeSeparator();

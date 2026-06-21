@@ -6,6 +6,8 @@
 #include "TextButton.hpp"
 
 #include <QDesktopServices>
+#include <QDir>
+#include <QFileDialog>
 #include <QFont>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -48,6 +50,10 @@ void TitleDetailView::refreshStyle()
 		backBtn->updateColors(Palette::accent, Palette::surface);
 	if(deleteBtn)
 		deleteBtn->updateColors(Palette::error, Palette::surface);
+	if(uploadPosterBtn)
+		uploadPosterBtn->updateColors(Palette::accent, Palette::surface);
+	if(unrankBtn)
+		unrankBtn->updateColors(Palette::accent, Palette::surface);
 	if(toWatchBtn)
 		toWatchBtn->updateColors(Palette::error, Palette::surface);
 	if(watchedBtn)
@@ -63,6 +69,7 @@ void TitleDetailView::setTitle(const Title &title)
 
 	updatePosterSize();
 	updateWatchButtons();
+	updateActionButtons();
 	populateInfo(title);
 }
 
@@ -101,7 +108,7 @@ QWidget *TitleDetailView::buildTopBar()
 	toWatchBtn = new IconTextButton(
 	    AssetsPaths::boxNotCheckedIcon,
 	    "To watch",
-	    36,
+	    32,
 	    Palette::error,
 	    Palette::surface,
 	    true,
@@ -111,11 +118,25 @@ QWidget *TitleDetailView::buildTopBar()
 	watchedBtn = new IconTextButton(
 	    AssetsPaths::boxCheckedIcon,
 	    "Watched",
-	    36,
+	    32,
 	    Palette::success,
 	    Palette::surface,
 	    true,
 	    true,
+	    this
+	);
+	unrankBtn = new IconButton(
+	    AssetsPaths::unrankIcon,
+	    32,
+	    Palette::accent,
+	    Palette::surface,
+	    this
+	);
+	uploadPosterBtn = new IconButton(
+	    AssetsPaths::imageUploadIcon,
+	    32,
+	    Palette::accent,
+	    Palette::surface,
 	    this
 	);
 	deleteBtn = new IconButton(
@@ -128,10 +149,20 @@ QWidget *TitleDetailView::buildTopBar()
 
 	connect(toWatchBtn, &QPushButton::clicked, this, &TitleDetailView::onWatchToggled);
 	connect(watchedBtn, &QPushButton::clicked, this, &TitleDetailView::onWatchToggled);
+	connect(
+	    uploadPosterBtn,
+	    &QPushButton::clicked,
+	    this,
+	    &TitleDetailView::onUploadPosterClicked
+	);
+	connect(unrankBtn, &QPushButton::clicked, this, &TitleDetailView::onUnrankClicked);
 	connect(deleteBtn, &QPushButton::clicked, this, &TitleDetailView::onDeleteClicked);
 
 	layout->addWidget(backBtn);
 	layout->addStretch();
+	layout->addWidget(unrankBtn);
+	layout->addWidget(uploadPosterBtn);
+	layout->addSpacing(16);
 	layout->addWidget(toWatchBtn);
 	layout->addWidget(watchedBtn);
 	layout->addWidget(deleteBtn);
@@ -203,6 +234,12 @@ void TitleDetailView::updateWatchButtons()
 	watchedBtn->setVisible(currentTitle.viewed);
 }
 
+void TitleDetailView::updateActionButtons()
+{
+	uploadPosterBtn->setVisible(currentTitle.posterNotFound);
+	unrankBtn->setVisible(currentTitle.rank > 0);
+}
+
 void TitleDetailView::updateWatchState()
 {
 	watchedValueLabel->setText(currentTitle.viewed ? "Yes" : "No");
@@ -232,6 +269,45 @@ void TitleDetailView::onDeleteClicked()
 {
 	appStorage.deleteTitle(currentTitle.imdbId);
 	emit backRequested();
+}
+
+void TitleDetailView::onUploadPosterClicked()
+{
+	const QString path = QFileDialog::getOpenFileName(
+	    this,
+	    "Choose Poster Image",
+	    QDir::homePath(),
+	    "Images (*.png *.jpg *.jpeg)"
+	);
+
+	if(path.isEmpty())
+	{
+		return;
+	}
+
+	QPixmap image(path);
+
+	if(image.isNull())
+	{
+		return;
+	}
+
+	appStorage.setPoster(currentTitle.imdbId, image);
+
+	currentTitle.posterImage = image;
+	currentTitle.posterNotFound = false;
+	currentPoster = image;
+
+	updatePosterSize();
+	uploadPosterBtn->hide();
+}
+
+void TitleDetailView::onUnrankClicked()
+{
+	appStorage.clearRank(currentTitle.imdbId);
+	currentTitle.rank = 0;
+	unrankBtn->hide();
+	populateInfo(currentTitle);
 }
 
 void TitleDetailView::populateInfo(const Title &title)
