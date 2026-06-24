@@ -26,6 +26,7 @@ class SeasonUpdateController : public QObject
   private:
 	AppStorage &appStorage;
 	QTimer     *retryTimer;
+	bool        running = false;
 
 	void checkConnectivityAndRetry();
 	void runAttempt(SeasonUpdate *queue);

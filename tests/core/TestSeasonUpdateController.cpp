@@ -87,6 +87,24 @@ class TestSeasonUpdateController : public QObject
 		QCOMPARE(started.count(), 0);
 	}
 
+	// -- re-entry guard -------------------------------------------------------
+
+	void secondStartIsIgnoredWhileRunning()
+	{
+		AppStorage storage;
+		storage.setOmdbApiKey("invalidkey");
+		storage.addTitle(makeSeries("tt0944947", QDate{}), QPixmap{});
+		SeasonUpdateController controller(storage);
+		QSignalSpy started(&controller, &SeasonUpdateController::updateStarted);
+		QSignalSpy finished(&controller, &SeasonUpdateController::updateFinished);
+
+		controller.start(); // sets running = true, schedules runAttempt
+		controller.start(); // must be ignored
+
+		QVERIFY(finished.wait(10000));
+		QCOMPARE(started.count(), 1);
+	}
+
 	// -- integration: invalid key (internet required, no valid key needed) ----
 
 	void invalidKeyEmitsUpdateStarted()

@@ -27,7 +27,7 @@ SeasonUpdate::SeasonUpdate(AppStorage &appStorage, QObject *parent)
 	QSet<QString> prioritySet(priority.begin(), priority.end());
 	QSet<QString> eligibleSet;
 
-	for(const Title &t : appStorage.getTitlesMutable(lock))
+	for(const Title &t : appStorage.getTitles(lock))
 		if(isEligible(t))
 			eligibleSet.insert(t.imdbId);
 
@@ -35,7 +35,7 @@ SeasonUpdate::SeasonUpdate(AppStorage &appStorage, QObject *parent)
 	for(const QString &id : priority)
 		if(eligibleSet.contains(id))
 			ordered.push_back(id);
-	for(const Title &t : appStorage.getTitlesMutable(lock))
+	for(const Title &t : appStorage.getTitles(lock))
 		if(isEligible(t) && !prioritySet.contains(t.imdbId))
 			ordered.push_back(t.imdbId);
 
@@ -141,7 +141,8 @@ void applySeasonUpdate(
 
 void SeasonUpdate::updateSeries()
 {
-	// Network phase — no lock held; imdbIds captured at construction, getKey() locks internally.
+	// Network phase — no lock held; imdbIds captured at construction, getKey() locks
+	// internally.
 	const int                  count = static_cast<int>(imdbIds.size());
 	QNetworkAccessManager      manager;
 	QVector<SeasonFetchResult> results(count);

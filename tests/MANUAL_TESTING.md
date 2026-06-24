@@ -116,9 +116,9 @@ Work top to bottom. Run it before tagging a release.
 ## 10. Backup & restore
 
 - [ ] **10.1** Library > Export library — save dialog (.zip); a backup archive is written; failure shows a warning
-- [ ] **10.2** Library > Import library — open dialog (.zip), then "overwrite" confirmation; on OK the library is validated and replaced
+- [ ] **10.2** Library > Import library — open dialog (.zip); file is validated first, then "overwrite" confirmation appears; on OK the library is replaced
 - [ ] **10.3** Import: cancel the confirmation — nothing changes
-- [ ] **10.4** Import an invalid / tampered zip — "Invalid file" warning with a reason; library unchanged
+- [ ] **10.4** Import an invalid / tampered zip — "Invalid file" warning appears immediately (before any confirmation); library unchanged
 - [ ] **10.5** Export then Import the same file — library round-trips identically (titles, posters, platforms, key, ranks)
 
 ## 11. Notifications & season updates

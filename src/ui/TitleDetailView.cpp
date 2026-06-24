@@ -369,7 +369,7 @@ void TitleDetailView::addMetaSection(QVBoxLayout *layout, const Title &title)
 	auto add = [&](const QString &label, const QString &value)
 	{
 		if(!value.isEmpty() && value != "N/A")
-			layout->addWidget(makeRow(label, value));
+			layout->addWidget(makeRow(label, value).widget);
 	};
 
 	const QDate releaseDate = QDate::fromString(title.released, "dd MMM yyyy");
@@ -384,20 +384,21 @@ void TitleDetailView::addMetaSection(QVBoxLayout *layout, const Title &title)
 		add("Seasons", title.totalSeasons);
 		if(title.lastChecked.isValid())
 			layout->addWidget(
-			    makeRow("Last checked", title.lastChecked.toString("MMMM d, yyyy"))
+			    makeRow("Last checked", title.lastChecked.toString("MMMM d, yyyy")).widget
 			);
 	}
 	if(title.rank > 0)
-		layout->addWidget(makeRow("Rank", QString::number(title.rank)));
-	auto *watchedRow = makeRow("Watched", title.viewed ? "Yes" : "No");
-	watchedValueLabel = watchedRow->findChildren<QLabel *>().at(1);
-	layout->addWidget(watchedRow);
+		layout->addWidget(makeRow("Rank", QString::number(title.rank)).widget);
+	auto watched = makeRow("Watched", title.viewed ? "Yes" : "No");
+	watchedValueLabel = watched.valueLabel;
+	layout->addWidget(watched.widget);
 
-	lastWatchedRow = makeRow(
+	auto lastWatched = makeRow(
 	    "Last watched",
 	    title.lastViewed.isValid() ? title.lastViewed.toString("MMMM d, yyyy") : ""
 	);
-	lastWatchedValueLabel = lastWatchedRow->findChildren<QLabel *>().at(1);
+	lastWatchedRow = lastWatched.widget;
+	lastWatchedValueLabel = lastWatched.valueLabel;
 	lastWatchedRow->setVisible(title.lastViewed.isValid());
 	layout->addWidget(lastWatchedRow);
 }
@@ -506,7 +507,7 @@ QFrame *TitleDetailView::makeSeparator()
 	return sep;
 }
 
-QWidget *TitleDetailView::makeRow(const QString &label, const QString &value)
+TitleDetailView::Row TitleDetailView::makeRow(const QString &label, const QString &value)
 {
 	auto *row = new QWidget;
 	row->setStyleSheet("background: transparent;");
@@ -531,5 +532,5 @@ QWidget *TitleDetailView::makeRow(const QString &label, const QString &value)
 
 	layout->addWidget(lbl, 0, Qt::AlignTop);
 	layout->addWidget(val, 1, Qt::AlignTop);
-	return row;
+	return {row, val};
 }

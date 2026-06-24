@@ -3,6 +3,7 @@
 #include "Spinner.hpp"
 
 #include <QPainter>
+#include <QShowEvent>
 
 Spinner::Spinner(QString color, int speed, QWidget *parent)
     : QWidget(parent), color(color)
@@ -20,8 +21,17 @@ Spinner::Spinner(QString color, int speed, QWidget *parent)
 	    [this, progressPerFrame]() { onTick(progressPerFrame); }
 	);
 
-	timer.start(16);
 	setMinimumSize(24, 24);
+}
+
+void Spinner::showEvent(QShowEvent *)
+{
+	timer.start(16);
+}
+
+void Spinner::hideEvent(QHideEvent *)
+{
+	timer.stop();
 }
 
 void Spinner::prepareNextMove()

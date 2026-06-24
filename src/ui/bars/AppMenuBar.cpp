@@ -75,6 +75,14 @@ void AppMenuBar::onImportLibraryTriggered()
 		return;
 	}
 
+	ValidationResult result = ImportedFileValidator::validate(zipPath);
+
+	if(!result.valid)
+	{
+		QMessageBox::warning(parentWidget(), "Invalid file", result.error);
+		return;
+	}
+
 	QMessageBox confirm(parentWidget());
 	confirm.setWindowTitle("Import Library");
 	confirm.setText("This will overwrite your current library.");
@@ -86,14 +94,6 @@ void AppMenuBar::onImportLibraryTriggered()
 
 	if(confirm.exec() != QMessageBox::Ok)
 	{
-		return;
-	}
-
-	ValidationResult result = ImportedFileValidator::validate(zipPath);
-
-	if(!result.valid)
-	{
-		QMessageBox::warning(parentWidget(), "Invalid file", result.error);
 		return;
 	}
 

@@ -14,6 +14,8 @@ class Spinner : public QWidget
 
   protected:
 	void paintEvent(QPaintEvent *) override;
+	void showEvent(QShowEvent *) override;
+	void hideEvent(QHideEvent *) override;
 
   private:
 	QTimer  timer;

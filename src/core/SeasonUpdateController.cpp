@@ -44,6 +44,9 @@ void SeasonUpdateController::checkConnectivityAndRetry()
 
 void SeasonUpdateController::start()
 {
+	if(running)
+		return;
+
 	auto *queue = new SeasonUpdate(appStorage, this);
 
 	if(queue->isEmpty())
@@ -53,6 +56,7 @@ void SeasonUpdateController::start()
 		return;
 	}
 
+	running = true;
 	QTimer::singleShot(0, this, [this, queue]() { runAttempt(queue); });
 }
 
@@ -124,6 +128,7 @@ void SeasonUpdateController::runAttempt(SeasonUpdate *queue)
 	loop.exec();
 
 	queue->deleteLater();
+	running = false;
 	emit updateFinished();
 	handleAttemptResult(errorMessage, isNetworkError);
 }

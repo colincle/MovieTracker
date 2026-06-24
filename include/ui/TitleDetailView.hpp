@@ -67,6 +67,11 @@ class TitleDetailView : public QWidget
 	void onUploadPosterClicked();
 	void onUnrankClicked();
 
-	static QWidget *makeRow(const QString &label, const QString &value);
-	static QFrame  *makeSeparator();
+	struct Row
+	{
+		QWidget *widget;
+		QLabel  *valueLabel;
+	};
+	static Row     makeRow(const QString &label, const QString &value);
+	static QFrame *makeSeparator();
 };

@@ -1,4 +1,5 @@
-// Secondary bar inside the library view with filter tabs, inline search, and zoom controls.
+// Secondary bar inside the library view with filter tabs, inline search, and zoom
+// controls.
 #pragma once
 
 #include "IconButton.hpp"

@@ -113,7 +113,8 @@ void AppStorage::load()
 	windowSize.height = root["windowHeight"].toInt(800);
 	omdbApiKey = root["omdbApiKey"].toString();
 	theme = root["theme"].toString("dark");
-	// "accentColor" was the pre-split field; fall back to it when per-theme keys are absent.
+	// "accentColor" was the pre-split field; fall back to it when per-theme keys are
+	// absent.
 	const QString legacyAccent = root["accentColor"].toString(Palette::defaultAccent);
 	darkAccentColor = root["darkAccentColor"].toString(legacyAccent);
 	lightAccentColor = root["lightAccentColor"].toString(legacyAccent);
