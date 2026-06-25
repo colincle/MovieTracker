@@ -12,9 +12,25 @@
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QPixmap>
+#include <QRegularExpression>
 #include <QUrl>
 #include <QUrlQuery>
 #include <utility>
+
+namespace
+{
+// Pulls an IMDb ID ("tt" + digits) out of a raw query — handles a bare ID or a
+// pasted IMDb URL. Returns empty if the query carries no ID.
+QString extractImdbId(const QString &query)
+{
+	static const QRegularExpression re(
+	    "tt\\d+",
+	    QRegularExpression::CaseInsensitiveOption
+	);
+	const auto match = re.match(query);
+	return match.hasMatch() ? match.captured(0).toLower() : QString();
+}
+} // namespace
 
 QUrl OmdbSearch::makeUrl(
     const QString &apiKey, const QString &param, const QString &value
@@ -42,9 +58,8 @@ bool OmdbSearch::isRateLimitError(const QString &message)
 OmdbSearch::OmdbSearch(
     AppStorage &appStorage, QString query, QString key, QObject *parent
 )
-    : QObject(parent), appStorage(appStorage), apiKey(key)
+    : QObject(parent), appStorage(appStorage), searchQuery(query), apiKey(key)
 {
-	requestUrl = makeUrl(apiKey, "s", query).toString();
 }
 
 OmdbSearch::OmdbSearch(AppStorage &appStorage, QString key, QObject *parent)
@@ -57,9 +72,16 @@ const Results &OmdbSearch::getResults() const
 	return searchResults;
 }
 
-void OmdbSearch::search()
+void OmdbSearch::search(int page)
 {
-	QNetworkReply *reply = networkManager.get(QNetworkRequest(QUrl(requestUrl)));
+	QUrl      url("https://omdbapi.com/");
+	QUrlQuery query;
+	query.addQueryItem("apikey", apiKey);
+	query.addQueryItem("s", searchQuery);
+	query.addQueryItem("page", QString::number(page));
+	url.setQuery(query);
+
+	QNetworkReply *reply = networkManager.get(QNetworkRequest(url));
 	connect(
 	    reply,
 	    &QNetworkReply::finished,
@@ -270,6 +292,7 @@ void OmdbSearch::onReplyFinished(QNetworkReply *reply)
 	searchResults.error.clear();
 	searchResults.errorType = SearchErrorType::None;
 	searchResults.titles.clear();
+	searchResults.totalResults = 0;
 
 	const QByteArray  raw = reply->readAll();
 	const bool        err = reply->error() != QNetworkReply::NoError;
@@ -277,6 +300,16 @@ void OmdbSearch::onReplyFinished(QNetworkReply *reply)
 
 	if(root["Response"].toString() == "False")
 	{
+		// The title-search endpoint can't resolve an IMDb ID — it answers "Too many
+		// results" or "Movie not found". If the query carries an ID, retry as a
+		// direct ID lookup before giving up.
+		const QString imdbId = extractImdbId(searchQuery);
+		if(!imdbId.isEmpty())
+		{
+			reply->deleteLater();
+			searchById(imdbId);
+			return;
+		}
 		classifyResponseError(root, searchResults);
 		reply->deleteLater();
 		emit searchFinished();
@@ -292,6 +325,8 @@ void OmdbSearch::onReplyFinished(QNetworkReply *reply)
 	}
 
 	reply->deleteLater();
+
+	searchResults.totalResults = root["totalResults"].toString().toInt();
 
 	for(const QJsonValue &value : root["Search"].toArray())
 	{
@@ -315,6 +350,61 @@ void OmdbSearch::onReplyFinished(QNetworkReply *reply)
 	{
 		loadDetailsForTitle(i, searchResults.titles[i].imdbId);
 	}
+}
+
+void OmdbSearch::searchById(const QString &imdbId)
+{
+	QNetworkReply *reply =
+	    networkManager.get(QNetworkRequest(makeUrl(apiKey, "i", imdbId)));
+	connect(
+	    reply,
+	    &QNetworkReply::finished,
+	    this,
+	    [this, reply]() { onSearchByIdFinished(reply); }
+	);
+}
+
+void OmdbSearch::onSearchByIdFinished(QNetworkReply *reply)
+{
+	const bool        err = reply->error() != QNetworkReply::NoError;
+	const QJsonObject root = QJsonDocument::fromJson(reply->readAll()).object();
+
+	if(root["Response"].toString() == "False")
+	{
+		classifyResponseError(root, searchResults);
+		reply->deleteLater();
+		emit searchFinished();
+		return;
+	}
+
+	if(err)
+	{
+		classifyReplyError(reply, searchResults);
+		reply->deleteLater();
+		emit searchFinished();
+		return;
+	}
+
+	reply->deleteLater();
+
+	const QString type = root["Type"].toString();
+	if(type != "movie" && type != "series")
+	{
+		searchResults.errorType = SearchErrorType::NotFound;
+		emit searchFinished();
+		return;
+	}
+
+	ResultTitle t;
+	t.title = root["Title"].toString();
+	t.imdbId = root["imdbID"].toString();
+	t.type = type;
+	t.plot = root["Plot"].toString();
+	searchResults.titles.push_back(std::move(t));
+	searchResults.totalResults = 1;
+
+	pendingPosters = 1;
+	loadPosterForTitle(0, root["Poster"].toString());
 }
 
 bool OmdbSearch::fetchSeasonJson(

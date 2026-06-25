@@ -6,6 +6,7 @@
 #include "IconButton.hpp"
 #include "OmdbSearch.hpp"
 #include "Spinner.hpp"
+#include "TextButton.hpp"
 
 #include <vector>
 #include <QGridLayout>
@@ -32,7 +33,10 @@ class SearchResults : public QWidget
 
   private:
 	void setupLayout();
-	void onSearchFinished(OmdbSearch *omdbSearch);
+	void fetchPage(int page);
+	void onPageFinished(OmdbSearch *omdbSearch, int page);
+	void loadMore();
+	bool hasMorePages() const;
 	void onAddClicked(const ResultTitle &title, IconButton *addButton, QWidget *row);
 	void restoreRowButton(
 	    QWidget *row, Spinner *rowSpinner, IconButton *oldAddButton,
@@ -42,7 +46,7 @@ class SearchResults : public QWidget
 	QWidget    *makeTitleInfo(const ResultTitle &title);
 	IconButton *makeDoneButton(const ResultTitle &title, QWidget *row);
 	IconButton *makeAddButton(const ResultTitle &title, QWidget *row);
-	void        setFullPageState(const QString &imagePath);
+	void        showNoResultsMessage();
 	void        clearResultsLayout();
 	void        clearExtraLayoutWidgets();
 
@@ -52,7 +56,12 @@ class SearchResults : public QWidget
 	QWidget     *resultsContainer;
 	QGridLayout *resultsLayout;
 	QScrollArea *scrollArea;
+	TextButton  *loadMoreButton = nullptr;
 	OmdbSearch  *currentSearch = nullptr;
+
+	QString currentQuery;
+	int     currentPage = 1;
+	int     totalResults = 0;
 
 	std::vector<ResultTitle> lastResults;
 	void                     rebuildResults();

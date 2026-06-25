@@ -39,6 +39,7 @@ struct Results
 	SearchErrorType          errorType = SearchErrorType::None;
 	QString                  error;
 	std::vector<ResultTitle> titles;
+	int                      totalResults = 0;
 };
 
 class OmdbSearch : public QObject
@@ -51,7 +52,7 @@ class OmdbSearch : public QObject
 	);
 	OmdbSearch(AppStorage &appStorage, QString apiKey, QObject *parent = nullptr);
 
-	void search();
+	void search(int page = 1);
 	void
 	fetchById(const QString &imdbId, const QPixmap &posterImage, bool posterNotFound);
 	const Results &getResults() const;
@@ -81,7 +82,7 @@ class OmdbSearch : public QObject
 
 	Results searchResults;
 
-	QString requestUrl;
+	QString searchQuery;
 	QString apiKey;
 
 	QNetworkAccessManager networkManager;
@@ -99,5 +100,7 @@ class OmdbSearch : public QObject
 	);
 	void onPosterFinished(QNetworkReply *reply, int i);
 	void onReplyFinished(QNetworkReply *reply);
+	void searchById(const QString &imdbId);
+	void onSearchByIdFinished(QNetworkReply *reply);
 	void checkSearchComplete();
 };

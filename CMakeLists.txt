@@ -66,7 +66,7 @@ target_include_directories(ReWatch PRIVATE
 target_link_libraries(ReWatch ${QT_LIBS})
 
 if(SHIPPED)
-    target_compile_definitions(ReWatch PRIVATE SHIPPED)
+    target_compile_definitions(ReWatchLib PRIVATE SHIPPED)
 endif()
 
 # EXCLUDE_FROM_ALL: tests are never built by the default "all" target (i.e. a plain

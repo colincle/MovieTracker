@@ -44,6 +44,7 @@ SearchResults::SearchResults(AppStorage &storage, QWidget *parent)
 void SearchResults::refreshStyle()
 {
 	setStyleSheet(QStringLiteral("background-color: %1;").arg(Palette::bgPrimary));
+	spinner->setColor(Palette::accent);
 	if(!lastResults.empty())
 		rebuildResults();
 }
@@ -90,12 +91,22 @@ void SearchResults::resizeEvent(QResizeEvent *event)
 
 void SearchResults::search(QString query)
 {
+	currentQuery = query;
+	currentPage = 1;
+	totalResults = 0;
+	lastResults.clear();
+
 	spinner->show();
 	scrollArea->hide();
 	clearExtraLayoutWidgets();
 	scrollArea->verticalScrollBar()->setValue(0);
 	clearResultsLayout();
 
+	fetchPage(1);
+}
+
+void SearchResults::fetchPage(int page)
+{
 	if(currentSearch)
 	{
 		disconnect(currentSearch, nullptr, this, nullptr);
@@ -103,14 +114,15 @@ void SearchResults::search(QString query)
 		currentSearch = nullptr;
 	}
 
-	auto *omdbSearch = new OmdbSearch(appStorage, query, appStorage.getKey(), this);
+	auto *omdbSearch =
+	    new OmdbSearch(appStorage, currentQuery, appStorage.getKey(), this);
 	currentSearch = omdbSearch;
 
 	connect(
 	    omdbSearch,
 	    &OmdbSearch::searchFinished,
 	    this,
-	    [this, omdbSearch]()
+	    [this, omdbSearch, page]()
 	    {
 		    if(omdbSearch != currentSearch)
 		    {
@@ -120,11 +132,27 @@ void SearchResults::search(QString query)
 
 		    currentSearch = nullptr;
 		    spinner->hide();
-		    onSearchFinished(omdbSearch);
+		    onPageFinished(omdbSearch, page);
 	    }
 	);
 
-	omdbSearch->search();
+	omdbSearch->search(page);
+}
+
+void SearchResults::loadMore()
+{
+	if(loadMoreButton)
+	{
+		loadMoreButton->setText("Loading…");
+		loadMoreButton->setEnabled(false);
+	}
+	fetchPage(currentPage + 1);
+}
+
+bool SearchResults::hasMorePages() const
+{
+	// OMDb caps the search endpoint at 100 pages of 10 results each.
+	return currentPage < 100 && static_cast<int>(lastResults.size()) < totalResults;
 }
 
 static QString searchErrorMessage(SearchErrorType type)
@@ -140,17 +168,25 @@ static QString searchErrorMessage(SearchErrorType type)
 	}
 }
 
-void SearchResults::onSearchFinished(OmdbSearch *omdbSearch)
+void SearchResults::onPageFinished(OmdbSearch *omdbSearch, int page)
 {
 	const Results &r = omdbSearch->getResults();
+	const bool     isFirstPage = page == 1;
 
 	if(r.errorType == SearchErrorType::AuthInvalid ||
 	   r.errorType == SearchErrorType::Network ||
 	   r.errorType == SearchErrorType::RateLimited)
 	{
-		clearResultsLayout();
-		scrollArea->hide();
-		clearExtraLayoutWidgets();
+		if(isFirstPage)
+		{
+			clearResultsLayout();
+			scrollArea->hide();
+			clearExtraLayoutWidgets();
+		}
+		else
+		{
+			rebuildResults(); // restore the load-more button so the user can retry
+		}
 		emit searchError(searchErrorMessage(r.errorType));
 		omdbSearch->deleteLater();
 		return;
@@ -158,12 +194,21 @@ void SearchResults::onSearchFinished(OmdbSearch *omdbSearch)
 
 	if(r.errorType == SearchErrorType::NotFound)
 	{
-		setFullPageState(AssetsPaths::noMoviesFound);
+		if(isFirstPage)
+			showNoResultsMessage();
+		else
+		{
+			// No further pages — stop offering "load more".
+			totalResults = static_cast<int>(lastResults.size());
+			rebuildResults();
+		}
 		omdbSearch->deleteLater();
 		return;
 	}
 
-	lastResults = r.titles;
+	totalResults = r.totalResults;
+	currentPage = page;
+	lastResults.insert(lastResults.end(), r.titles.begin(), r.titles.end());
 	rebuildResults();
 	omdbSearch->deleteLater();
 }
@@ -375,6 +420,21 @@ void SearchResults::rebuildResults()
 		}
 	}
 
+	if(hasMorePages())
+	{
+		loadMoreButton = new TextButton(
+		    "Load more results",
+		    40,
+		    Palette::accent,
+		    Palette::bgPrimary,
+		    resultsContainer
+		);
+		connect(loadMoreButton, &QPushButton::clicked, this, &SearchResults::loadMore);
+
+		const int buttonRow = (col == 0) ? row : row + 1;
+		resultsLayout->addWidget(loadMoreButton, buttonRow, 0, 1, 2, Qt::AlignCenter);
+	}
+
 	scrollArea->show();
 
 	QTimer::singleShot(
@@ -388,24 +448,38 @@ void SearchResults::rebuildResults()
 	);
 }
 
-void SearchResults::setFullPageState(const QString &imagePath)
+void SearchResults::showNoResultsMessage()
 {
 	clearResultsLayout();
 	scrollArea->hide();
 	clearExtraLayoutWidgets();
 
 	auto *label = new QLabel(this);
-	label->setPixmap(QPixmap(imagePath));
+	label->setTextFormat(Qt::RichText);
+	label->setText(
+	    QStringLiteral(
+	        "<div align='center'>"
+	        "<p style='color:%1; font-size:24px; font-weight:bold;'>No movies found</p>"
+	        "<p style='color:%2; font-size:14px;'>"
+	        "Try again with an IMDb ID instead.<br>"
+	        "Find it in the title's IMDb page URL — for example, in<br>"
+	        "<span style='color:%3;'>imdb.com/title/tt0816692</span>, "
+	        "the ID is <span style='color:%3;'>tt0816692</span>."
+	        "</p></div>"
+	    )
+	        .arg(Palette::textPrimary, Palette::textSecondary, Palette::accent)
+	);
 	label->setAlignment(Qt::AlignCenter);
+	label->setWordWrap(true);
 	label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	label->setMinimumSize(1, 1);
-	label->setScaledContents(false);
 
 	m_layout->addWidget(label, 1);
 }
 
 void SearchResults::clearResultsLayout()
 {
+	loadMoreButton = nullptr; // lives in this layout; invalidated by the teardown below
+
 	while(QLayoutItem *item = resultsLayout->takeAt(0))
 	{
 		if(item->widget())

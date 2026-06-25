@@ -29,7 +29,6 @@ inline constexpr const char *copyIcon = ASSETS_ROOT_ "/icons/copy.svg";
 
 inline constexpr const char *posterPlaceholder =
     ASSETS_ROOT_ "/images/placeholderPoster.png";
-inline constexpr const char *noMoviesFound = ASSETS_ROOT_ "/images/noMoviesFound.png";
 
 inline constexpr const char *notificationSound = ASSETS_ROOT_ "/sounds/notification.wav";
 
