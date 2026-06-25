@@ -19,13 +19,18 @@ file(GLOB_RECURSE ALL_SOURCES
 # Separate main.cpp so the object library doesn't define main()
 list(FILTER ALL_SOURCES EXCLUDE REGEX ".*/main\\.cpp$")
 
-file(GLOB_RECURSE INCLUDE_DIRS LIST_DIRECTORIES true include/*)
-list(APPEND INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include)
+# Keep only directories — the glob also returns header files, which would be
+# passed as bogus -I paths (clang ignores them silently, gcc warns).
+file(GLOB_RECURSE INCLUDE_ENTRIES LIST_DIRECTORIES true include/*)
+set(INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include)
+foreach(ENTRY ${INCLUDE_ENTRIES})
+    if(IS_DIRECTORY ${ENTRY})
+        list(APPEND INCLUDE_DIRS ${ENTRY})
+    endif()
+endforeach()
 
 foreach(DIR ${INCLUDE_DIRS})
-    if(IS_DIRECTORY ${DIR})
-        include_directories(${DIR})
-    endif()
+    include_directories(${DIR})
 endforeach()
 
 # Third-party headers live under external/ (each library in its own folder)

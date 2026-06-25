@@ -9,7 +9,7 @@ A desktop app to track your movies and TV shows. Built with C++ and Qt6.
 ## Features
 
 - **Library** — Browse your movies and TV shows in a poster grid, sortable by title, release date, last viewed, or rank. Zoom the card size in or out to your preference — it's remembered across sessions.
-- **Search & add** — Search the OMDb database by title and add results to your library in one click. Results show the title and plot, and are limited to movies and TV shows.
+- **Search & add** — Search the OMDb database by title and add results to your library in one click. Results show the title and plot, and are limited to movies and TV shows. Long result lists load in pages via a *Load more results* button. You can also paste an IMDb ID — or a full IMDb URL — to jump straight to a specific title when a title search is too broad or finds nothing.
 - **Title detail view** — Click any title to open a full detail page: poster, metadata, scrollable plot, and a Watch on section with your configured streaming platform buttons.
 - **Watched tracking** — Mark titles as watched or unwatched. Filter the library to show only titles left to watch.
 - **Missing poster recovery** — If OMDb has no poster for a title, the library card shows an upload button so you can pick a local image to use instead.
@@ -51,6 +51,16 @@ To produce a standalone `.app` with Qt dependencies bundled in, use the provided
 
 This builds the binary, creates the `.app` structure, generates the icon, copies assets, runs `macdeployqt`, and cleans up the build directory. The result is a `ReWatch.app` ready to run.
 
+### Bundle (Linux AppImage)
+
+To produce a portable `.AppImage` with Qt bundled in, use the Linux script. It needs `qmake` for Qt6 in your PATH; `linuxdeploy` and its Qt plugin are downloaded automatically on first run and cached.
+
+```bash
+./scripts/bundle-linux.sh "ReWatch"
+```
+
+This builds the binary, assembles an AppDir, generates a desktop entry and icon, embeds Qt with `linuxdeploy`, and produces `ReWatch.AppImage` in the project root.
+
 ---
 
 ## Setup
@@ -61,23 +71,18 @@ On first launch, open **Settings** from the menu bar and enter your OMDb API key
 
 ## Data storage
 
-The app stores your library at:
+The app keeps everything in a single per-user data directory:
 
-```
-~/Library/Application Support/ReWatch/ReWatch.json
-```
+- **macOS** — `~/Library/Application Support/ReWatch/`
+- **Linux** — `~/.local/share/ReWatch/`
 
-Poster images are saved alongside it in:
+Inside it:
 
-```
-~/Library/Application Support/ReWatch/Posters/
-```
+- `ReWatch.json` — your library (titles, watched state, ranks, and the API key)
+- `Posters/` — poster images
+- `PlatformImages/` — streaming platform logos
 
-Streaming platform logos are saved in:
-
-```
-~/Library/Application Support/ReWatch/PlatformImages/
-```
+Export / Import bundles this whole directory into a zip, so a backup made on one platform restores cleanly on the other.
 
 ---
 

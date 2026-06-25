@@ -16,6 +16,7 @@ static constexpr int ERROR_CARD_MARGIN = 5;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+	setWindowTitle("ReWatch");
 	setMinimumSize(800, 600);
 	resize(appStorage.getWindowSize().width, appStorage.getWindowSize().height);
 	setupShortcuts();
