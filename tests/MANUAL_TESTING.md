@@ -19,19 +19,19 @@ Work top to bottom. Run it before tagging a release.
 
 ## 1. First launch & window
 
-- [x] **1.1** Launch the app — main window opens at the last-saved size (1200×800 first run); library shown on the Movies tab
-- [x] **1.2** Resize the window — card grid reflows to fit the new width after a brief pause; columns/spacing recompute, no overlap
-- [x] **1.3** Resize, close, relaunch — window reopens at the size it was closed at
-- [x] **1.4** Press Ctrl+W (Cmd+W on macOS) — app quits
+- [ ] **1.1** Launch the app — main window opens at the last-saved size (1200×800 first run); library shown on the Movies tab
+- [ ] **1.2** Resize the window — card grid reflows to fit the new width after a brief pause; columns/spacing recompute, no overlap
+- [ ] **1.3** Resize, close, relaunch — window reopens at the size it was closed at
+- [ ] **1.4** Press Ctrl+W (Cmd+W on macOS) — app quits
 
 ## 2. Open Settings & set your API key
 
-- [x] **2.1** ReWatch > Settings — Settings dialog opens (modal)
-- [x] **2.2** Click each tab (Appearance / API Key / Platforms / Rankings) — the matching section is shown
-- [x] **2.3** API Key field — pre-filled with the saved key (empty on first run)
-- [x] **2.4** API Key > empty / whitespace key — Add Key stays disabled; nothing saved
-- [x] **2.5** API Key > type your key, click Add Key — button shows "Adding…", disables, then re-enables; key is saved
-- [x] **2.6** API Key > Daily title update limit — spinner is present with default 900; change it to another value, close and reopen Settings — the saved value is shown
+- [ ] **2.1** ReWatch > Settings — Settings dialog opens (modal)
+- [ ] **2.2** Click each tab (Appearance / API Key / Platforms / Rankings) — the matching section is shown
+- [ ] **2.3** API Key field — pre-filled with the saved key (empty on first run)
+- [ ] **2.4** API Key > empty / whitespace key — Add Key stays disabled; nothing saved
+- [ ] **2.5** API Key > type your key, click Add Key — button shows "Adding…", disables, then re-enables; key is saved
+- [ ] **2.6** API Key > Daily title update limit — spinner is present with default 900; change it to another value, close and reopen Settings — the saved value is shown
 
 ## 3. Add titles (search & add)
 
