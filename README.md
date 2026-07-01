@@ -125,3 +125,9 @@ This project is hand-designed: the architecture, the Qt widget structure, and th
 - **Sounding board** — discussing tradeoffs before deciding what to build.
 - **Test suite** — the automated Qt Test suite under `tests/` and the manual test plan were written by AI, working from the existing source.
 
+---
+
+## License
+
+Released under the [MIT License](LICENSE).
+
