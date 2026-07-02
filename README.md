@@ -24,6 +24,7 @@ A desktop app to track your movies and TV shows. Built with C++ and Qt6.
 
 ## Requirements
 
+- Runs on macOS and Linux (build and bundle scripts provided for both).
 - Qt 6.x (Core, Gui, Widgets, Network, Concurrent, Svg, Multimedia)
 - CMake 3.16+
 - C++20 compiler (clang or gcc)
